@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student REST API Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #students-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #students-table th, #students-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+        #students-table th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Management</h1>
+
+    <!-- Error message container -->
+    <div id="error-container"></div>
+
+    <!-- Section to fetch and display students -->
+    <section>
+        <h2>Student List</h2>
+        <button onclick="getStudents()">Fetch Students</button>
+        limit<input type="number" id="limit" value="20"/>
+        offset<input type="number" id="offset" value="0"/>
+        <table id="students-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <!-- Section for adding new student -->
+    <section>
+        <h2>Add New Student</h2>
+        <form id="add-student-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required>
+            <button type="submit">Add Student</button>
+        </form>
+    </section>
+
+    <!-- Section for editing student -->
+    <section>
+        <h2>Edit Student</h2>
+        <form id="edit-student-form">
+            <label for="edit-id">ID:</label>
+            <input type="number" id="edit-id" name="edit-id" required>
+            <label for="edit-name">Name:</label>
+            <input type="text" id="edit-name" name="edit-name" required>
+            <label for="edit-phone">Phone:</label>
+            <input type="text" id="edit-phone" name="edit-phone" required>
+            <button type="submit">Edit Student</button>
+        </form>
+    </section>
+
+    <!-- Section for deleting student -->
+    <section>
+        <h2>Delete Student</h2>
+        <form id="delete-student-form">
+            <label for="delete-id">ID:</label>
+            <input type="number" id="delete-id" name="delete-id" required>
+            <button type="submit">Delete Student</button>
+        </form>
+    </section>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

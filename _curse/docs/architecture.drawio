@@ -1,0 +1,172 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" version="24.7.16">
+  <diagram name="Page-1" id="ECUC66QCHJgBqxlixaPf">
+    <mxGraphModel dx="726" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-43" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="104" y="420" width="700" height="433" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-10" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="595" y="523" width="190" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-9" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="355" y="472" width="190" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-6" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="115" y="710" width="190" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-5" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="115" y="472" width="190" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-22" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="850" y="475" width="160" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-23" value="Vue 3.4" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;fontFamily=Times New Roman;spacingTop=11;" parent="1" vertex="1">
+          <mxGeometry x="875" y="555" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-24" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Client Vivaldi 6.9&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="865" y="495" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-25" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="125" y="542" width="160" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-26" value="PostgreSQL 15" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;fontFamily=Times New Roman;spacingTop=11;" parent="1" vertex="1">
+          <mxGeometry x="142.5" y="622" width="115" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-27" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Database Server&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="140" y="562" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-28" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="605" y="573" width="160" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-29" value="nginx 1.27" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;fontFamily=Times New Roman;spacingTop=11;" parent="1" vertex="1">
+          <mxGeometry x="630" y="653" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-30" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Web Server&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="620" y="593" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-34" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="366" y="541" width="160" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-35" value="fastapi 0.111.0" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;fontFamily=Times New Roman;spacingTop=11;" parent="1" vertex="1">
+          <mxGeometry x="391" y="621" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-36" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Application Server&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="381" y="561" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-40" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="850" y="643" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-42" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;GPT provider&amp;nbsp;&lt;/div&gt;&lt;div&gt;g4f 0.3.2.8&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="865" y="663" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-44" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Docker 27.2.1&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="137.5" y="487" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-46" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="130" y="760" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-45" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 12px;&quot; face=&quot;TATKIw89jByi1dCgMb_N&quot;&gt;Kafka&amp;nbsp;&lt;span style=&quot;letter-spacing: 0.273px; text-align: start; white-space-collapse: break-spaces;&quot;&gt;2.13-2.8.1&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" parent="1" vertex="1">
+          <mxGeometry x="145" y="780" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=145;exitDy=190;exitPerimeter=0;entryX=0;entryY=0;entryDx=110;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="FNfErf56BURAxAOAnGEf-10" target="FNfErf56BURAxAOAnGEf-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-16" value="HTTP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TpZDVDv9xe1A2jSQaFGP-50">
+          <mxGeometry x="-0.3561" y="2" relative="1" as="geometry">
+            <mxPoint y="-24" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=110;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=120;entryDy=190;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="FNfErf56BURAxAOAnGEf-5" target="FNfErf56BURAxAOAnGEf-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="670" as="sourcePoint" />
+            <mxPoint x="390" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-13" value="TCP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TpZDVDv9xe1A2jSQaFGP-53">
+          <mxGeometry x="-0.431" y="-1" relative="1" as="geometry">
+            <mxPoint x="8" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-54" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=60;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=230;entryDy=100;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="FNfErf56BURAxAOAnGEf-6" target="FNfErf56BURAxAOAnGEf-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="697" as="sourcePoint" />
+            <mxPoint x="390" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-15" value="TCP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TpZDVDv9xe1A2jSQaFGP-54">
+          <mxGeometry x="-0.2712" relative="1" as="geometry">
+            <mxPoint x="44" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.38;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=80;entryDy=160;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="TpZDVDv9xe1A2jSQaFGP-43" target="TpZDVDv9xe1A2jSQaFGP-22" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="652" as="sourcePoint" />
+            <mxPoint x="550" y="500" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="830" y="585" />
+              <mxPoint x="830" y="555" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-17" value="HTTP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TpZDVDv9xe1A2jSQaFGP-55">
+          <mxGeometry x="-0.3628" relative="1" as="geometry">
+            <mxPoint y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TpZDVDv9xe1A2jSQaFGP-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0;entryDx=40;entryDy=160;entryPerimeter=0;startArrow=classic;startFill=1;exitX=0;exitY=0;exitDx=211.5;exitDy=0;exitPerimeter=0;" parent="1" source="TpZDVDv9xe1A2jSQaFGP-43" target="TpZDVDv9xe1A2jSQaFGP-40" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="860" y="680" as="sourcePoint" />
+            <mxPoint x="860" y="565" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="830" y="631" />
+              <mxPoint x="830" y="683" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-18" value="HTTP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TpZDVDv9xe1A2jSQaFGP-56">
+          <mxGeometry x="-0.3271" relative="1" as="geometry">
+            <mxPoint y="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-1" value="" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="850" y="743" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-2" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Mailing service&lt;/div&gt;&lt;div&gt;Unisender&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="865" y="763" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.812;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0;entryDx=40;entryDy=160;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="TpZDVDv9xe1A2jSQaFGP-43" target="FNfErf56BURAxAOAnGEf-1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="687" as="sourcePoint" />
+            <mxPoint x="860" y="750" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="830" y="772" />
+              <mxPoint x="830" y="783" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-19" value="HTTP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="FNfErf56BURAxAOAnGEf-3">
+          <mxGeometry x="-0.3734" relative="1" as="geometry">
+            <mxPoint x="8" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-4" value="Vue bundle" style="shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;fontFamily=Times New Roman;spacingTop=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="713" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-7" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Docker 27.2.1&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="142.5" y="720" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-8" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Docker 27.2.1&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="377.5" y="487" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-11" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Docker 27.2.1&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="625" y="533" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FNfErf56BURAxAOAnGEf-12" value="&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;div&gt;Docker Compose 2.29.2&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="390" y="430" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

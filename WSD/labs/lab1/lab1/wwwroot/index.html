@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Demo</title>
+    <script>
+        const controllerName = 'Stack';
+        async function getResult() {
+            const response = await fetch(`/api/${controllerName}`);
+            const data = await response.json();
+            document.getElementById('result').textContent = `Result: ${data.result}`;
+        }
+
+        async function getStack() {
+            const response = await fetch(`/api/${controllerName}/stack`);
+            const data = await response.json();
+            document.getElementById('result').textContent = `Stack: ${data.result}`;
+        }
+
+        async function postResult() {
+            const resultValue = document.getElementById('postResultValue').value;
+            await fetch(`/api/${controllerName}?RESULT=${resultValue}`, { method: 'POST' });
+            getResult();
+        }
+
+        async function putResult() {
+            const addValue = document.getElementById('putValue').value;
+            await fetch(`/api/${controllerName}?ADD=${addValue}`, { method: 'PUT' });
+            getResult();
+        }
+
+        async function deleteResult() {
+            await fetch(`/api/${controllerName}`, { method: 'DELETE' });
+            getResult();
+        }
+    </script>
+</head>
+<body>
+    <h1>API Demo</h1>
+
+    <div>
+        <h2>Current Result:</h2>
+        <p id="result">Result: 0</p>
+        <button onclick="getResult()">Refresh Result</button>
+    </div>
+
+    <div>
+        <h2>Stack:</h2>
+        <button onclick="getStack()">Refresh stack</button>
+    </div>
+
+    <div>
+        <h2>Set Result</h2>
+        <input id="postResultValue" type="number" />
+        <button onclick="postResult()">Set Result</button>
+    </div>
+
+    <div>
+        <h2>Add to stack</h2>
+        <input id="putValue" type="number" />
+        <button onclick="putResult()">Add to stack</button>
+    </div>
+
+    <div>
+        <h2>Remove from stack</h2>
+        <button onclick="deleteResult()">Remove from stack</button>
+    </div>
+</body>
+</html>

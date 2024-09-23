@@ -1,0 +1,198 @@
+{
+  "main": {
+    "id": "3800420982aa996a",
+    "type": "split",
+    "children": [
+      {
+        "id": "e90c0548a8561173",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cbcba4384792f8b4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "labs.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "33f7d6f7401ea80b",
+    "type": "split",
+    "children": [
+      {
+        "id": "124f90ce79acf158",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b294d57be4cfb0d0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "5d8f77f63e83df43",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "54b3fd677aa715e4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "59216ad2f2f24914",
+    "type": "split",
+    "children": [
+      {
+        "id": "36c7481969b2fd4e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "897923fef647cdf5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "labs.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "71d1094828834f99",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "labs.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "1549ac9a49e64659",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "dbb990a8a59cfaba",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "labs.md"
+              }
+            }
+          },
+          {
+            "id": "6b577fdc4b05d45c",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false
+    }
+  },
+  "active": "cbcba4384792f8b4",
+  "lastOpenFiles": [
+    "Philosophy/2024-09-23.md",
+    "Philosophy/2024-09-16.md",
+    "Philosophy/2024-09-02.md",
+    "Philosophy/2024-09-09.md",
+    "WSD/2024-09-23.md",
+    "labs.md",
+    "_diploma/поправки в конституцию.md",
+    "_diploma/use-case.md",
+    "_diploma/extensions.md",
+    "ISD/2024-09-19.md",
+    "Устав проекта.md",
+    "ITPM/2024-09-12.md",
+    "IPM/2024-09-11.md",
+    "WSD/2024-09-16.md",
+    "WSD/2024-09-17.md",
+    "DCS/2024-09-17.md",
+    "DCS/2024-09-10.md",
+    "WSD/2024-09-10.md",
+    "IPMB/2024-09-14.md",
+    "BRBIT/2024-09-04.md",
+    "IPMB",
+    "Psychology/2024-09-11.md",
+    "ITPM",
+    "_diploma/2024-09-11.md",
+    "IPM",
+    "Psychology",
+    "WSD/2024-09-02.md",
+    "WSD/2024-09-09.md",
+    "DCS",
+    "_diploma",
+    "WSD",
+    "ISD",
+    "BRBIT/2024-09-04 пз.md",
+    "MAD/2024-09-03.md",
+    "BRBIT",
+    "MAD"
+  ]
+}

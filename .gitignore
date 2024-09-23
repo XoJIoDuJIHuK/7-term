@@ -1,0 +1,6 @@
+MAD/cmdline-tools
+MAD/flutter
+MAD/labs/**/build
+venv
+.venv
+WSD/labs/**/obj

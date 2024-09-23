@@ -1,0 +1,70 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\7-term\\WSD\\labs\\lab1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|d:\\7-term\\wsd\\labs\\lab1\\lab1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|solutionrelative:lab1\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|d:\\7-term\\wsd\\labs\\lab1\\lab1\\1\\stackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|solutionrelative:lab1\\1\\stackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|d:\\7-term\\wsd\\labs\\lab1\\lab1\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0F4F6715-395C-45B5-B7FF-EFF2BFF894CF}|lab1\\lab1.csproj|solutionrelative:lab1\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "StackController.cs",
+              "DocumentMoniker": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\1\\StackController.cs",
+              "RelativeDocumentMoniker": "lab1\\1\\StackController.cs",
+              "ToolTip": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\1\\StackController.cs",
+              "RelativeToolTip": "lab1\\1\\StackController.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAAAB4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-10T08:25:17.593Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "index.html",
+              "DocumentMoniker": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "lab1\\wwwroot\\index.html",
+              "ToolTip": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\wwwroot\\index.html",
+              "RelativeToolTip": "lab1\\wwwroot\\index.html",
+              "ViewState": "AgIAADUAAAAAAAAAAAAgwEYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2024-09-08T11:35:46.148Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\Program.cs",
+              "RelativeDocumentMoniker": "lab1\\Program.cs",
+              "ToolTip": "D:\\7-term\\WSD\\labs\\lab1\\lab1\\Program.cs",
+              "RelativeToolTip": "lab1\\Program.cs",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAAAFQAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-05T06:35:59.913Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\7-term\\WSD\\labs\\lab2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9E666266-78F9-4B17-877B-73051EAA7612}|lab2\\lab2.csproj|d:\\7-term\\wsd\\labs\\lab2\\lab2\\controllers\\stackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E666266-78F9-4B17-877B-73051EAA7612}|lab2\\lab2.csproj|solutionrelative:lab2\\controllers\\stackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E666266-78F9-4B17-877B-73051EAA7612}|lab2\\lab2.csproj|d:\\7-term\\wsd\\labs\\lab2\\lab2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E666266-78F9-4B17-877B-73051EAA7612}|lab2\\lab2.csproj|solutionrelative:lab2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\7-term\\WSD\\labs\\lab2\\lab2\\Program.cs",
+              "RelativeDocumentMoniker": "lab2\\Program.cs",
+              "ToolTip": "D:\\7-term\\WSD\\labs\\lab2\\lab2\\Program.cs",
+              "RelativeToolTip": "lab2\\Program.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T05:03:55.596Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "StackController.cs",
+              "DocumentMoniker": "D:\\7-term\\WSD\\labs\\lab2\\lab2\\Controllers\\StackController.cs",
+              "RelativeDocumentMoniker": "lab2\\Controllers\\StackController.cs",
+              "ToolTip": "D:\\7-term\\WSD\\labs\\lab2\\lab2\\Controllers\\StackController.cs",
+              "RelativeToolTip": "lab2\\Controllers\\StackController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAYwCYAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T05:01:57.74Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
