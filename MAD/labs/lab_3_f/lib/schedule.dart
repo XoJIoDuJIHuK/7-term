@@ -172,29 +172,44 @@ class SchedulePage extends StatelessWidget {
                   SizedBox(width: scale * 10),
                   Container(
                     decoration: BoxDecoration(
-                        color: Color(0xFFeeebff),
-                        borderRadius: BorderRadius.circular(scale * 3)
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 10,
+                          spreadRadius: 5,
+                        )
+                      ]
                     ),
-                    child: Image.asset(
-                      'assets/$iconName',
-                      width: scale * 10, // Adjust image size
-                      height: scale * 10,
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Color(0xFFeeebff),
+                              borderRadius: BorderRadius.circular(scale * 3)
+                          ),
+                          child: Image.asset(
+                            'assets/$iconName',
+                            width: scale * 10, // Adjust image size
+                            height: scale * 10,
+                          ),
+                        ),
+                        SizedBox(width: scale * 4),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              text,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                                time,
+                                style: TextStyle(color: Colors.grey, fontSize: scale * 3)
+                            )
+                          ],
+                        )
+                      ],
                     ),
-                  ),
-                  SizedBox(width: scale * 4),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        text,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                          time,
-                          style: TextStyle(color: Colors.grey, fontSize: scale * 3)
-                      )
-                    ],
                   )
                 ]
             ),

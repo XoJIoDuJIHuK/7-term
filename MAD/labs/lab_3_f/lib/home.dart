@@ -154,11 +154,11 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.access_time),
-            label: 'Prayer Times',
+            label: 'Schedule',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Quran',
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -237,7 +237,7 @@ class _HomeState extends State<Home> {
       widgets.removeAt(1);
     }
     return Container(
-      width: scale * 40, // Responsive width
+      width: scale * 40,
       height: scale * 35,
       padding: EdgeInsets.all(scale * 4),
       decoration: BoxDecoration(
