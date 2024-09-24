@@ -9,14 +9,30 @@ namespace lab3.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly StudentContext _context;
+        private readonly string baseURI;
+        private readonly string errorURI;
 
         public StudentsController(StudentContext context)
         {
             _context = context;
+            baseURI = "http://localhost:5242/api/Students/";
+            errorURI = "http://localhost:5242/api/Error/";
+        }
+
+        private IActionResult GetErrorResponse(int code, bool xml)
+        {
+            if (xml)
+            {
+                return BadRequest($"<ErrorURI>{errorURI}{code}</ErrorURI>");
+            }
+            else
+            {
+                return BadRequest(new { ErrorURI = $"{errorURI}{code}" });
+            }
         }
 
         // GET: api/students
-        [HttpGet]
+        [HttpGet(".{format}/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetStudents(
@@ -28,7 +44,7 @@ namespace lab3.Controllers
             [FromQuery] string? like,
             [FromQuery] string? globalike,
             [FromQuery] string? columns,
-            [FromQuery] bool xml = false
+            string format = "json"
         )
         {
             var query = _context.Students.AsQueryable();
@@ -67,15 +83,17 @@ namespace lab3.Controllers
                 {
                     Id = selectedColumns.Contains("ID") ? s.Id : (int?)null,
                     Name = selectedColumns.Contains("NAME") ? s.Name : null,
-                    Phone = selectedColumns.Contains("PHONE") ? s.Phone : null
+                    Phone = selectedColumns.Contains("PHONE") ? s.Phone : null,
+                    CreateURI = baseURI
                 }).ToListAsync();
                 return Ok(result);
             }
 
-            var students = await query.ToListAsync();
-            if (xml)
+            var students = (await query.ToListAsync()).Select(e => new StudentHATEOS(e, baseURI))
+            .ToList();
+            if (format == "xml")
             {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Student>));
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<StudentHATEOS>));
                 using (StringWriter textWriter = new StringWriter())
                 {
                     xmlSerializer.Serialize(textWriter, students);
@@ -90,43 +108,45 @@ namespace lab3.Controllers
             return Ok(students);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet(".{format}/{id}/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetStudent(
             int id,
-            [FromQuery] bool xml = false
+            string format = "json"
         )
         {
+            bool xml = format == "xml";
             var student = await _context.Students.FindAsync(id);
             if (student == null)
             {
-                return BadRequest(new { HATEOS = 1 });
+                return GetErrorResponse(1, xml);
             }
             if (xml)
             {
                 return new ContentResult{
                     ContentType = "application/xml",
-                    Content = student.ToXML(),
+                    Content = student.ToXML(baseURI),
                     StatusCode = 200
                 };
             }
 
-            return Ok(student);
+            return Ok(new StudentHATEOS(student, baseURI));
         }
 
         // POST: api/students
-        [HttpPost]
+        [HttpPost(".{format}/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateStudent(
             Student student,
-            [FromQuery] bool xml = false
+            string format = "json"
         )
         {
+            bool xml = format == "xml";
             if (await _context.Students.FindAsync(student.Id) != null)
             {
-                return BadRequest(new { HATEOS = 3});
+                return GetErrorResponse(3, xml);
             }
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
@@ -134,26 +154,27 @@ namespace lab3.Controllers
             {
                 return new ContentResult{
                     ContentType = "application/xml",
-                    Content = student.ToXML(),
+                    Content = student.ToXML(baseURI),
                     StatusCode = 200
                 };
             }
-            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+            return Ok(new StudentHATEOS(student, baseURI));
         }
 
         // PUT: api/students/5
-        [HttpPut("{id}")]
+        [HttpPut(".{format}/{id}/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateStudent(
             int id,
             Student student,
-            [FromQuery] bool xml = false
+            string format = "json"
         )
         {
+            bool xml = format == "xml";
             if (id != student.Id)
             {
-                return BadRequest(new { HATEOS = 2 });
+                return GetErrorResponse(2, xml);
             }
 
             _context.Entry(student).State = EntityState.Modified;
@@ -164,34 +185,35 @@ namespace lab3.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!_context.Students.Any(e => e.Id == id))
-                    return BadRequest(new { HATEOS = 1 });
+                    return GetErrorResponse(1, xml);
                 throw;
             }
             if (xml)
             {
                 return new ContentResult{
                     ContentType = "application/xml",
-                    Content = student.ToXML(),
+                    Content = student.ToXML(baseURI),
                     StatusCode = 200
                 };
             }
 
-            return Ok(student);
+            return Ok(new StudentHATEOS(student, baseURI));
         }
 
         // DELETE: api/students/5
-        [HttpDelete("{id}")]
+        [HttpDelete(".{format}/{id}/")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteStudent(
             int id,
-            [FromQuery] bool xml = false
+            string format = "json"
         )
         {
+            bool xml = format == "xml";
             var student = await _context.Students.FindAsync(id);
             if (student == null)
             {
-                return BadRequest(new { HATEOS = 1 });
+                return GetErrorResponse(1, xml);
             }
 
             _context.Students.Remove(student);
@@ -200,7 +222,7 @@ namespace lab3.Controllers
             {
                 return new ContentResult{
                     ContentType = "application/xml",
-                    Content = student.ToXML(),
+                    Content = student.ToXML(baseURI),
                     StatusCode = 200
                 };
             }

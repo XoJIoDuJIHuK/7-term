@@ -4,11 +4,23 @@
     "type": "split",
     "children": [
       {
-        "id": "e90c0548a8561173",
+        "id": "b9f2a6d738f73940",
         "type": "tabs",
         "children": [
           {
-            "id": "cbcba4384792f8b4",
+            "id": "1d6c48f008760544",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DCS/2024-09-24.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "afe0fb08e4610e6c",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -85,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "labs.md",
+                "file": "DCS/2024-09-24.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "labs.md",
+                "file": "DCS/2024-09-24.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "labs.md"
+                "file": "DCS/2024-09-24.md"
               }
             }
           },
@@ -156,25 +168,26 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "cbcba4384792f8b4",
+  "active": "1d6c48f008760544",
   "lastOpenFiles": [
+    "labs.md",
+    "DCS/2024-09-24.md",
+    "DCS/2024-09-17.md",
+    "DCS/2024-09-10.md",
+    "IPM/2024-09-11.md",
     "Philosophy/2024-09-23.md",
     "Philosophy/2024-09-16.md",
     "Philosophy/2024-09-02.md",
     "Philosophy/2024-09-09.md",
     "WSD/2024-09-23.md",
-    "labs.md",
     "_diploma/поправки в конституцию.md",
     "_diploma/use-case.md",
     "_diploma/extensions.md",
     "ISD/2024-09-19.md",
     "Устав проекта.md",
     "ITPM/2024-09-12.md",
-    "IPM/2024-09-11.md",
     "WSD/2024-09-16.md",
     "WSD/2024-09-17.md",
-    "DCS/2024-09-17.md",
-    "DCS/2024-09-10.md",
     "WSD/2024-09-10.md",
     "IPMB/2024-09-14.md",
     "BRBIT/2024-09-04.md",
@@ -191,7 +204,6 @@
     "WSD",
     "ISD",
     "BRBIT/2024-09-04 пз.md",
-    "MAD/2024-09-03.md",
     "BRBIT",
     "MAD"
   ]
