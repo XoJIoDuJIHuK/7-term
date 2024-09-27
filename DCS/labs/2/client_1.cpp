@@ -50,8 +50,6 @@ int main(int argc, char const *argv[]) {
 
     if (strcmp(buffer, "ENTER") == 0) {
         writeToFile("shared_file.txt", argv[1]);
-        
-        // Завершение записи и выход из секции
         sendto(sock, "LeaveCA", strlen("LeaveCA"), 0, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     } else {
         cout << "ERROR: " << buffer << endl;

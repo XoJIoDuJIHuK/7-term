@@ -8,19 +8,19 @@
         "type": "tabs",
         "children": [
           {
-            "id": "1d6c48f008760544",
+            "id": "c340da0a688c7f21",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DCS/2024-09-24.md",
+                "file": "DCS/ТЗ на лабу 4-6.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "afe0fb08e4610e6c",
+            "id": "a1e0f941281be11a",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -31,7 +31,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -97,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "DCS/2024-09-24.md",
+                "file": "labs.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "DCS/2024-09-24.md",
+                "file": "labs.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "DCS/2024-09-24.md"
+                "file": "labs.md"
               }
             }
           },
@@ -168,13 +169,20 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "1d6c48f008760544",
+  "active": "a1e0f941281be11a",
   "lastOpenFiles": [
+    "DCS/ТЗ на лабу 4-6.md",
+    "ITPM/2024-09-12.md",
+    "ITPM/2024-09-26.md",
+    "IPMB/2024-09-14.md",
+    "IPMB/2024-09-11.md",
+    "Untitled",
     "labs.md",
+    "Psychology/2024-09-25.md",
+    "Psychology/2024-09-11.md",
     "DCS/2024-09-24.md",
     "DCS/2024-09-17.md",
     "DCS/2024-09-10.md",
-    "IPM/2024-09-11.md",
     "Philosophy/2024-09-23.md",
     "Philosophy/2024-09-16.md",
     "Philosophy/2024-09-02.md",
@@ -185,26 +193,19 @@
     "_diploma/extensions.md",
     "ISD/2024-09-19.md",
     "Устав проекта.md",
-    "ITPM/2024-09-12.md",
     "WSD/2024-09-16.md",
     "WSD/2024-09-17.md",
     "WSD/2024-09-10.md",
-    "IPMB/2024-09-14.md",
     "BRBIT/2024-09-04.md",
     "IPMB",
-    "Psychology/2024-09-11.md",
     "ITPM",
     "_diploma/2024-09-11.md",
     "IPM",
     "Psychology",
-    "WSD/2024-09-02.md",
-    "WSD/2024-09-09.md",
     "DCS",
     "_diploma",
     "WSD",
     "ISD",
-    "BRBIT/2024-09-04 пз.md",
-    "BRBIT",
-    "MAD"
+    "BRBIT"
   ]
 }

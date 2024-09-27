@@ -16,22 +16,16 @@ struct CA {
 CA ca;
 
 void handleRequest(char* ret, char* buffer) {
-    // char buffer[1024] = {0};
-    // read(new_socket, buffer, 1024);
-    
     if (strcmp(buffer, "EnterCA") == 0) {
         if (ca.status == CA::ENTER) {
             strcpy(ret, "WAIT");
-            // send(new_socket, "WAIT", strlen("WAIT"), 0);
         } else {
             ca.status = CA::ENTER;
             strcpy(ret, "ENTER");
-            // send(new_socket, "ENTER", strlen("ENTER"), 0);
         }
     } else if (strcmp(buffer, "LeaveCA") == 0) {
         ca.status = CA::LEAVE;
         strcpy(ret, "LEAVE");
-        // send(new_socket, "LEAVE", strlen("LEAVE"), 0);
     }
     
     cout << "Current CA status: " << ca.status << endl;
