@@ -8,18 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "c340da0a688c7f21",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "DCS/ТЗ на лабу 4-6.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "a1e0f941281be11a",
             "type": "leaf",
             "state": {
@@ -31,8 +19,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -171,14 +158,14 @@
   },
   "active": "a1e0f941281be11a",
   "lastOpenFiles": [
+    "Psychology/2024-09-25.md",
+    "labs.md",
     "DCS/ТЗ на лабу 4-6.md",
     "ITPM/2024-09-12.md",
     "ITPM/2024-09-26.md",
     "IPMB/2024-09-14.md",
     "IPMB/2024-09-11.md",
     "Untitled",
-    "labs.md",
-    "Psychology/2024-09-25.md",
     "Psychology/2024-09-11.md",
     "DCS/2024-09-24.md",
     "DCS/2024-09-17.md",

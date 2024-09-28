@@ -5,3 +5,5 @@ scipy
 IPython
 scikit-learn
 mglearn
+graphviz
+pydotplus
