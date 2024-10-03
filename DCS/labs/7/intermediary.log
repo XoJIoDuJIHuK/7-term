@@ -41,3 +41,420 @@ Got message back from coordinator: 20240928:14:42:48
 Mocking client 127.0.0.1:6001 request to 127.0.0.1:5002
 Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5002
 Got message back from coordinator: 20240928:14:42:50
+Intermediary Server running at 127.0.0.1:5555
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5002
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:29
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5002
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:31
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5002
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:33
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5002
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:35
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5002
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:37
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5002
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:39
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5002
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:41
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5002
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:43
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5002
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:45
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5002
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:47
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5002
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:49
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5002
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:51
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5002
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:53
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5002
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:55
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5002
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5002
+Got message back from coordinator: 20241001:08:25:57
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5002
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5002
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5002
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5002
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5002
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5002
+Intermediary Server running at 127.0.0.1:5555
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5000
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:13
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:15
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:17
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:19
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:21
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:23
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:25
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:27
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:29
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:31
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:33
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:35
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:37
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:32:39
+Intermediary Server running at 127.0.0.1:5555
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5000
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:18
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:20
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:22
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:24
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:26
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:28
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:30
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:32
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:34
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:36
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:38
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:40
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:42
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:44
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:46
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:48
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5000
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:50
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5000
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:52
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:54
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5000
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:56
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5000
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5000
+Got message back from coordinator: 20241001:08:33:58
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:00
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:02
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:04
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:06
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:08
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:10
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:12
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:14
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:16
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:18
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:20
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:22
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:24
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:26
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:28
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:30
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:32
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:34
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:36
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:38
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:40
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:42
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:44
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:46
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:48
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:50
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:52
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:54
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:56
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:34:58
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:00
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:02
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:04
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:06
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:08
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:10
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:12
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:14
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:16
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:18
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:20
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:22
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:24
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:26
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:28
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:30
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:32
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:34
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:36
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:38
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:40
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:42
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:44
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:46
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:48
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:50
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:52
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:54
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:56
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:35:58
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:00
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:02
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:04
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:06
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:08
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:10
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:12
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:14
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:16
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:18
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:20
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:22
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:24
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:26
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:28
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:30
+Mocking client 127.0.0.1:6002 request to 127.0.0.1:5005
+Request from 127.0.0.1:6002 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:32
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:34
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:36
+Mocking client 127.0.0.1:6001 request to 127.0.0.1:5005
+Request from 127.0.0.1:6001 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:38
+Mocking client 127.0.0.1:6000 request to 127.0.0.1:5005
+Request from 127.0.0.1:6000 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:40
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:42
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:44
+Mocking client 127.0.0.1:6003 request to 127.0.0.1:5005
+Request from 127.0.0.1:6003 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:46
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:48
+Mocking client 127.0.0.1:6004 request to 127.0.0.1:5005
+Request from 127.0.0.1:6004 forwarded to coordinator 127.0.0.1:5005
+Got message back from coordinator: 20241001:08:36:50

@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "labs.md",
+                "file": "BRBIT/2024-09-04.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "labs.md",
+                "file": "BRBIT/2024-09-04.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "labs.md",
+                "file": "BRBIT/2024-09-04.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "labs.md"
+                "file": "BRBIT/2024-09-04.md"
               }
             }
           },
@@ -156,12 +156,19 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "a1e0f941281be11a",
+  "active": "b294d57be4cfb0d0",
   "lastOpenFiles": [
-    "Psychology/2024-09-25.md",
-    "labs.md",
-    "DCS/ТЗ на лабу 4-6.md",
     "ITPM/2024-09-12.md",
+    "ITPM/2024-10-02 пз.md",
+    "BRBIT/2024-09-04 пз.md",
+    "BRBIT/2024-09-04.md",
+    "BRBIT/2024-10-02.md",
+    "Achievements.md",
+    "labs.md",
+    "Philosophy/2024-09-30.md",
+    "Philosophy/2024-09-23.md",
+    "Psychology/2024-09-25.md",
+    "DCS/ТЗ на лабу 4-6.md",
     "ITPM/2024-09-26.md",
     "IPMB/2024-09-14.md",
     "IPMB/2024-09-11.md",
@@ -170,7 +177,6 @@
     "DCS/2024-09-24.md",
     "DCS/2024-09-17.md",
     "DCS/2024-09-10.md",
-    "Philosophy/2024-09-23.md",
     "Philosophy/2024-09-16.md",
     "Philosophy/2024-09-02.md",
     "Philosophy/2024-09-09.md",
@@ -179,14 +185,8 @@
     "_diploma/use-case.md",
     "_diploma/extensions.md",
     "ISD/2024-09-19.md",
-    "Устав проекта.md",
-    "WSD/2024-09-16.md",
-    "WSD/2024-09-17.md",
-    "WSD/2024-09-10.md",
-    "BRBIT/2024-09-04.md",
     "IPMB",
     "ITPM",
-    "_diploma/2024-09-11.md",
     "IPM",
     "Psychology",
     "DCS",

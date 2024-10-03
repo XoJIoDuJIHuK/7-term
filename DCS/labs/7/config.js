@@ -12,6 +12,10 @@ module.exports.serverIPs = [
     new ServerInfo('127.0.0.1', '5000'),
     new ServerInfo('127.0.0.1', '5001'),
     new ServerInfo('127.0.0.1', '5002'),
+    new ServerInfo('127.0.0.1', '5003'),
+    new ServerInfo('127.0.0.1', '5004'),
+    new ServerInfo('127.0.0.1', '5005'),
+    new ServerInfo('127.0.0.1', '5006'),
 ];
 
 module.exports.ServerInfo = ServerInfo;

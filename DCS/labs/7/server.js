@@ -25,7 +25,7 @@ const server = dgram.createSocket('udp4');
 
 server.on('message', (msg, rinfo) => {
   const [sender, message] = parseMessage(msg);
-  console.log(`Got message ${message} from ${sender.host}:${sender.port}`);
+  console.log(`[${new Date()}] Got message ${message} from ${sender.host}:${sender.port}`);
 
   if (message === 'TIME_REQUEST') {
     const currentTime = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
