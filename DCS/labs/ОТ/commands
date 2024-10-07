@@ -1,0 +1,15 @@
+# telnet:
+sudo yum install telnet-server
+sudo systemctl start telnet.socket
+sudo firewall-cmd --permanent --add-service=telnet
+sudo firewall-cmd --reload
+
+# to connect:
+telnet <IP_ADDRESS_OF_CENTOS_VM> 23 -v
+
+# scp:
+scp test_scp aleh@host:/home/aleh/test_scp
+
+#scloud
+systemctl start opennebula
+systemctl start opennebula-sunstone

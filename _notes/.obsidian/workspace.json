@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "b9f2a6d738f73940",
+        "id": "b16af4b409e03b96",
         "type": "tabs",
         "children": [
           {
-            "id": "a1e0f941281be11a",
+            "id": "5bf6c7a11033d53f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "ISD/2024-10-03.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "ISD/2024-10-03.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "ISD/2024-10-03.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "BRBIT/2024-09-04.md"
+                "file": "ISD/2024-10-03.md"
               }
             }
           },
@@ -156,17 +156,20 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "b294d57be4cfb0d0",
+  "active": "5bf6c7a11033d53f",
   "lastOpenFiles": [
+    "Philosophy/2024-10-07.md",
+    "ISD/2024-10-03.md",
+    "Philosophy/2024-09-23.md",
+    "labs.md",
+    "ISD/2024-09-19.md",
+    "BRBIT/2024-09-04.md",
     "ITPM/2024-09-12.md",
     "ITPM/2024-10-02 пз.md",
     "BRBIT/2024-09-04 пз.md",
-    "BRBIT/2024-09-04.md",
     "BRBIT/2024-10-02.md",
     "Achievements.md",
-    "labs.md",
     "Philosophy/2024-09-30.md",
-    "Philosophy/2024-09-23.md",
     "Psychology/2024-09-25.md",
     "DCS/ТЗ на лабу 4-6.md",
     "ITPM/2024-09-26.md",
@@ -182,9 +185,6 @@
     "Philosophy/2024-09-09.md",
     "WSD/2024-09-23.md",
     "_diploma/поправки в конституцию.md",
-    "_diploma/use-case.md",
-    "_diploma/extensions.md",
-    "ISD/2024-09-19.md",
     "IPMB",
     "ITPM",
     "IPM",
