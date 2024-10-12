@@ -3,13 +3,14 @@ from fastapi import (
     Depends,
     HTTPException,
     Request,
+    Query,
     status
 )
-from sqlalchemy.testing.config import db_url
 
 from src.database import get_session
 from src.routers.auth.schemes import RegistrationScheme
 from src.routers.users.schemes import CreateUserScheme
+from src.services.confirmation_code import ConfirmationCodeRepository
 from src.services.user import UserRepository
 from src.settings import Role
 from src.util.auth.classes import AuthHandler, JWTBearer
@@ -86,11 +87,20 @@ async def login(
 )
 async def restore_password(
         new_password: str,
-        user_info: UserInfo = Depends(JWTBearer),
+        code: str = Query('code'),
         db_session: AsyncSession = Depends(get_session)
 ):
+    confirmation_code = await ConfirmationCodeRepository.get_by_value(
+        value=code,
+        db_session=db_session
+    )
+    if not confirmation_code:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Код восстановления пароля не найден'
+        )
     user = await UserRepository.get_by_id(
-        user_id=user_info.id,
+        user_id=confirmation_code.user_id,
         db_session=db_session
     )
     new_password_hash = get_password_hash(new_password)
@@ -100,6 +110,8 @@ async def restore_password(
             detail='Пароли не могут совпадать'
         )
     user.password_hash = new_password_hash
+    confirmation_code.is_used = True
     db_session.add(user)
+    db_session.add(confirmation_code)
     await db_session.commit()
     return SuccessResponse(message='Пароль успешно изменён')

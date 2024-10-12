@@ -11,6 +11,7 @@ class AppConfig:
     app_name = EnvParameter('APP_NAME', default='GPTranslate')
     # secret_key = EnvParameter('APP_SECRET_KEY')
     secret_key = '123456789012345678901e'
+    conf_code_exp_seconds = 60 * 15
 
 
 class Database:
@@ -47,7 +48,7 @@ class JWTConfig:
     user_info_property = 'user_info'
 
 
-class Role(enum.Enum):
-    user = 1
-    moderator = 2
-    admin = 3
+class Role(enum.StrEnum):
+    user = 'Пользователь'
+    moderator = 'Модератор'
+    admin = 'Администратор'

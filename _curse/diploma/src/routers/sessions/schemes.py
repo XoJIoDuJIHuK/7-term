@@ -16,7 +16,3 @@ class SessionOutScheme(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class SessionListResponseScheme(BaseModel):
-    data: list[SessionOutScheme]

@@ -1,4 +1,3 @@
-import time
 import uuid
 
 from fastapi import HTTPException, Request, status
@@ -7,11 +6,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_session
 from src.database.models import Session, User
-from src.services.session import SessionRepository
 from src.settings import JWTConfig, Role
 from src.util.auth.schemes import TokensScheme, UserInfo
+from src.util.time.helpers import get_utc_now
 
 
 class JWTBearer(HTTPBearer):
@@ -118,7 +116,7 @@ class AuthHandler:
         return cls.get_tokens(
             user_id=user.id,
             session_id=session.id,
-            role=user.role_id,
+            role=user.role,
             refresh_token_id=refresh_token_id
         )
 
@@ -136,13 +134,13 @@ class AuthHandler:
                 'id': str(user_id),
                 'role': role.value,
             },
-            'exp': int(time.time()) + JWTConfig.auth_jwt_exp_sec
+            'exp': get_utc_now() + JWTConfig.auth_jwt_exp_sec
         }
         refresh_payload = {
             'user_id': str(user_id),
             'session_id': str(session_id),
             'token_id': str(refresh_token_id),
-            'exp': int(time.time()) + JWTConfig.refresh_jwt_exp_sec
+            'exp': get_utc_now() + JWTConfig.refresh_jwt_exp_sec
         }
         return TokensScheme(
             auth_token=jwt.encode(

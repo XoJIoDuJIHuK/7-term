@@ -50,7 +50,7 @@ def create_admin(
                     name=name,
                     email=email,
                     email_verified=True,
-                    role_id=Role.admin,
+                    role=Role.admin,
                     password_hash=hashed_password,
                     created_at=get_utc_now(),
                     deleted_at=None

@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_session
 from src.routers.sessions.schemes import (
-    SessionListResponseScheme,
     SessionOutScheme,
 )
 from src.services.session import SessionRepository

@@ -20,7 +20,8 @@ class SessionRepository:
             db_session: AsyncSession
     ) -> Page[Session]:
         query = select(Session).where(
-            Session.user_id == user_id
+            Session.user_id == user_id,
+            Session.is_closed.is_(False)
         )
         return await paginate(
             conn=db_session,

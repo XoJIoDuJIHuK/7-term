@@ -4,13 +4,13 @@ from fastapi import HTTPException, status
 
 from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_session
 from src.database.models import User
-from src.routers.users.schemes import CreateUserScheme, EditUserScheme
+from src.routers.users.schemes import CreateUserScheme, FilterUserScheme
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UserRepository:
@@ -36,16 +36,23 @@ class UserRepository:
 
     @staticmethod
     async def get_list(
-            pagination_params: Params
+            pagination_params: Params,
+            filter_params: FilterUserScheme,
+            db_session: AsyncSession
     ) -> Page[User]:
-        # TODO: implement proper filtering and sorting
-        async with get_session() as db:
-            query = select(User)
-            return await paginate(
-                conn=db,
-                query=query,
-                params=pagination_params
+        # TODO: implement proper sorting
+        query = select(User)
+        if filter_params.role is not None:
+            query = query.where(User.role == filter_params.role)
+        if filter_params.email_verified is not None:
+            query = query.where(
+                User.email_verified == filter_params.email_verified
             )
+        return await paginate(
+            conn=db_session,
+            query=query,
+            params=pagination_params
+        )
 
     @staticmethod
     async def create(
@@ -66,22 +73,10 @@ class UserRepository:
             email=user_data.email,
             email_verified=user_data.email_verified,
             password_hash=user_data.password_hash,
-            role_id=user_data.role,
+            role=user_data.role,
             logged_wiht_provider=user_data.logged_with_provider,
             provider_id=user_data.provider_id
         )
-        db_session.add(user)
-        await db_session.commit()
-        await db_session.refresh(user)
-        return user
-
-    @staticmethod
-    async def update_password(
-            user: User,
-            new_password_hash: str,
-            db_session: AsyncSession
-    ) -> User:
-        user.password_hash = new_password_hash
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
