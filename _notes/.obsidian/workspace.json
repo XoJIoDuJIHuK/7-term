@@ -4,16 +4,28 @@
     "type": "split",
     "children": [
       {
-        "id": "b16af4b409e03b96",
+        "id": "3c12dd774d2fd1ac",
         "type": "tabs",
         "children": [
           {
-            "id": "5bf6c7a11033d53f",
+            "id": "2f52347756a76ebe",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ISD/2024-10-03.md",
+                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "0e11d01897d1a34a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Psychology/2024-10-09.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ISD/2024-10-03.md",
+                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ISD/2024-10-03.md",
+                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ISD/2024-10-03.md"
+                "file": "IPMB/Реферат алгоритм Коха-Жао.md"
               }
             }
           },
@@ -152,28 +164,41 @@
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false,
-      "table-editor-obsidian:Advanced Tables Toolbar": false
+      "command-palette:Open command palette": false
     }
   },
-  "active": "5bf6c7a11033d53f",
+  "active": "2f52347756a76ebe",
   "lastOpenFiles": [
-    "Philosophy/2024-10-07.md",
-    "ISD/2024-10-03.md",
-    "Philosophy/2024-09-23.md",
+    "Psychology/2024-10-09.md",
+    "Psychology/2024-09-25.md",
+    "IPMB/Реферат алгоритм Коха-Жао.md",
+    "IPMB/Реферат алгоритм Коха-Жао.pdf",
+    "IPMB/histogram_differentiated.png",
+    "IPMB/histogram_with_message.png",
+    "IPMB/histogram_clean.png",
+    "IPMB/image_1.png",
+    "IPMB/Idct-animation.gif",
     "labs.md",
+    "IPMB/block_example.png",
+    "IPMB/combined_image.jpg",
+    "IPMB/Реферат алгоритм Коха-Жао.html",
+    "ITPM/2024-09-12.md",
+    "ITPM/2024-10-10.md",
+    "ITPM/2024-10-02 пз.md",
+    "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
+    "IPMB/123.svg",
+    "IPMB/2024-09-14.md",
+    "ISD/2024-10-03.md",
+    "Philosophy/2024-10-07.md",
+    "Philosophy/2024-09-23.md",
     "ISD/2024-09-19.md",
     "BRBIT/2024-09-04.md",
-    "ITPM/2024-09-12.md",
-    "ITPM/2024-10-02 пз.md",
     "BRBIT/2024-09-04 пз.md",
     "BRBIT/2024-10-02.md",
     "Achievements.md",
     "Philosophy/2024-09-30.md",
-    "Psychology/2024-09-25.md",
     "DCS/ТЗ на лабу 4-6.md",
     "ITPM/2024-09-26.md",
-    "IPMB/2024-09-14.md",
     "IPMB/2024-09-11.md",
     "Untitled",
     "Psychology/2024-09-11.md",
@@ -181,18 +206,12 @@
     "DCS/2024-09-17.md",
     "DCS/2024-09-10.md",
     "Philosophy/2024-09-16.md",
-    "Philosophy/2024-09-02.md",
-    "Philosophy/2024-09-09.md",
-    "WSD/2024-09-23.md",
-    "_diploma/поправки в конституцию.md",
     "IPMB",
     "ITPM",
     "IPM",
     "Psychology",
     "DCS",
     "_diploma",
-    "WSD",
-    "ISD",
-    "BRBIT"
+    "WSD"
   ]
 }

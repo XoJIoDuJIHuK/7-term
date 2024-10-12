@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import './schedule.dart';
 
 class Home extends StatefulWidget {
@@ -11,12 +12,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   String transfer_value = '';
+  final Uri _url = Uri.parse('alarm:lmao');
   final TextEditingController _controller = TextEditingController();
 
   void onSubmitted(value) {
     setState(() {
       transfer_value = value;
     });
+  }
+
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
   }
 
   @override
@@ -70,6 +78,11 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       SizedBox(height: scale * 5),
+
+                      ElevatedButton(
+                          onPressed: _launchUrl,
+                          child: Text("ALARM")
+                      ),
 
                       // Sehri Time, Dhuhr Remaining Time, Asr Time, Iftar Time
                       Row(

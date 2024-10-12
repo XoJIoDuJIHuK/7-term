@@ -15,17 +15,15 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         Log.d("MainActivity", "OMEGALUL")
-        logMemoryInfo()
+//        logMemoryInfo()
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            Log.d("MainActivity", "Before logMemoryInfo")
-            logMemoryInfo()
-            if (call.method == "getMemoryInfo") {
-                val memoryInfo = getMemoryInfo()
-                if (memoryInfo != null) {
-                    result.success(memoryInfo)
-                } else {
-                    result.error("UNAVAILABLE", "Memory info not available.", null)
-                }
+            Log.d("MainActivity", "Before ${call.method}")
+//            logMemoryInfo()
+            if (call.method == "createAlarm") {
+                val calendar = Calendar.getInstance()
+                val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                val minute = calendar.get(Calendar.MINUTE)
+                createAlarm("LMAO Alarm", hour, minute + 1)
             } else {
                 result.notImplemented()
             }
@@ -36,30 +34,16 @@ class MainActivity: FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate")
-        logMemoryInfo()
     }
 
-    // Function to log total and used RAM
-    private fun logMemoryInfo() {
-        val memoryInfo = getMemoryInfo()
-        Log.d("MainActivity", "Memory Info: $memoryInfo")
-    }
-
-    private fun getMemoryInfo(): String? {
-        return try {
-            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val memoryInfo = ActivityManager.MemoryInfo()
-            activityManager.getMemoryInfo(memoryInfo)
-
-            val totalMemory = memoryInfo.totalMem
-            val availableMemory = memoryInfo.availMem
-            val usedMemory = totalMemory - availableMemory
-
-            val result = "Total RAM: ${totalMemory / (1024 * 1024)} MB, Used RAM: ${usedMemory / (1024 * 1024)} MB"
-            result
-        } catch (e: Exception) {
-            Log.e("MainActivity", e.toString())
-            null
+    fun createAlarm(message: String, hour: Int, minutes: Int) {
+        val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
+            putExtra(AlarmClock.EXTRA_MESSAGE, message)
+            putExtra(AlarmClock.EXTRA_HOUR, hour)
+            putExtra(AlarmClock.EXTRA_MINUTES, minutes)
+        }
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
         }
     }
 }

@@ -3,7 +3,7 @@ import './home.dart';
 import './schedule.dart';
 import './lol.dart';
 
-void main() {
+void main() async {
   runApp(MyApp());
 }
 

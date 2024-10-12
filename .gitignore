@@ -7,3 +7,4 @@ WSD/labs/**/obj
 WSD/labs/**/bin
 WSD/labs/**/packages
 PWS_Labs_7sem/
+__pycache__/
