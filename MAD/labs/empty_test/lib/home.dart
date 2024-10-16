@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import './schedule.dart';
+
+class BatteyService {
+  static const platform = MethodChannel('cpu_usage_channel');
+
+  Future<String> getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final result = await platform.invokeMethod<int>('getBatteryLevel');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+
+    return batteryLevel;
+  }
+}
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -22,9 +39,21 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _launchUrl() async {
-    if (!await launchUrl(_url)) {
-      throw Exception('Could not launch $_url');
+    // if (!await launchUrl(_url)) {
+    //   throw Exception('Could not launch $_url');
+    // }
+    if (!await _openAlarmClock()) {
+      throw Exception('Could not launch alarm clock');
     }
+  }
+
+  Future<bool> _openAlarmClock() async {
+    final time = DateTime.now(); // Set alarm for 1 hour from now
+    return await MethodChannel('cpu_usage_channel').invokeMethod('createAlarm', {
+      'hour': time.hour,
+      'minute': time.minute + 1,
+      'message': 'LMAO Alarm'
+    });
   }
 
   @override
@@ -82,6 +111,12 @@ class _HomeState extends State<Home> {
                       ElevatedButton(
                           onPressed: _launchUrl,
                           child: Text("ALARM")
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            print('Battery level: ${await BatteyService().getBatteryLevel()}');
+                          },
+                          child: Text('Battery')
                       ),
 
                       // Sehri Time, Dhuhr Remaining Time, Asr Time, Iftar Time

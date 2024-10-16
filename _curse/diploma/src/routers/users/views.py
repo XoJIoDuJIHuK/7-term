@@ -121,7 +121,7 @@ async def create_user(
 
 
 @router.put(
-    '/{user_id}/'
+    '/{user_id}/', response_model=None
 )
 async def update_user(
         new_user_info: EditUserScheme,

@@ -13,19 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "0e11d01897d1a34a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Psychology/2024-10-09.md",
+                "file": "BRBIT/2024-09-04.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
+                "file": "BRBIT/2024-09-04.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "IPMB/Реферат алгоритм Коха-Жао.md",
+                "file": "BRBIT/2024-09-04.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "IPMB/Реферат алгоритм Коха-Жао.md"
+                "file": "BRBIT/2024-09-04.md"
               }
             }
           },
@@ -169,16 +157,19 @@
   },
   "active": "2f52347756a76ebe",
   "lastOpenFiles": [
+    "labs.md",
+    "ISD/2024-09-19.md",
+    "ISD/2024-10-03.md",
+    "Philosophy/2024-10-14.md",
+    "IPMB/Реферат алгоритм Коха-Жао.md",
     "Psychology/2024-10-09.md",
     "Psychology/2024-09-25.md",
-    "IPMB/Реферат алгоритм Коха-Жао.md",
     "IPMB/Реферат алгоритм Коха-Жао.pdf",
     "IPMB/histogram_differentiated.png",
     "IPMB/histogram_with_message.png",
     "IPMB/histogram_clean.png",
     "IPMB/image_1.png",
     "IPMB/Idct-animation.gif",
-    "labs.md",
     "IPMB/block_example.png",
     "IPMB/combined_image.jpg",
     "IPMB/Реферат алгоритм Коха-Жао.html",
@@ -188,10 +179,8 @@
     "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
     "IPMB/123.svg",
     "IPMB/2024-09-14.md",
-    "ISD/2024-10-03.md",
     "Philosophy/2024-10-07.md",
     "Philosophy/2024-09-23.md",
-    "ISD/2024-09-19.md",
     "BRBIT/2024-09-04.md",
     "BRBIT/2024-09-04 пз.md",
     "BRBIT/2024-10-02.md",

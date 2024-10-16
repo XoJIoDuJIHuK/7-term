@@ -13,7 +13,7 @@ from fastapi_pagination import Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_session
-from src.routers.articles.shemes import (
+from src.routers.articles.schemes import (
     ArticleOutScheme,
     CreateArticleScheme,
     EditArticleScheme,
@@ -76,7 +76,11 @@ async def update_article(
         db_session: AsyncSession = Depends(get_session),
 ):
     article = await ArticleRepository.get_by_id(article_id, db_session)
-    if not article or article.user_id != user_info.id:
+    if (
+            not article
+            or article.user_id != user_info.id
+            or article.original_article_id is not None
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Статья не найдена'

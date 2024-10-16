@@ -4,7 +4,7 @@ from fastapi_pagination import Page, Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from src.database.models import Article
-from src.routers.articles.shemes import CreateArticleScheme
+from src.routers.articles.schemes import CreateArticleScheme
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

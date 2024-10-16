@@ -29,9 +29,10 @@ from sqlalchemy.orm import (
 
 
 class ReportStatus(enum.StrEnum):
-    open = 'Открыт'
-    closed = 'Закрыт пользователем'
-    rejected = 'Отклонён'
+    open = 'Открыта'
+    closed = 'Закрыта пользователем'
+    rejected = 'Отклонена'
+    satisfied = 'Удовлетворена'
     # TODO: add refund
 
 
@@ -208,6 +209,18 @@ class Article(Base):
         nullable=True
     )
 
+    report: Mapped['Report'] = relationship(
+        'Report',
+        back_populates='article',
+        cascade='all, delete-orphan',
+        uselist=False
+    )
+    language: Mapped[Language] = relationship(
+        'Language',
+        # back_populates='article',
+        uselist=False
+    )
+
 
 class ReportReason(Base):
     __tablename__ = f'{Database.prefix}report_reasons'
@@ -242,11 +255,12 @@ class Report(Base):
         Enum(ReportStatus),
         default=ReportStatus.open
     )
-    closed_by_user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    closed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
     )
-    original_article_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE')
+    reason_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{ReportReason.__tablename__}.id', ondelete='CASCADE')
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
@@ -255,6 +269,22 @@ class Report(Base):
     closed_at: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,
         nullable=True
+    )
+
+    article: Mapped[Article] = relationship(
+        'Article',
+        back_populates='report',
+        uselist=False
+    )
+    comments: Mapped[list['Comment']] = relationship(
+        'Comment',
+        back_populates='report',
+        cascade='all, delete-orphan'
+    )
+    reason: Mapped[ReportReason] = relationship(
+        'ReportReason',
+        # back_populates='reports',
+        uselist=False
     )
 
 
@@ -277,6 +307,12 @@ class Comment(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         default=get_utc_now
+    )
+
+    report: Mapped[Report] = relationship(
+        'Report',
+        back_populates='comments',
+        uselist=False
     )
 
 
