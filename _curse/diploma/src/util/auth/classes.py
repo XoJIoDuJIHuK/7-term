@@ -1,15 +1,27 @@
+import logging
+import time
 import uuid
 
 from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from jose import JWTError, jwt
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Session, User
-from src.settings import JWTConfig, Role
-from src.util.auth.schemes import TokensScheme, UserInfo
-from src.util.time.helpers import get_utc_now
+from src.responses import DataResponse
+from src.services.session import SessionRepository
+from src.settings import JWTConfig, LOGGER_PREFIX, Role
+from src.util.auth.helpers import (
+    get_user_agent,
+    verify_jwt,
+    put_tokens_in_black_list,
+)
+from src.util.auth.schemes import TokensScheme, RefreshPayload
+from src.util.storage.classes import RedisHandler
+
+
+logger = logging.getLogger(LOGGER_PREFIX + __name__)
 
 
 class JWTBearer(HTTPBearer):
@@ -20,6 +32,7 @@ class JWTBearer(HTTPBearer):
     ):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.roles = roles if roles else []
+        self.logger = logging.getLogger(LOGGER_PREFIX + __name__)
 
     async def __call__(self, request: Request):
         credentials: HTTPAuthorizationCredentials
@@ -46,7 +59,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == 'Bearer':
                 raise error_invalid_token
             if not (
-                    payload := await self.verify_jwt(credentials.credentials)
+                    payload := verify_jwt(credentials.credentials)
             ):
                 raise error_invalid_token
 
@@ -58,41 +71,12 @@ class JWTBearer(HTTPBearer):
         else:
             return None
 
-    async def verify_jwt(self, token: str) -> UserInfo:
-        try:
-            payload = jwt.decode(
-                token, JWTConfig.secret_key, algorithms=[JWTConfig.algorithm]
-            )
-            return JWTBearer.get_payload(payload)
-        except JWTError as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Неправильный токен'
-            )
-
-    @staticmethod
-    async def check_session(
-            session_id: str,
-            payload: UserInfo
-    ):
-        # TODO: implement using Redis (if allowed by Smelov)
-        return True
-
     async def role_allowed(self, provided_role: Role) -> bool:
         if len(self.roles) == 0:
             return True
         if not provided_role:
             return False
         return provided_role in self.roles
-
-    @staticmethod
-    def get_payload(dict_payload: dict) -> UserInfo:
-        try:
-            print(dict_payload.get(JWTConfig.user_info_property))
-            return UserInfo(**dict_payload.get(JWTConfig.user_info_property))
-        except Exception as e:
-            print(e)
-            raise Exception(e)
 
 
 class AuthHandler:
@@ -102,52 +86,132 @@ class AuthHandler:
             user: User,
             request: Request,
             db_session: AsyncSession
-    ) -> TokensScheme:
+    ) -> DataResponse[TokensScheme]:
         refresh_token_id = uuid.uuid4()
         session = Session(
             user_id=user.id,
             refresh_token_id=refresh_token_id,
-            ip=request.client.host
+            ip=request.client.host,
+            user_agent=get_user_agent(request)
         )
         db_session.add(session)
         await db_session.commit()
         await db_session.refresh(session)
         await db_session.refresh(user)
-        return cls.get_tokens(
+        return cls.generate_tokens_response(
             user_id=user.id,
             session_id=session.id,
             role=user.role,
             refresh_token_id=refresh_token_id
         )
 
+    @classmethod
+    async def refresh_tokens(
+            cls,
+            refresh_token: str,
+            request: Request,
+            db_session: AsyncSession
+    ):
+        payload: RefreshPayload = verify_jwt(
+            token=refresh_token,
+            is_access=False
+        )
+        if RedisHandler().get(str(payload.token_id)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Сессия истекла'
+            )
+        put_tokens_in_black_list([payload.token_id])
+
+        # This operation is much heavier than getting info from Redis
+        # but will happen only if session was not expired so refresh tokens of
+        # expired sessions will not trigger querying database
+        session = await SessionRepository.get_by_refresh_id(
+            refresh_token_id=payload.token_id,
+            db_session=db_session
+        )
+        session_id = session.id
+        session_ip = session.ip
+        user_agent = session.user_agent
+
+        if (
+            get_user_agent(request) != user_agent or
+            request.client.host != session_ip
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Войдите заново'
+            )
+
+        new_refresh_token_id = uuid.uuid4()
+        session.refresh_token_id = new_refresh_token_id
+        db_session.add(session)
+        await db_session.commit()
+        return cls.generate_tokens_response(
+            user_id=payload.id,
+            session_id=session_id,
+            refresh_token_id=new_refresh_token_id,
+            role=payload.role
+        )
 
     @classmethod
-    def get_tokens(
+    def get_access_token(
+            cls,
+            user_id: uuid.UUID,
+            role: Role
+    ) -> str:
+        access_payload = {
+            JWTConfig.user_info_property: {
+                'id': str(user_id),
+                'role': role.value,
+            },
+            'exp': time.time() + JWTConfig.auth_jwt_exp_sec
+        }
+        return jwt.encode(
+            access_payload,
+            JWTConfig.secret_key,
+            JWTConfig.algorithm
+        )
+
+    @classmethod
+    def get_refresh_token(
+            cls,
+            user_id: uuid.UUID,
+            session_id: uuid.UUID,
+            refresh_token_id: uuid.UUID,
+            role: Role
+    ) -> str:
+        refresh_payload = {
+            JWTConfig.user_info_property: {
+                'id': str(user_id),
+                'role': role.value,
+                'session_id': str(session_id),
+                'token_id': str(refresh_token_id),
+            },
+            'exp': time.time() + JWTConfig.refresh_jwt_exp_sec
+        }
+        return jwt.encode(
+            refresh_payload,
+            JWTConfig.secret_key,
+            JWTConfig.algorithm
+        )
+
+    @classmethod
+    def generate_tokens_response(
             cls,
             user_id: uuid.UUID,
             session_id: uuid.UUID,
             role: Role,
             refresh_token_id: uuid.UUID
-    ) -> TokensScheme:
-        auth_payload = {
-            JWTConfig.user_info_property: {
-                'id': str(user_id),
-                'role': role.value,
-            },
-            'exp': get_utc_now() + JWTConfig.auth_jwt_exp_sec
-        }
-        refresh_payload = {
-            'user_id': str(user_id),
-            'session_id': str(session_id),
-            'token_id': str(refresh_token_id),
-            'exp': get_utc_now() + JWTConfig.refresh_jwt_exp_sec
-        }
-        return TokensScheme(
-            auth_token=jwt.encode(
-                auth_payload, JWTConfig.secret_key, JWTConfig.algorithm
-            ),
-            refresh_token=jwt.encode(
-                refresh_payload, JWTConfig.secret_key, JWTConfig.algorithm
-            )
+    ) -> DataResponse[TokensScheme]:
+        return DataResponse(
+            data={
+                'tokens': TokensScheme(
+                    access_token=cls.get_access_token(user_id, role),
+                    refresh_token=cls.get_refresh_token(
+                        user_id, session_id, refresh_token_id, role
+                    )
+                )
+            }
         )
 

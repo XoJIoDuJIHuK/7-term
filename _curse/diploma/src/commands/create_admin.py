@@ -28,11 +28,7 @@ def create_admin(
         """
         Asynchronous function that handles the creation or update of an admin
         """
-        session_generator = get_session()
-
-        db_session = await anext(session_generator)
-
-        try:
+        async with get_session() as db_session:
             user = (await db_session.execute(select(User).where(
                 User.email == email
             ))).scalars().first()
@@ -59,9 +55,6 @@ def create_admin(
             await db_session.commit()
             await db_session.refresh(user)
             return 'User created'
-        finally:
-            await db_session.close()
-            await session_generator.aclose()
 
     loop = asyncio.get_event_loop()
     try:

@@ -3,52 +3,95 @@ import uuid
 from fastapi import (
     APIRouter,
     Depends,
-    Form,
     HTTPException,
     Path,
-    status,
+    status, Query,
 )
 
-from fastapi_pagination import Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_session
+from src.depends import get_session
+from src.http_responses import get_responses
+from src.pagination import PaginationParams, get_pagination_params
+from src.responses import DataResponse, ListResponse
 from src.routers.articles.schemes import (
     ArticleOutScheme,
     CreateArticleScheme,
     EditArticleScheme,
-    UploadArticleScheme,
+    UploadArticleScheme, ArticleListItemScheme,
 )
 from src.services.article import ArticleRepository
 from src.settings import Role
 from src.util.auth.classes import JWTBearer
 from src.util.auth.schemes import UserInfo
-from src.util.time.helpers import get_utc_now
 
 router = APIRouter(
     prefix='/articles',
     tags=['Articles']
 )
+article_not_found_error = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail='Статья не найдена'
+)
 
 
 @router.get(
-    '/'
+    '/',
+    response_model=ListResponse[ArticleListItemScheme],
+    responses=get_responses(400, 401, 403, 500)
 )
 async def get_list(
+        original_article_id: uuid.UUID | None = Query(None),
         user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
-        pagination_params: Params = Depends(),
-        db_session: AsyncSession = Depends(get_session)
+        pagination: PaginationParams = Depends(get_pagination_params),
+        db_session: AsyncSession = Depends(get_session),
 ):
-    page = await ArticleRepository.get_list(
+    articles, count = await ArticleRepository.get_list(
+        original_article_id=original_article_id,
         user_id=user_info.id,
-        pagination_params=pagination_params,
+        pagination_params=pagination,
         db_session=db_session
     )
-    page.items = [ArticleOutScheme.model_validate(a) for a in page.items]
+    return ListResponse[ArticleListItemScheme].from_list(
+        items=articles,
+        total_count=count,
+        params=pagination
+    )
+
+
+@router.get(
+    '/{article_id}/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403)
+)
+async def get_article(
+        article_id: uuid.UUID = Path(),
+        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    article = await ArticleRepository.get_by_id(
+        article_id=article_id,
+        db_session=db_session
+    )
+    if not article or article.user_id != user_info.id:
+        raise article_not_found_error
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
 
 
 @router.post(
-    '/'
+    '/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 500)
 )
 async def upload_article(
         article_data: UploadArticleScheme,
@@ -63,11 +106,20 @@ async def upload_article(
         ),
         db_session=db_session
     )
-    return ArticleOutScheme.model_validate(article)
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
 
 
 @router.put(
-    '/{article_id}/'
+    '/{article_id}/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404, 500)
 )
 async def update_article(
         new_article_data: EditArticleScheme,
@@ -81,10 +133,7 @@ async def update_article(
             or article.user_id != user_info.id
             or article.original_article_id is not None
     ):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Статья не найдена'
-        )
+        raise
     if new_article_data.title:
         article.title = new_article_data.title
     if new_article_data.text:
@@ -92,11 +141,20 @@ async def update_article(
     db_session.add(article)
     await db_session.commit()
     await db_session.refresh(article)
-    return ArticleOutScheme.model_validate(article)
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
 
 
 @router.delete(
-    '/{article_id}/'
+    '/{article_id}/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404, 500)
 )
 async def delete_article(
         article_id: uuid.UUID = Path(),
@@ -105,12 +163,13 @@ async def delete_article(
 ):
     article = await ArticleRepository.get_by_id(article_id, db_session)
     if not article or article.user_id != user_info.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Статья не найдена'
-        )
-    article.deleted_at = get_utc_now()
-    db_session.add(article)
-    await db_session.commit()
-    await db_session.refresh(article)
-    return ArticleOutScheme.model_validate(article)
+        raise article_not_found_error
+    article = await ArticleRepository.delete(
+        article=article,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )

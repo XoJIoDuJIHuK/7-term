@@ -1,33 +1,55 @@
 import uuid
+from typing import List, Tuple
 
-from fastapi import HTTPException, status
-
-from fastapi_pagination import Page, Params
-from fastapi_pagination.ext.sqlalchemy import paginate
-
-from src.database import get_session
 from src.database.models import Session
 
-from sqlalchemy import select, update
+from sqlalchemy import Sequence, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.pagination import PaginationParams, paginate
+from src.routers.sessions.schemes import SessionOutScheme
 
 
 class SessionRepository:
     @staticmethod
+    async def get_refresh_token_ids(
+            user_id: uuid.UUID,
+            db_session: AsyncSession
+    ) -> list[uuid.UUID]:
+        result = await db_session.execute(select(
+            Session.refresh_token_id
+        ).filter_by(user_id=user_id))
+        return list(result.scalars().all())
+
+    @staticmethod
     async def get_list(
             user_id: uuid.UUID,
-            pagination_params: Params,
+            pagination_params: PaginationParams,
             db_session: AsyncSession
-    ) -> Page[Session]:
+    ) -> Tuple[List[SessionOutScheme], int]:
         query = select(Session).where(
             Session.user_id == user_id,
             Session.is_closed.is_(False)
         )
-        return await paginate(
-            conn=db_session,
-            query=query,
-            params=pagination_params
+        sessions, count = await paginate(
+            session=db_session,
+            statement=query,
+            pagination=pagination_params
         )
+        sessions_list = [
+            SessionOutScheme.model_validate(a) for a in sessions
+        ]
+        return sessions_list, count
+
+    @staticmethod
+    async def get_by_refresh_id(
+            refresh_token_id: uuid.UUID,
+            db_session: AsyncSession
+    ) -> Session | None:
+        result = await db_session.execute(select(Session).filter_by(
+            refresh_token_id=refresh_token_id
+        ))
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def close_all(
@@ -37,7 +59,8 @@ class SessionRepository:
         result = await db_session.execute(update(Session).where(
             Session.user_id == user_id
         ).values(is_closed=True))
-        return result
+        await db_session.commit()
+        return result.rowcount
 
     @staticmethod
     async def create(

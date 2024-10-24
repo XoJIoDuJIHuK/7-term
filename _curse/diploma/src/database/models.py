@@ -17,10 +17,11 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     UUID,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -37,6 +38,7 @@ class ReportStatus(enum.StrEnum):
 
 
 class TranslationTaskStatus(enum.StrEnum):
+    created = 'Создана'
     started = 'Запущена'
     failed = 'Ошибка'
     completed = 'Завершена'
@@ -46,6 +48,11 @@ class NotificationType(enum.Enum):
     info = 1
     warning = 2
     error = 3
+
+
+class ConfirmationType(enum.StrEnum):
+    registration = 'registration'
+    password_reset = 'password_reset'
 
 
 class User(Base):
@@ -107,9 +114,8 @@ class Session(Base):
     ip: Mapped[str] = mapped_column(
         String(15)
     )
-    is_active: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True
+    user_agent: Mapped[str] = mapped_column(
+        String(100)
     )
     is_closed: Mapped[bool] = mapped_column(
         Boolean,
@@ -117,7 +123,6 @@ class Session(Base):
     )
     refresh_token_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        # TODO: consider adding unique constraint
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
@@ -139,6 +144,10 @@ class ConfirmationCode(Base):
         String,
         unique=True,
         comment='The value of the code'
+    )
+    reason: Mapped[ConfirmationType] = mapped_column(
+        Enum(ConfirmationType),
+        default=ConfirmationType.registration
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
@@ -323,12 +332,34 @@ class StylePrompt(Base):
         primary_key=True
     )
     title: Mapped[str] = mapped_column(
-        String,
+        String(20),
         unique=True
     )
     text: Mapped[str] = mapped_column(
-        String,
+        String(200),
         unique=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class AIModel(Base):
+    __tablename__ = f'{Database.prefix}ai_models'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    name: Mapped[str] = mapped_column(
+        String(20),
+    )
+    provider: Mapped[str] = mapped_column(
+        String(20),
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
@@ -353,18 +384,18 @@ class TranslationConfig(Base):
         ForeignKey(
             f'{StylePrompt.__tablename__}.id',
             ondelete='CASCADE'
-        )
+        ),
+        nullable=True
     )
     name: Mapped[str] = mapped_column(
         String(20),
         # TODO: add "unique for user" constraint
     )
-    report_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(f'{Report.__tablename__}.id', ondelete='CASCADE')
+    language_ids: Mapped[list[int]] = mapped_column(ARRAY(Integer))
+    model_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{AIModel.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
     )
-    language_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(f'{Report.__tablename__}.id', ondelete='CASCADE')
-    ) # TODO: consider replacing with array (maybe JSONB or Array)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         default=get_utc_now
@@ -385,15 +416,31 @@ class TranslationTask(Base):
     article_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE')
     )
-    source_language_id: Mapped[uuid.UUID] = mapped_column(
+    source_language_id: Mapped[int] = mapped_column(
         ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE')
     )
-    target_language_id: Mapped[uuid.UUID] = mapped_column(
+    target_language_id: Mapped[int] = mapped_column(
         ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE')
+    )
+    prompt_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            f'{StylePrompt.__tablename__}.id', ondelete='CASCADE'
+        )
+    )
+    model_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            f'{AIModel.__tablename__}.id', ondelete='CASCADE'
+        )
     )
     status: Mapped[TranslationTaskStatus] = mapped_column(
         Enum(TranslationTaskStatus),
-        default=TranslationTaskStatus.started
+        default=TranslationTaskStatus.created
+    )
+    data: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=True,
+        comment='Additional data related to the translation task '
+                '(e.g., errors or metadata)'
     )
     translated_article_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE'),
@@ -406,6 +453,40 @@ class TranslationTask(Base):
     deleted_at: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,
         nullable=True
+    )
+
+
+class Translation(Base):
+    __tablename__ = f'{Database.prefix}translation'
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        autoincrement=True,
+        primary_key=True,
+    )
+    prompt_id: Mapped[int] = mapped_column(
+        ForeignKey(f'{StylePrompt.__tablename__}.id'),
+        nullable=False,
+    )
+    input_text: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+    output_text: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+    source_lang: Mapped[str] = mapped_column(
+        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True,
+    )
+    target_lang: Mapped[str] = mapped_column(
+        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
     )
 
 

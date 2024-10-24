@@ -1,16 +1,18 @@
 import uuid
+from typing import Tuple, List
 
 from fastapi import HTTPException, status
 
-from fastapi_pagination import Page, Params
-from fastapi_pagination.ext.sqlalchemy import paginate
-
-from src.database import get_session
 from src.database.models import User
-from src.routers.users.schemes import CreateUserScheme, FilterUserScheme
+from src.pagination import PaginationParams, paginate
+from src.routers.users.schemes import CreateUserScheme, FilterUserScheme, \
+    UserOutScheme, EditUserScheme
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.util.auth.helpers import get_password_hash
+from src.util.time.helpers import get_utc_now
 
 
 class UserRepository:
@@ -20,7 +22,8 @@ class UserRepository:
             db_session: AsyncSession
     ) -> User | None:
         result = await db_session.execute(select(User).where(
-            User.id == user_id
+            User.id == user_id,
+            User.deleted_at.is_(None),
         ))
         return result.scalars().first()
 
@@ -30,29 +33,32 @@ class UserRepository:
             db_session: AsyncSession
     ) -> User | None:
         result = await db_session.execute(select(User).where(
-            User.email == email
+            User.email == email,
+            User.deleted_at.is_(None),
         ))
         return result.scalars().first()
 
     @staticmethod
     async def get_list(
-            pagination_params: Params,
+            pagination_params: PaginationParams,
             filter_params: FilterUserScheme,
             db_session: AsyncSession
-    ) -> Page[User]:
+    ) -> Tuple[List[UserOutScheme], int]:
         # TODO: implement proper sorting
-        query = select(User)
+        query = select(User).where(User.deleted_at.is_(None))
         if filter_params.role is not None:
             query = query.where(User.role == filter_params.role)
         if filter_params.email_verified is not None:
             query = query.where(
                 User.email_verified == filter_params.email_verified
             )
-        return await paginate(
-            conn=db_session,
-            query=query,
-            params=pagination_params
+        users, count = await paginate(
+            session=db_session,
+            statement=query,
+            pagination=pagination_params
         )
+        users_list = [UserOutScheme.model_validate(u) for u in users]
+        return users_list, count
 
     @staticmethod
     async def create(
@@ -65,18 +71,54 @@ class UserRepository:
         )
         if existing_user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail='Адрес электронной почты занят'
             )
         user = User(
             name=user_data.name,
             email=user_data.email,
             email_verified=user_data.email_verified,
-            password_hash=user_data.password_hash,
+            password_hash=get_password_hash(user_data.password),
             role=user_data.role,
-            logged_wiht_provider=user_data.logged_with_provider,
+            logged_with_provider=user_data.logged_with_provider,
             provider_id=user_data.provider_id
         )
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        return user
+
+    @staticmethod
+    async def update(
+            user: User,
+            new_data: EditUserScheme,
+            db_session: AsyncSession
+    ) -> User:
+        for key, value in vars(new_data).items():
+            if value is not None:
+                user.__setattr__(key, value)
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        return user
+
+    @staticmethod
+    async def update_password_hash(
+            user_id: uuid.UUID,
+            new_password_hash: str,
+            db_session: AsyncSession
+    ) -> int:
+        result = await db_session.execute(update(User).where(
+            User.id == user_id
+        ).values(password_hash=new_password_hash))
+        return result.rowcount
+
+    @staticmethod
+    async def delete(
+            user: User,
+            db_session: AsyncSession
+    ) -> User:
+        user.deleted_at = get_utc_now()
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)

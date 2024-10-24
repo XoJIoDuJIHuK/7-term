@@ -1,4 +1,10 @@
-from src.settings import Database
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
+from fastapi import HTTPException
+
+from src.settings import Database, LOGGER_PREFIX
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -16,12 +22,24 @@ engine = create_async_engine(
     pool_pre_ping=Database.pool_pre_ping
 )
 Session = async_sessionmaker(engine)
+logger = logging.getLogger(LOGGER_PREFIX + __name__)
 
 
 class Base(DeclarativeBase):
     pass
 
 
-async def get_session() -> AsyncSession:
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with Session() as session:
-        yield session
+        try:
+            yield session
+        except HTTPException as e:
+            await session.rollback()
+            raise e
+        except Exception as e:
+            logger.warning('Session rollback because of exception: %s', e)
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()

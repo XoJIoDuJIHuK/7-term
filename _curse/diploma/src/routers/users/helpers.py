@@ -7,7 +7,7 @@ from fastapi import (
     status,
 )
 
-from src.database import get_session
+from src.depends import get_session
 from src.services.user import UserRepository
 
 from sqlalchemy.ext.asyncio import AsyncSession

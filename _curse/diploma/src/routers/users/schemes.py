@@ -1,33 +1,31 @@
 import datetime
+import uuid
 
-from pydantic import BaseModel, EmailStr
+from pydantic import EmailStr
 
+from src.responses import Scheme
 from src.settings import Role
 
 
-class EditUserScheme(BaseModel):
+class EditUserScheme(Scheme):
     name: str | None
     email: EmailStr | None
     email_verified: bool | None
     role: Role | None
     password: str | None
 
-    class Config:
-        from_attributes = True
-
 
 class CreateUserScheme(EditUserScheme):
+    # TODO: change types
     logged_with_provider: str | None = None
     provider_id: str | None = None
 
 
-class UserOutScheme(BaseModel):
+class UserOutScheme(Scheme):
+    id: uuid.UUID
     name: str
     email: EmailStr
     role: Role
-
-    class Config:
-        from_attributes = True
 
 
 class UserOutAdminScheme(UserOutScheme):
@@ -38,6 +36,6 @@ class UserOutAdminScheme(UserOutScheme):
     deleted_at: datetime.datetime | None
 
 
-class FilterUserScheme(BaseModel):
+class FilterUserScheme(Scheme):
     email_verified: bool | None
     role: Role | None

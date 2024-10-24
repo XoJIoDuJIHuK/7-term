@@ -1,0 +1,33 @@
+version: 1
+disable_existing_loggers: no
+
+formatters:
+  info:
+    format: '%(asctime)s - %(process)d (%(processName)s) - %(thread)d (%(threadName)s) - %(name)s - %(levelname)s - %(message)s'
+  verbose:
+    format: '[%(asctime)s] [%(levelname)s] %(module)s - %(message)s at %(filename)s line %(lineno)d'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: info
+    stream: ext://sys.stdout
+
+  file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: verbose
+    filename: 'app.log'
+
+loggers:
+  root:
+    level: DEBUG
+    handlers: [console]
+
+  __name__:
+    propagate: yes
+
+root:
+  level: DEBUG
+  handlers: [console]

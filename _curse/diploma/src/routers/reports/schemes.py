@@ -1,12 +1,13 @@
 import uuid
 from datetime import  datetime
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from src.database.models import ReportStatus
+from src.responses import Scheme
 
 
-class CreateReportScheme(BaseModel):
+class CreateReportScheme(Scheme):
     text: str = Field(min_length=1, max_length=1024)
     reason_id: int
 
@@ -21,15 +22,12 @@ class ReportOutScheme(CreateReportScheme):
     closed_by_user_id: uuid.UUID
 
 
-class ReportReasonOutScheme(BaseModel):
+class ReportReasonOutScheme(Scheme):
     id: int
     text: str
 
-    class Config:
-        from_attributes = True
 
-
-class CreateCommentScheme(BaseModel):
+class CreateCommentScheme(Scheme):
     text: str = Field(min_length=1, max_length=100)
 
 

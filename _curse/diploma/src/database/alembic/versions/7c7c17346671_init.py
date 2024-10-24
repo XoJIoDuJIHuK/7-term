@@ -102,7 +102,6 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('ip', sa.String(length=15), nullable=False),
-    sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_closed', sa.Boolean(), nullable=False),
     sa.Column('refresh_token_id', sa.UUID(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),

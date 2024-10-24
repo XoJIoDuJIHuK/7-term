@@ -1,30 +1,35 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from src.responses import Scheme
 
 
-class UploadArticleScheme(BaseModel):
+class UploadArticleScheme(Scheme):
     title: str
     text: str
 
-    class Config:
-        from_attributes = True
 
-
-class EditArticleScheme(UploadArticleScheme):
-    title: str | None
-    text: str | None
+class EditArticleScheme(Scheme):
+    title: str | None = None
+    text: str | None = None
 
 
 class CreateArticleScheme(UploadArticleScheme):
     user_id: uuid.UUID
-    language_id: uuid.UUID | None
-    original_article_id: uuid.UUID | None
-    like: bool | None
+    language_id: int | None = None
+    original_article_id: uuid.UUID | None = None
+    like: bool | None = None
 
 
 class ArticleOutScheme(CreateArticleScheme):
     id: uuid.UUID
     created_at: datetime
-    deleted_at: datetime | None
+    deleted_at: datetime | None = None
+
+
+class ArticleListItemScheme(Scheme):
+    id: uuid.UUID
+    title: str
+    language_id: int | None = None
+    like: bool | None = None
+    created_at: datetime

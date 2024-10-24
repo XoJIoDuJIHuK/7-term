@@ -8,15 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "2f52347756a76ebe",
+            "id": "537547f83a31b253",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "_diploma/kanBAN chuchelo.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "kanBAN chuchelo"
             }
           }
         ]
@@ -39,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -54,7 +58,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -62,7 +68,9 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
@@ -85,7 +93,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "Philosophy/2024-10-14.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -93,7 +101,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 2024-10-14"
             }
           },
           {
@@ -102,10 +112,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "BRBIT/2024-09-04.md",
+                "file": "Philosophy/2024-10-14.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 2024-10-14"
             }
           },
           {
@@ -116,7 +128,9 @@
               "state": {
                 "sortOrder": "frequency",
                 "useHierarchy": true
-              }
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           },
           {
@@ -125,8 +139,10 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "BRBIT/2024-09-04.md"
-              }
+                "file": "Philosophy/2024-10-14.md"
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 2024-10-14"
             }
           },
           {
@@ -134,7 +150,9 @@
             "type": "leaf",
             "state": {
               "type": "advanced-tables-toolbar",
-              "state": {}
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
             }
           }
         ],
@@ -155,16 +173,30 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "2f52347756a76ebe",
+  "active": "537547f83a31b253",
   "lastOpenFiles": [
-    "labs.md",
-    "ISD/2024-09-19.md",
-    "ISD/2024-10-03.md",
-    "Philosophy/2024-10-14.md",
+    "_diploma/extensions.md",
+    "_diploma/kanBAN chuchelo.md",
+    "_diploma/use-case.md",
+    "_diploma/поправки в конституцию.md",
+    "Psychology/2024-10-23.md",
+    "Pasted image 20241023083256.png",
     "IPMB/Реферат алгоритм Коха-Жао.md",
+    "IPMB/presentation.odp",
+    "IPMB/lu297584ha10.tmp",
+    "ITPM/Реферат алгоритм Коха-Жао.pdf",
+    "IPMB/block_example_large.png",
+    "IPMB/Реферат алгоритм Коха-Жао.pdf",
+    "labs.md",
+    "Philosophy/2024-10-21.md",
+    "Philosophy/2024-10-18 пз.md",
+    "Philosophy/2024-10-14.md",
+    "ISD/2024-10-03.md",
+    "Philosophy/2024-.zip",
+    "ISD/2024-09-19.md",
+    "BRBIT/2024-09-04.md",
     "Psychology/2024-10-09.md",
     "Psychology/2024-09-25.md",
-    "IPMB/Реферат алгоритм Коха-Жао.pdf",
     "IPMB/histogram_differentiated.png",
     "IPMB/histogram_with_message.png",
     "IPMB/histogram_clean.png",
@@ -177,30 +209,17 @@
     "ITPM/2024-10-10.md",
     "ITPM/2024-10-02 пз.md",
     "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
-    "IPMB/123.svg",
     "IPMB/2024-09-14.md",
     "Philosophy/2024-10-07.md",
     "Philosophy/2024-09-23.md",
-    "BRBIT/2024-09-04.md",
     "BRBIT/2024-09-04 пз.md",
     "BRBIT/2024-10-02.md",
     "Achievements.md",
     "Philosophy/2024-09-30.md",
     "DCS/ТЗ на лабу 4-6.md",
-    "ITPM/2024-09-26.md",
-    "IPMB/2024-09-11.md",
     "Untitled",
-    "Psychology/2024-09-11.md",
-    "DCS/2024-09-24.md",
-    "DCS/2024-09-17.md",
-    "DCS/2024-09-10.md",
-    "Philosophy/2024-09-16.md",
     "IPMB",
     "ITPM",
-    "IPM",
-    "Psychology",
-    "DCS",
-    "_diploma",
-    "WSD"
+    "IPM"
   ]
 }
