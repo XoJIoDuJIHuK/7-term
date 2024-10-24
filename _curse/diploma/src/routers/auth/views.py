@@ -1,4 +1,3 @@
-from dns.reversename import to_address
 from fastapi import (
     APIRouter,
     Depends,
@@ -17,10 +16,11 @@ from src.responses import BaseResponse, DataResponse
 from src.routers.auth.schemes import RegistrationScheme
 from src.routers.users.schemes import CreateUserScheme
 from src.services.confirmation_code import ConfirmationCodeRepository
+from src.services.session import SessionRepository
 from src.services.user import UserRepository
 from src.settings import Role, KafkaConfig, UnisenderConfig
 from src.util.auth.classes import AuthHandler
-from src.util.auth.helpers import get_password_hash
+from src.util.auth.helpers import get_password_hash, get_user_agent
 from src.util.auth.schemes import LoginScheme, TokensScheme
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,28 +32,6 @@ router = APIRouter(
     prefix='/auth',
     tags=['Auth']
 )
-
-
-@router.post(
-    '/register/',
-    response_model=BaseResponse,
-    responses=get_responses(409)
-)
-async def register(
-        registration_data: RegistrationScheme,
-        db_session: AsyncSession = Depends(get_session)
-):
-    user = await UserRepository.create(
-        user_data=CreateUserScheme(
-            name=registration_data.name,
-            email=registration_data.email,
-            email_verified=False,
-            password=registration_data.password,
-            role=Role.user
-        ),
-        db_session=db_session
-    )
-    return BaseResponse(message='Регистрация успешна')
 
 
 @router.post(
@@ -86,11 +64,94 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Подтвердите адрес электронной почты'
         )
+    await SessionRepository.close_all(
+        user_id=user.id,
+        ip=request.client.host,
+        user_agent=get_user_agent(request),
+        db_session=db_session
+    )
     return await AuthHandler.login(
         user=user,
         request=request,
         db_session=db_session
     )
+
+
+@router.post(
+    '/register/',
+    response_model=BaseResponse,
+    responses=get_responses(409)
+)
+async def register(
+        registration_data: RegistrationScheme,
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepository.create(
+        user_data=CreateUserScheme(
+            name=registration_data.name,
+            email=registration_data.email,
+            email_verified=False,
+            password=registration_data.password,
+            role=Role.user
+        ),
+        db_session=db_session
+    )
+    producer = KafkaProducer(
+        bootstrap_servers=KafkaConfig.address,
+        topic=KafkaConfig.mail_topic
+    )
+    confirmation_code = await ConfirmationCodeRepository.create(
+        user_id=user.id,
+        reason=ConfirmationType.registration,
+        db_session=db_session
+    )
+    kafka_message = SendEmailScheme(
+        to_address=registration_data.email,
+        from_address=UnisenderConfig.from_address,
+        from_name=UnisenderConfig.from_name,
+        subject=UnisenderConfig.email_confirmation_subject,
+        template_id=UnisenderConfig.email_confirmation_template_id,
+        params={
+            'code': confirmation_code.code
+        }
+    )
+    await producer.send_message(kafka_message.model_dump(mode='json'))
+    return BaseResponse(message='Регистрация успешна. Проверьте почту')
+
+
+@router.post(
+    '/registration/confirm/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 404)
+)
+async def confirm_email(
+        code: str,
+        email: EmailStr,
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepository.get_by_email(
+        email=email,
+        db_session=db_session
+    )
+    if not user or user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователь не найден'
+        )
+    confirmation_code = await ConfirmationCodeRepository.get(
+        value=code,
+        reason=ConfirmationType.registration,
+        db_session=db_session
+    )
+    if not confirmation_code or confirmation_code.code != code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Неправильный код'
+        )
+    user.email_verified = True
+    db_session.add(user)
+    await db_session.commit()
+    return BaseResponse(message='Почта подтверждена. Можно входить')
 
 
 @router.post(
@@ -125,8 +186,13 @@ async def request_password_restoration_code(
         from_address=UnisenderConfig.from_address,
         from_name=UnisenderConfig.from_name,
         subject=UnisenderConfig.password_recovery_subject,
-
+        template_id=UnisenderConfig.password_recovery_template_id,
+        params={
+            'code': confirmation_code.code
+        }
     )
+    await producer.send_message(kafka_message.model_dump(mode='json'))
+    return BaseResponse(message='Сообщение отправляется на почту')
 
 
 @router.patch(

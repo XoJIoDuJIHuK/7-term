@@ -126,5 +126,11 @@ class UnisenderConfig:
     password_recovery_subject = EnvParameter(
         'UNISENDER_PASSWORD_RECOVERY_SUBJECT'
     )
+    email_confirmation_template_id = EnvParameter(
+        'UNISENDER_EMAIL_CONFIRMATION_TEMPLATE_ID'
+    )
+    password_recovery_template_id = EnvParameter(
+        'UNISENDER_PASSWORD_RECOVERY_TEMPLATE_ID'
+    )
     api_url = EnvParameter('UNISENDER_API_URL')
     list_id = EnvParameter('UNISENDER_LIST_ID')

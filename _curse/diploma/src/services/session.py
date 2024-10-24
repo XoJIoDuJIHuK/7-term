@@ -8,17 +8,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.pagination import PaginationParams, paginate
 from src.routers.sessions.schemes import SessionOutScheme
+from src.util.time.helpers import get_utc_now
 
 
 class SessionRepository:
     @staticmethod
     async def get_refresh_token_ids(
             user_id: uuid.UUID,
-            db_session: AsyncSession
+            db_session: AsyncSession,
+            ip: str | None = None,
+            user_agent: str | None = None
     ) -> list[uuid.UUID]:
         result = await db_session.execute(select(
             Session.refresh_token_id
-        ).filter_by(user_id=user_id))
+        ).where(
+            Session.user_id == user_id,
+            ip is None or Session.ip == ip,
+            user_agent is None or Session.user_agent == user_agent,
+        ))
         return list(result.scalars().all())
 
     @staticmethod
@@ -51,14 +58,22 @@ class SessionRepository:
         ))
         return result.scalar_one_or_none()
 
+
     @staticmethod
     async def close_all(
             user_id: uuid.UUID,
-            db_session: AsyncSession
+            db_session: AsyncSession,
+            ip: str | None = None,
+            user_agent: str | None = None,
     ):
         result = await db_session.execute(update(Session).where(
-            Session.user_id == user_id
-        ).values(is_closed=True))
+            Session.user_id == user_id,
+            ip is None or Session.ip == ip,
+            user_agent is None or Session.user_agent == user_agent,
+        ).values(
+            is_closed=True,
+            closed_at=get_utc_now()
+        ))
         await db_session.commit()
         return result.rowcount
 

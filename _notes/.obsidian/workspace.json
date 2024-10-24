@@ -13,6 +13,20 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "ITPM/2024-10-24.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2024-10-24"
+            }
+          },
+          {
+            "id": "571640b8c889eed2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "_diploma/kanBAN chuchelo.md",
                 "mode": "source",
                 "source": false
@@ -21,7 +35,8 @@
               "title": "kanBAN chuchelo"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -173,14 +188,16 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "537547f83a31b253",
+  "active": "571640b8c889eed2",
   "lastOpenFiles": [
-    "_diploma/extensions.md",
+    "ITPM/2024-10-24.md",
+    "ITPM/2024-09-12.md",
     "_diploma/kanBAN chuchelo.md",
+    "Pasted image 20241023083256.png",
+    "_diploma/extensions.md",
     "_diploma/use-case.md",
     "_diploma/поправки в конституцию.md",
     "Psychology/2024-10-23.md",
-    "Pasted image 20241023083256.png",
     "IPMB/Реферат алгоритм Коха-Жао.md",
     "IPMB/presentation.odp",
     "IPMB/lu297584ha10.tmp",
@@ -205,7 +222,6 @@
     "IPMB/block_example.png",
     "IPMB/combined_image.jpg",
     "IPMB/Реферат алгоритм Коха-Жао.html",
-    "ITPM/2024-09-12.md",
     "ITPM/2024-10-10.md",
     "ITPM/2024-10-02 пз.md",
     "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
@@ -216,7 +232,6 @@
     "BRBIT/2024-10-02.md",
     "Achievements.md",
     "Philosophy/2024-09-30.md",
-    "DCS/ТЗ на лабу 4-6.md",
     "Untitled",
     "IPMB",
     "ITPM",
