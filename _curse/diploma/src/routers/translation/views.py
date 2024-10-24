@@ -100,6 +100,7 @@ async def create_translation(
                 language_id=target_language_id,
                 db_session=db_session
         ):
+            # TODO: change logic so not all translations cancel
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Конечный язык не поддерживается'

@@ -9,4 +9,4 @@ WSD/labs/**/packages
 PWS_Labs_7sem/
 __pycache__/
 gpt4free/
-.env
+_curse/diploma/.env

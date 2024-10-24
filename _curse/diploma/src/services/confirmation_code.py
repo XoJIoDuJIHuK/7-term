@@ -1,4 +1,7 @@
 import uuid
+from datetime import timedelta
+
+from fastapi import HTTPException, status
 
 from src.database.models import ConfirmationCode, ConfirmationType
 from src.settings import AppConfig
@@ -6,6 +9,7 @@ from src.settings import AppConfig
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.util.common.helpers import generate_random_string
 from src.util.time.helpers import get_utc_now
 
 
@@ -34,13 +38,31 @@ class ConfirmationCodeRepository:
         db_session.add(confirmation_code)
         await db_session.commit()
 
-    @staticmethod
+    @classmethod
     async def create(
-            code: str,
+            cls,
             user_id: uuid.UUID,
             reason: ConfirmationType,
             db_session: AsyncSession
     ):
-        confirmation_code = ConfirmationCode(
-
+        length = 10
+        value = generate_random_string(length)
+        while await cls.get(
+            value=value,
+            reason=reason,
+            db_session=db_session
+        ):
+            value = generate_random_string(length)
+        expired_at = (
+            get_utc_now() + timedelta(seconds=AppConfig.conf_code_exp_seconds)
         )
+        confirmation_code = ConfirmationCode(
+            code=value,
+            reason=reason,
+            user_id=user_id,
+            expired_at=expired_at
+        )
+        db_session.add(confirmation_code)
+        await db_session.commit()
+        await db_session.refresh(confirmation_code)
+        return confirmation_code

@@ -118,9 +118,13 @@ class TranslationTaskConfig:
 
 class UnisenderConfig:
     from_address = EnvParameter('UNISENDER_FROM_ADDRESS')
+    from_name = EnvParameter('UNISENDER_FROM_NAME')
     api_key = EnvParameter('UNISENDER_API_KEY')
-    email_confirmation_topic = EnvParameter(
-        'UNISENDER_EMAIL_CONFIRMATION_TOPIC'
+    email_confirmation_subject = EnvParameter(
+        'UNISENDER_EMAIL_CONFIRMATION_SUBJECT'
+    )
+    password_recovery_subject = EnvParameter(
+        'UNISENDER_PASSWORD_RECOVERY_SUBJECT'
     )
     api_url = EnvParameter('UNISENDER_API_URL')
     list_id = EnvParameter('UNISENDER_LIST_ID')

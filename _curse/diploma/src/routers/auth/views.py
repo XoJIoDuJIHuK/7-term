@@ -1,3 +1,4 @@
+from dns.reversename import to_address
 from fastapi import (
     APIRouter,
     Depends,
@@ -17,12 +18,15 @@ from src.routers.auth.schemes import RegistrationScheme
 from src.routers.users.schemes import CreateUserScheme
 from src.services.confirmation_code import ConfirmationCodeRepository
 from src.services.user import UserRepository
-from src.settings import Role
+from src.settings import Role, KafkaConfig, UnisenderConfig
 from src.util.auth.classes import AuthHandler
 from src.util.auth.helpers import get_password_hash
 from src.util.auth.schemes import LoginScheme, TokensScheme
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.util.brokers.producer.kafka import KafkaProducer
+from src.util.mail.schemes import SendEmailScheme
 
 router = APIRouter(
     prefix='/auth',
@@ -96,9 +100,33 @@ async def login(
 )
 async def request_password_restoration_code(
         email: EmailStr,
-        db_session: AsyncSession
+        db_session: AsyncSession = Depends(get_session)
 ):
+    user = await UserRepository.get_by_email(
+        email=email,
+        db_session=db_session
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Неправильный адрес электронной почты'
+        )
+    confirmation_code = await ConfirmationCodeRepository.create(
+        user_id=user.id,
+        reason=ConfirmationType.password_reset,
+        db_session=db_session
+    )
+    producer = KafkaProducer(
+        bootstrap_servers=KafkaConfig.address,
+        topic=KafkaConfig.mail_topic
+    )
+    kafka_message = SendEmailScheme(
+        to_address=email,
+        from_address=UnisenderConfig.from_address,
+        from_name=UnisenderConfig.from_name,
+        subject=UnisenderConfig.password_recovery_subject,
 
+    )
 
 
 @router.patch(
