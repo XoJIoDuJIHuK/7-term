@@ -19,7 +19,8 @@ engine = create_async_engine(
     pool_size=Database.pool_size,
     max_overflow=Database.max_overflow,
     pool_recycle=Database.pool_recycle,
-    pool_pre_ping=Database.pool_pre_ping
+    pool_pre_ping=Database.pool_pre_ping,
+    echo=True
 )
 Session = async_sessionmaker(engine)
 logger = logging.getLogger(LOGGER_PREFIX + __name__)

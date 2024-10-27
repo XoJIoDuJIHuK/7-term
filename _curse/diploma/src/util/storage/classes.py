@@ -20,3 +20,6 @@ class RedisHandler:
     def set_batch(self, key: str, values: list, ex: int | None = None):
         for value in values:
             self.client.set(f'{key}:{value}', value, ex=ex)
+
+    def get_pubsub(self):
+        return self.client.pubsub()

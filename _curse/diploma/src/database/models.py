@@ -136,7 +136,7 @@ class Session(Base):
 
 class ConfirmationCode(Base):
     __tablename__ = f'{Database.prefix}confirmation_codes'
-    id: Mapped[int] = mapped_column(  # TODO: consider replacing with uuid
+    id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True
     )
@@ -226,7 +226,6 @@ class Article(Base):
     )
     language: Mapped[Language] = relationship(
         'Language',
-        # back_populates='article',
         uselist=False
     )
 
@@ -268,7 +267,7 @@ class Report(Base):
         ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE'),
         nullable=True
     )
-    reason_id: Mapped[uuid.UUID] = mapped_column(
+    reason_id: Mapped[int] = mapped_column(
         ForeignKey(f'{ReportReason.__tablename__}.id', ondelete='CASCADE')
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -285,15 +284,15 @@ class Report(Base):
         back_populates='report',
         uselist=False
     )
-    comments: Mapped[list['Comment']] = relationship(
-        'Comment',
-        back_populates='report',
-        cascade='all, delete-orphan'
+    closed_by_user: Mapped[User] = relationship(
+        'User',
+        uselist=False,
+        lazy='joined'
     )
     reason: Mapped[ReportReason] = relationship(
         'ReportReason',
-        # back_populates='reports',
-        uselist=False
+        uselist=False,
+        lazy='joined'
     )
 
 
@@ -316,12 +315,6 @@ class Comment(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         default=get_utc_now
-    )
-
-    report: Mapped[Report] = relationship(
-        'Report',
-        back_populates='comments',
-        uselist=False
     )
 
 
@@ -380,7 +373,7 @@ class TranslationConfig(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
     )
-    prompt_id: Mapped[uuid.UUID] = mapped_column(
+    prompt_id: Mapped[int] = mapped_column(
         ForeignKey(
             f'{StylePrompt.__tablename__}.id',
             ondelete='CASCADE'
@@ -392,7 +385,7 @@ class TranslationConfig(Base):
         # TODO: add "unique for user" constraint
     )
     language_ids: Mapped[list[int]] = mapped_column(ARRAY(Integer))
-    model_id: Mapped[uuid.UUID] = mapped_column(
+    model_id: Mapped[int] = mapped_column(
         ForeignKey(f'{AIModel.__tablename__}.id', ondelete='CASCADE'),
         nullable=True
     )
@@ -453,40 +446,6 @@ class TranslationTask(Base):
     deleted_at: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,
         nullable=True
-    )
-
-
-class Translation(Base):
-    __tablename__ = f'{Database.prefix}translation'
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        autoincrement=True,
-        primary_key=True,
-    )
-    prompt_id: Mapped[int] = mapped_column(
-        ForeignKey(f'{StylePrompt.__tablename__}.id'),
-        nullable=False,
-    )
-    input_text: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-    )
-    output_text: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-    )
-    source_lang: Mapped[str] = mapped_column(
-        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE'),
-        nullable=True,
-    )
-    target_lang: Mapped[str] = mapped_column(
-        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE'),
-        nullable=False,
-    )
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime,
-        default=get_utc_now
     )
 
 

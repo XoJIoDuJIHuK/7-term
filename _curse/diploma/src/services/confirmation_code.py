@@ -1,7 +1,6 @@
+import time
 import uuid
-from datetime import timedelta
-
-from fastapi import HTTPException, status
+from datetime import timedelta, datetime
 
 from src.database.models import ConfirmationCode, ConfirmationType
 from src.settings import AppConfig
@@ -20,7 +19,9 @@ class ConfirmationCodeRepository:
             reason: ConfirmationType,
             db_session: AsyncSession,
     ) -> ConfirmationCode | None:
-        max_exp_at = get_utc_now() + AppConfig.conf_code_exp_seconds
+        max_exp_at = datetime.fromtimestamp(
+            int(time.time()) + AppConfig.conf_code_exp_seconds
+        )
         result = await db_session.execute(select(ConfirmationCode).where(
             ConfirmationCode.code == value,
             ConfirmationCode.reason == reason,

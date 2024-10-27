@@ -2,6 +2,8 @@ import uuid
 from typing import List, Tuple
 
 from fastapi_pagination import Page, Params
+from sqlalchemy.orm import joinedload
+
 # from fastapi_pagination.ext.sqlalchemy import paginate
 
 from src.database.models import Article
@@ -73,11 +75,16 @@ class ArticleRepository:
     @staticmethod
     async def get_by_id(
             article_id: uuid.UUID,
-            db_session: AsyncSession
+            db_session: AsyncSession,
+            load_report: bool = False
     ) -> Article | None:
-        result = await db_session.execute(select(Article).where(
-            Article.id == article_id
-        ))
+        query = select(Article).where(
+            Article.id == article_id,
+            Article.deleted_at.is_(None)
+        )
+        if load_report:
+            query = query.options(joinedload(Article.report))
+        result = await db_session.execute(query)
         return result.scalars().first()
 
     @staticmethod

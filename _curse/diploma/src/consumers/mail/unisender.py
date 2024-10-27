@@ -23,6 +23,7 @@ class EmailTaskConsumer(AbstractKafkaConsumer):
                 template_id=message.template_id,
                 params=message.params,
             )
+            self.logger.warning(f'Message to {message.to_address} is sent')
             self.logger.info(f'Message sent successfully')
         except Exception as e:
             self.logger.exception(e)

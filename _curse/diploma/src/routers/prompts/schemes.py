@@ -11,8 +11,8 @@ class CreatePromptScheme(Scheme):
 
 
 class EditPromptScheme(CreatePromptScheme):
-    title: str = Field(min_length=1, max_length=20)
-    text: str = Field(min_length=1, max_length=200)
+    title: str | None = Field(None, min_length=1, max_length=20)
+    text: str | None = Field(None, min_length=1, max_length=200)
 
 
 class PromptOutScheme(CreatePromptScheme):

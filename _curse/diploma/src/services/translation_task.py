@@ -13,8 +13,9 @@ class TaskRepository:
             task_id: uuid.UUID,
             db_session: AsyncSession
     ) -> TranslationTask | None:
-        result = await db_session.execute(select(TranslationTask).filter_by(
-            id=task_id
+        result = await db_session.execute(select(TranslationTask).where(
+            TranslationTask.id == task_id,
+            TranslationTask.deleted_at.is_(None)
         ))
         return result.scalar_one_or_none()
 

@@ -5,8 +5,8 @@ from src.responses import Scheme
 
 class CreateConfigScheme(Scheme):
     name: str
-    prompt_id: uuid.UUID | None
-    model_id: int | None
+    prompt_id: int | None = None
+    model_id: int | None = None
     language_ids: list[int]
 
 

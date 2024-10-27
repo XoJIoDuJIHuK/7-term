@@ -31,7 +31,8 @@ def get_report(
     ) -> Report | None:
         article = await ArticleRepository.get_by_id(
             article_id=article_id,
-            db_session=db_session
+            db_session=db_session,
+            load_report=True
         )
         if (
             not article or

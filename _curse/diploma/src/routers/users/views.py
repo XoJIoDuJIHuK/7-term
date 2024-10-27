@@ -1,9 +1,11 @@
+import uuid
+
 from fastapi import (
     APIRouter,
     Depends,
     Form,
     HTTPException,
-    status,
+    status, Path,
 )
 
 from src.depends import get_session
@@ -89,11 +91,12 @@ async def get_list(
 
 
 @router.patch(
-    '/name/',  # TODO: update endpoint path naming
+    '/{user_id}/name/',
     response_model=BaseResponse,
     responses=get_responses(400, 401, 409)
 )
 async def change_name(
+        user_id: uuid.UUID = Path(),
         new_name: str = Form(min_length=1, max_length=20),
         user_info: UserInfo = Depends(JWTBearer()),
         db_session: AsyncSession = Depends(get_session)
@@ -102,7 +105,7 @@ async def change_name(
         user_id=user_info.id,
         db_session=db_session
     )
-    if not user:
+    if not user or user_id != user_info.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Пользователь не найден'

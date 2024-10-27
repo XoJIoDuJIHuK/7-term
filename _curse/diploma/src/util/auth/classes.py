@@ -42,17 +42,17 @@ class JWTBearer(HTTPBearer):
             )
         except HTTPException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Wrong credentials'
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Неправильные данные входа'
             )
 
         error_invalid_token = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Invalid token'
+            detail='Неправильный токен'
         )
         error_no_rights = HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Insufficient privileges'
+            detail='Недостаточно прав'
         )
 
         if credentials:
@@ -62,7 +62,6 @@ class JWTBearer(HTTPBearer):
                     payload := verify_jwt(credentials.credentials)
             ):
                 raise error_invalid_token
-
             provided_role = payload.role
             if not await self.role_allowed(provided_role):
                 raise error_no_rights

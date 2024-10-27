@@ -47,8 +47,9 @@ class PromptRepository:
             prompt_id: int,
             db_session: AsyncSession
     ) -> StylePrompt | None:
-        result = await db_session.execute(select(StylePrompt).filter_by(
-            id=prompt_id
+        result = await db_session.execute(select(StylePrompt).where(
+            StylePrompt.id == prompt_id,
+            StylePrompt.deleted_at.is_(None)
         ))
         return result.scalar_one_or_none()
 

@@ -5,7 +5,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from src.util.common.classes import EnvParameter
-from src.util.common.helpers import load_yaml_file
 
 
 load_dotenv()
@@ -23,7 +22,10 @@ class AppConfig:
 
 class Database:
     prefix = EnvParameter('DATABASE_PREFIX', default='gptranslate_')
-    url = EnvParameter('DATABASE_URL')
+    url = EnvParameter(
+        'DATABASE_URL',
+        default='postgresql+asyncpg://admin:admin@127.0.0.1:5432/diploma'
+    )
     pool_size = EnvParameter(
         'DB_POOL_SIZE', type_=int, default=5
     )
@@ -76,7 +78,6 @@ _translator_config_path = os.path.join(
 
 
 class TextTranslationConfig:
-    yml_config_data = load_yaml_file(_translator_config_path)
     max_words_in_text = EnvParameter(
         'TRANSLATOR_MAX_WORDS_IN_TEXT',
         type_=int,
@@ -134,3 +135,11 @@ class UnisenderConfig:
     )
     api_url = EnvParameter('UNISENDER_API_URL')
     list_id = EnvParameter('UNISENDER_LIST_ID')
+
+
+class NotificationConfig:
+    class Subjects:
+        new_message = 'Непрочитанное сообщение'
+        translation_ended = 'Перевод завершён'
+    time_to_live_in_redis = 10
+    topic_name = 'notifications_{}'

@@ -3,14 +3,6 @@ services:
     build:
       context: ../..
       dockerfile: contrib/docker/fastapi/Dockerfile
-#    environment:
-#      APP_SECRET_KEY: ${APP_SECRET_KEY}
-#      DATABASE_URL: ${DATABASE_URL}
-#      DB_POOL_SIZE: ${DB_POOL_SIZE}
-#      DB_MAX_OVERFLOW: ${DB_MAX_OVERFLOW}
-#      DB_POOL_RECYCLE: ${DB_POOL_RECYCLE}
-#      DB_POOL_PRE_PING: ${DB_POOL_PRE_PING}
-#      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     env_file:
       - ../../.env
     ports:
@@ -75,17 +67,22 @@ services:
       - "-m"
       - "src.manage"
       - "start_translator_consumer"
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      DATABASE_HOST: ${DATABASE_HOST:-postgres}
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
-      NOTIFICATION_ADDRESS: ${NOTIFICATION_ADDRESS}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID}
-      KAFKA_ADDRESS: ${KAFKA_ADDRESS}
-      TRANSLATION_KAFKA_TOPIC: ${TRANSLATION_KAFKA_TOPIC}
-      TRANSLATION_TASK_MAX_RETRIES: ${TRANSLATION_TASK_MAX_RETRIES:-5}
-      RESEND_MESSAGE_MAX_RETRIES: ${RESEND_MESSAGE_MAX_RETRIES:-100}
+    env_file:
+      - ../../.env
+    volumes:
+      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
+    depends_on:
+      - kafka
+
+  mail_consumer:
+    image: diploma-base
+    command:
+      - "python"
+      - "-m"
+      - "src.manage"
+      - "start_mail_consumer"
+    env_file:
+      - ../../.env
     volumes:
       - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
     depends_on:

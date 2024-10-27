@@ -53,8 +53,9 @@ class SessionRepository:
             refresh_token_id: uuid.UUID,
             db_session: AsyncSession
     ) -> Session | None:
-        result = await db_session.execute(select(Session).filter_by(
-            refresh_token_id=refresh_token_id
+        result = await db_session.execute(select(Session).where(
+            Session.refresh_token_id == refresh_token_id,
+            Session.is_closed.is_(False)
         ))
         return result.scalar_one_or_none()
 

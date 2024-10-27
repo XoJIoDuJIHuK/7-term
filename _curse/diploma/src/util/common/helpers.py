@@ -1,40 +1,7 @@
-import os
 import random
 import string
-from typing import Any
 
 from fastapi import HTTPException, UploadFile
-
-import yaml
-
-
-def load_yaml_file(
-        file_path: str
-) -> dict[str, Any]:
-    """Loads the configuration from a YAML file.
-
-    This method reads the YAML file, parses the model configuration,
-    and returns a dictionary containing the configuration settings.
-
-    Args:
-        file_path (str): The path to the YAML file containing the
-            configuration settings.
-
-    Returns:
-        dict[str, Any]: A dictionary representing the loaded configuration.
-
-    Raises:
-        FileNotFoundError: If the YAML file is not found at the specified
-            path.
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(
-            f'The model configuration file isn\'t found by {file_path}.'
-        )
-    with open(file_path, 'r') as file:
-        model_config = yaml.safe_load(file)
-
-    return model_config
 
 
 async def validate_file_size(file_: UploadFile, max_file_size_mb: int):

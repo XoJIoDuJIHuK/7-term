@@ -8,7 +8,7 @@ from src.pagination import PaginationParams, paginate
 from src.routers.users.schemes import CreateUserScheme, FilterUserScheme, \
     UserOutScheme, EditUserScheme
 
-from sqlalchemy import select, update
+from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.util.auth.helpers import get_password_hash
@@ -16,6 +16,16 @@ from src.util.time.helpers import get_utc_now
 
 
 class UserRepository:
+    @staticmethod
+    async def name_is_taken(
+            name: str,
+            db_session: AsyncSession
+    ) -> bool:
+        result = await db_session.execute(select(exists().where(
+            User.name == name
+        )))
+        return result.scalar_one()
+
     @staticmethod
     async def get_by_id(
             user_id: uuid.UUID,

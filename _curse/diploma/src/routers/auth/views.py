@@ -70,6 +70,7 @@ async def login(
         user_agent=get_user_agent(request),
         db_session=db_session
     )
+    await db_session.refresh(user)
     return await AuthHandler.login(
         user=user,
         request=request,
@@ -86,6 +87,14 @@ async def register(
         registration_data: RegistrationScheme,
         db_session: AsyncSession = Depends(get_session)
 ):
+    if await UserRepository.name_is_taken(
+        name=registration_data.name,
+        db_session=db_session
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Имя занято'
+        )
     user = await UserRepository.create(
         user_data=CreateUserScheme(
             name=registration_data.name,
@@ -216,7 +225,6 @@ async def restore_password(
             detail='Код восстановления пароля не найден'
         )
     new_password_hash = get_password_hash(new_password)
-    # TODO: move to service
     await UserRepository.update_password_hash(
         user_id=confirmation_code.user_id,
         new_password_hash=new_password_hash,

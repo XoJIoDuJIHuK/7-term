@@ -38,8 +38,9 @@ class ConfigRepository:
             user_id: uuid.UUID,
             db_session: AsyncSession
     ) -> list[ConfigOutScheme]:
-        result = await db_session.execute(select(TranslationConfig).filter_by(
-            user_id=user_id
+        result = await db_session.execute(select(TranslationConfig).where(
+            TranslationConfig.user_id == user_id,
+            TranslationConfig.deleted_at.is_(None)
         ))
         return [
             ConfigOutScheme.model_validate(c) for c in result.scalars().all()
@@ -50,8 +51,9 @@ class ConfigRepository:
             config_id: int,
             db_session: AsyncSession
     ) -> TranslationConfig | None:
-        result = await db_session.execute(select(TranslationConfig).filter_by(
-            id=config_id
+        result = await db_session.execute(select(TranslationConfig).where(
+            TranslationConfig.id == config_id,
+            TranslationConfig.deleted_at.is_(None)
         ))
         return result.scalar_one_or_none()
 

@@ -44,8 +44,9 @@ class ModelRepository:
             model_id: int,
             db_session: AsyncSession
     ) -> AIModel | None:
-        result = await db_session.execute(select(AIModel).filter_by(
-            id=model_id
+        result = await db_session.execute(select(AIModel).where(
+            AIModel.id == model_id,
+            AIModel.deleted_at.is_(None)
         ))
         return result.scalar_one_or_none()
 
