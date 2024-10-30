@@ -24,6 +24,10 @@ export default {
 </script>
 
 <style scoped>
+main {
+  margin-top: 170px;
+}
+
 header {
   position: fixed; 
   top: 0;

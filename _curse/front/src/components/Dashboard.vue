@@ -1,4 +1,3 @@
 <template>
-    <h1>Dashboard</h1>
-  </template>
-  
+    <h1>Dashboard xd</h1>
+</template>

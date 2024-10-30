@@ -8,35 +8,20 @@
         "type": "tabs",
         "children": [
           {
-            "id": "571640b8c889eed2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "_diploma/kanBAN chuchelo.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "kanBAN chuchelo"
-            }
-          },
-          {
             "id": "9099a4b7a9f0150f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_diploma/поправки в конституцию.md",
+                "file": "BRBIT/2024-10-30.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "поправки в конституцию"
+              "title": "2024-10-30"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -190,11 +175,15 @@
   },
   "active": "9099a4b7a9f0150f",
   "lastOpenFiles": [
-    "_diploma/kanBAN chuchelo.md",
+    "BRBIT/2024-09-04.md",
+    "BRBIT/2024-10-30.md",
     "_diploma/поправки в конституцию.md",
+    "Philosophy/2024-10-28.md",
+    "labs.md",
+    "_diploma/kanBAN chuchelo.md",
+    "Philosophy/2024-10-21.md",
     "Psychology/2024-10-23.md",
     "ITPM/2024-10-24.md",
-    "labs.md",
     "ITPM/2024-09-12.md",
     "Pasted image 20241023083256.png",
     "_diploma/extensions.md",
@@ -205,13 +194,11 @@
     "ITPM/Реферат алгоритм Коха-Жао.pdf",
     "IPMB/block_example_large.png",
     "IPMB/Реферат алгоритм Коха-Жао.pdf",
-    "Philosophy/2024-10-21.md",
     "Philosophy/2024-10-18 пз.md",
     "Philosophy/2024-10-14.md",
     "ISD/2024-10-03.md",
     "Philosophy/2024-.zip",
     "ISD/2024-09-19.md",
-    "BRBIT/2024-09-04.md",
     "Psychology/2024-10-09.md",
     "Psychology/2024-09-25.md",
     "IPMB/histogram_differentiated.png",
@@ -230,8 +217,6 @@
     "Philosophy/2024-09-23.md",
     "BRBIT/2024-09-04 пз.md",
     "BRBIT/2024-10-02.md",
-    "Achievements.md",
-    "Philosophy/2024-09-30.md",
     "Untitled",
     "IPMB",
     "ITPM",

@@ -40,7 +40,8 @@ class JWTBearer(HTTPBearer):
             credentials = await (
                 super(JWTBearer, self).__call__(request)
             )
-        except HTTPException:
+        except HTTPException as e:
+            self.logger.exception(e)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Неправильные данные входа'
