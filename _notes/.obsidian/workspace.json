@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "3c12dd774d2fd1ac",
+        "id": "a64679f9dd350d43",
         "type": "tabs",
         "children": [
           {
-            "id": "9099a4b7a9f0150f",
+            "id": "32eb39facc086810",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "BRBIT/2024-10-30 пз.md",
+                "file": "Psychology/2024-11-06.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2024-10-30 пз"
+              "title": "2024-11-06"
             }
           }
         ]
@@ -173,17 +173,22 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9099a4b7a9f0150f",
+  "active": "b294d57be4cfb0d0",
   "lastOpenFiles": [
-    "BRBIT/2024-10-30.md",
+    "Psychology/2024-10-23.md",
+    "Psychology/2024-11-06.md",
+    "Philosophy/2024-11-04.md",
+    "_diploma/kanBAN chuchelo.md",
+    "WSD/2024-11-04.md",
+    "ISD/2024-10-31.md",
+    "ISD/2024-10-03.md",
     "BRBIT/2024-10-30 пз.md",
+    "BRBIT/2024-10-30.md",
     "BRBIT/2024-09-04.md",
     "_diploma/поправки в конституцию.md",
     "Philosophy/2024-10-28.md",
     "labs.md",
-    "_diploma/kanBAN chuchelo.md",
     "Philosophy/2024-10-21.md",
-    "Psychology/2024-10-23.md",
     "ITPM/2024-10-24.md",
     "ITPM/2024-09-12.md",
     "Pasted image 20241023083256.png",
@@ -197,7 +202,6 @@
     "IPMB/Реферат алгоритм Коха-Жао.pdf",
     "Philosophy/2024-10-18 пз.md",
     "Philosophy/2024-10-14.md",
-    "ISD/2024-10-03.md",
     "Philosophy/2024-.zip",
     "ISD/2024-09-19.md",
     "Psychology/2024-10-09.md",
@@ -213,10 +217,6 @@
     "ITPM/2024-10-10.md",
     "ITPM/2024-10-02 пз.md",
     "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
-    "IPMB/2024-09-14.md",
-    "Philosophy/2024-10-07.md",
-    "Philosophy/2024-09-23.md",
-    "BRBIT/2024-09-04 пз.md",
     "Untitled",
     "IPMB",
     "ITPM",

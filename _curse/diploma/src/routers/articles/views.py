@@ -18,9 +18,10 @@ from src.routers.articles.schemes import (
     ArticleOutScheme,
     CreateArticleScheme,
     EditArticleScheme,
-    UploadArticleScheme, ArticleListItemScheme,
+    UploadArticleScheme, ArticleListItemScheme, ArticleUpdateLikeScheme,
 )
 from src.services.article import ArticleRepository
+from src.services.report import ReportRepository
 from src.settings import Role
 from src.util.auth.classes import JWTBearer
 from src.util.auth.schemes import UserInfo
@@ -78,9 +79,14 @@ async def get_article(
     )
     if not article or article.user_id != user_info.id:
         raise article_not_found_error
+    report_exists = bool(await ReportRepository.get_by_article_id(
+        article_id=article_id,
+        db_session=db_session
+    ))
+    article_scheme = ArticleOutScheme.create(article, report_exists)
     return DataResponse(
         data={
-            'article': ArticleOutScheme.model_validate(article)
+            'article': article_scheme
         }
     )
 
@@ -102,6 +108,7 @@ async def upload_article(
         article_data=CreateArticleScheme(
             title=article_data.title,
             text=article_data.text,
+            language_id=article_data.language_id,
             user_id=user_info.id
         ),
         db_session=db_session
@@ -133,11 +140,45 @@ async def update_article(
             or article.user_id != user_info.id
             or article.original_article_id is not None
     ):
-        raise
-    if new_article_data.title:
+        raise article_not_found_error
+    if new_article_data.title is not None:
         article.title = new_article_data.title
-    if new_article_data.text:
-        article.title = new_article_data.text
+    if new_article_data.text is not None:
+        article.text = new_article_data.text
+    db_session.add(article)
+    await db_session.commit()
+    await db_session.refresh(article)
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
+
+
+@router.patch(
+    '/{article_id}/like/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    )
+)
+async def update_like(
+        new_like_data: ArticleUpdateLikeScheme,
+        article_id: uuid.UUID = Path(),
+        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    article = await ArticleRepository.get_by_id(
+        article_id=article_id,
+        db_session=db_session
+    )
+    if (
+            not article or
+            article.user_id != user_info.id or
+            article.original_article_id is None
+    ):
+        raise article_not_found_error
+    article.like = new_like_data.like
     db_session.add(article)
     await db_session.commit()
     await db_session.refresh(article)

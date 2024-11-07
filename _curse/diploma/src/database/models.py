@@ -282,7 +282,8 @@ class Report(Base):
     article: Mapped[Article] = relationship(
         'Article',
         back_populates='report',
-        uselist=False
+        uselist=False,
+        # lazy='joined',
     )
     closed_by_user: Mapped[User] = relationship(
         'User',

@@ -1,11 +1,12 @@
-from redis import Redis
+import asyncio
+import redis.asyncio as aioredis
 
 from src.settings import RedisConfig
 
 
 class RedisHandler:
     def __init__(self):
-        self.client = Redis(
+        self.client = aioredis.Redis(
             host=RedisConfig.host,
             port=RedisConfig.port,
             db=RedisConfig.db,

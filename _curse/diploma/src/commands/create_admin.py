@@ -41,6 +41,7 @@ def create_admin(
             if user:
                 user.email = email
                 user.password_hash = hashed_password
+                user.name = name
             else:
                 user = User(
                     name=name,

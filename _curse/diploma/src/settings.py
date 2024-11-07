@@ -18,6 +18,7 @@ class AppConfig:
     secret_key = '123456789012345678901e'
     conf_code_exp_seconds = 60 * 15
     debug = EnvParameter('APP_DEBUG', default=True)
+    websocket_timeout_sec = 5
 
 
 class Database:
@@ -49,11 +50,13 @@ class JWTConfig:
     )
     algorithm = 'HS256'
     auth_jwt_exp_sec = EnvParameter(
-        'JWT_AUTH_EXP', type_=int, default=60 * 60
+        'JWT_AUTH_EXP', type_=int, default=60 * 60 * 1000
     )
+    auth_cookie_name = 'access_token'
     refresh_jwt_exp_sec = EnvParameter(
         'JWT_REFRESH_EXP', type_=int, default=60 * 60 * 24 * 30
     )
+    refresh_cookie_name = 'refresh_token'
     user_info_property = 'user_info'
 
 
@@ -104,7 +107,7 @@ class KafkaConfig:
 
 class RedisConfig:
     host = EnvParameter('REDIS_HOST', default='redis')
-    port = EnvParameter('REDIS_HOST', type_=int, default=6379)
+    port = EnvParameter('REDIS_PORT', type_=int, default=6379)
     db = EnvParameter('REDIS_DB', default=0)
 
 

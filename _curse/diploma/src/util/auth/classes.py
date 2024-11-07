@@ -3,7 +3,11 @@ import time
 import uuid
 
 from fastapi import HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import (
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+    APIKeyCookie,
+)
 
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -79,6 +83,63 @@ class JWTBearer(HTTPBearer):
         return provided_role in self.roles
 
 
+class JWTCookie(APIKeyCookie):
+    def __init__(
+            self,
+            roles: list[Role] = None,
+            auto_error: bool = True,
+            cookie_name: str = JWTConfig.auth_cookie_name,
+    ):
+        super(JWTCookie, self).__init__(
+            auto_error=auto_error,
+            name=cookie_name,
+        )
+        self.roles = roles if roles else []
+        self.logger = logging.getLogger(LOGGER_PREFIX + __name__)
+
+    async def __call__(self, request: Request):
+        token: str
+        try:
+            token = await (
+                super(JWTCookie, self).__call__(request)
+            )
+        except HTTPException as e:
+            self.logger.exception(e)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Неправильные данные входа'
+            )
+
+        error_invalid_token = HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Неправильный токен'
+        )
+        error_no_rights = HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Недостаточно прав'
+        )
+
+        if token:
+            if not (
+                payload := verify_jwt(token)
+            ):
+                raise error_invalid_token
+            provided_role = payload.role
+            if not await self.role_allowed(provided_role):
+                raise error_no_rights
+
+            return payload
+        else:
+            return None
+
+    async def role_allowed(self, provided_role: Role) -> bool:
+        if len(self.roles) == 0:
+            return True
+        if not provided_role:
+            return False
+        return provided_role in self.roles
+
+
 class AuthHandler:
     @classmethod
     async def login(
@@ -86,7 +147,7 @@ class AuthHandler:
             user: User,
             request: Request,
             db_session: AsyncSession
-    ) -> DataResponse[TokensScheme]:
+    ) -> TokensScheme:
         refresh_token_id = uuid.uuid4()
         session = Session(
             user_id=user.id,
@@ -98,7 +159,7 @@ class AuthHandler:
         await db_session.commit()
         await db_session.refresh(session)
         await db_session.refresh(user)
-        return cls.generate_tokens_response(
+        return cls.get_tokens_scheme(
             user_id=user.id,
             session_id=session.id,
             role=user.role,
@@ -111,7 +172,7 @@ class AuthHandler:
             refresh_token: str,
             request: Request,
             db_session: AsyncSession
-    ):
+    ) -> TokensScheme:
         payload: RefreshPayload = verify_jwt(
             token=refresh_token,
             is_access=False
@@ -147,7 +208,7 @@ class AuthHandler:
         session.refresh_token_id = new_refresh_token_id
         db_session.add(session)
         await db_session.commit()
-        return cls.generate_tokens_response(
+        return cls.get_tokens_scheme(
             user_id=payload.id,
             session_id=session_id,
             refresh_token_id=new_refresh_token_id,
@@ -197,21 +258,17 @@ class AuthHandler:
         )
 
     @classmethod
-    def generate_tokens_response(
+    def get_tokens_scheme(
             cls,
             user_id: uuid.UUID,
             session_id: uuid.UUID,
             role: Role,
             refresh_token_id: uuid.UUID
-    ) -> DataResponse[TokensScheme]:
-        return DataResponse(
-            data={
-                'tokens': TokensScheme(
-                    access_token=cls.get_access_token(user_id, role),
-                    refresh_token=cls.get_refresh_token(
-                        user_id, session_id, refresh_token_id, role
-                    )
-                )
-            }
+    ) -> TokensScheme:
+        return TokensScheme(
+            access_token=cls.get_access_token(user_id, role),
+            refresh_token=cls.get_refresh_token(
+                user_id, session_id, refresh_token_id, role
+            )
         )
 

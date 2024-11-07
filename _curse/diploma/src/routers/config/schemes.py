@@ -1,10 +1,12 @@
 import uuid
 
+from pydantic import Field
+
 from src.responses import Scheme
 
 
 class CreateConfigScheme(Scheme):
-    name: str
+    name: str = Field(min_length=1, max_length=20)
     prompt_id: int | None = None
     model_id: int | None = None
     language_ids: list[int]

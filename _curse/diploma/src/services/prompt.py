@@ -34,13 +34,11 @@ class PromptRepository:
     @staticmethod
     async def get_list(
             db_session: AsyncSession
-    ) -> list[PromptOutScheme]:
+    ) -> list[StylePrompt]:
         result = await db_session.execute(select(StylePrompt).where(
             StylePrompt.deleted_at.is_(None)
         ))
-        return [
-            PromptOutScheme.model_validate(p) for p in result.scalars().all()
-        ]
+        return result.scalars().all()
 
     @staticmethod
     async def get_by_id(

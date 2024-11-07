@@ -1,3 +1,5 @@
+from src.util.storage.classes import RedisHandler
+
 prompt = (
     'Translate following text from english to belarusian: Rommel was a highly'
     ' decorated officer in World War I and was awarded the Pour le Mérite for'
@@ -21,10 +23,22 @@ prompt = (
     ' of Normandy in June 1944.'
 )
 
-import google.generativeai as genai
+# import google.generativeai as genai
+#
+# genai.configure(api_key='AIzaSyBmKikk9iZfTFCzUL7wPLFY1lcJNNah4VM')
+# model = genai.GenerativeModel("gemini-1.5-flash")
+# response = model.generate_content(prompt)
+#
+# print(response.text)
 
-genai.configure(api_key='AIzaSyBmKikk9iZfTFCzUL7wPLFY1lcJNNah4VM')
-model = genai.GenerativeModel("gemini-1.5-flash")
-response = model.generate_content(prompt)
-
-print(response.text)
+# import asyncio
+# async def foo():
+#     pubsub = RedisHandler().get_pubsub()
+#     await pubsub.subscribe('notifications')
+#     while True:
+#         message = await pubsub.get_message(timeout=1.0)
+#         if message:
+#             print(message)
+#
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(foo())

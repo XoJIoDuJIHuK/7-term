@@ -37,7 +37,7 @@ class SessionRepository:
         query = select(Session).where(
             Session.user_id == user_id,
             Session.is_closed.is_(False)
-        )
+        ).order_by(Session.created_at)
         sessions, count = await paginate(
             session=db_session,
             statement=query,

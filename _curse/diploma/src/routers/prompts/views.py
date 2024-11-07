@@ -12,7 +12,7 @@ from src.depends import get_session
 from src.responses import SimpleListResponse, DataResponse, BaseResponse
 from src.routers.prompts.helpers import get_prompt
 from src.routers.prompts.schemes import PromptOutScheme, CreatePromptScheme, \
-    EditPromptScheme
+    EditPromptScheme, PromptOutAdminScheme
 from src.services.prompt import PromptRepository
 from src.settings import Role
 from src.util.auth.classes import JWTBearer
@@ -26,6 +26,22 @@ router = APIRouter(
 
 @router.get(
     '/',
+    response_model=SimpleListResponse[PromptOutAdminScheme],
+)
+async def get_admin_prompts(
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin]))
+):
+    prompts = await PromptRepository.get_list(
+        db_session=db_session
+    )
+    return SimpleListResponse[PromptOutAdminScheme].from_list(items=[
+        PromptOutAdminScheme.model_validate(p) for p in prompts
+    ])
+
+
+@router.get(
+    '/public/',
     response_model=SimpleListResponse[PromptOutScheme],
 )
 async def get_prompts(
@@ -34,7 +50,9 @@ async def get_prompts(
     prompts = await PromptRepository.get_list(
         db_session=db_session
     )
-    return SimpleListResponse[PromptOutScheme].from_list(items=prompts)
+    return SimpleListResponse[PromptOutScheme].from_list(items=[
+        PromptOutScheme.model_validate(p) for p in prompts
+    ])
 
 
 @router.post(

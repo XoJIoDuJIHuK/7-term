@@ -32,6 +32,7 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   void _saveWorker() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      print(_name);
 
       final worker = Worker(
         id: _id, // This can be null for a new worker

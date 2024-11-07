@@ -5,12 +5,14 @@ services:
       dockerfile: contrib/docker/fastapi/Dockerfile
     env_file:
       - ../../.env
-    ports:
-      - "8000:8000"
+#    ports:
+#      - "8000:8000"
     volumes:
       - ../../:/app
     depends_on:
       - postgres
+    networks:
+      - a
 
   postgres:
     build:
@@ -30,6 +32,8 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./postgres/postgresql.conf:/etc/postgresql.conf
+    networks:
+      - a
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -44,11 +48,15 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+    networks:
+      - a
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
     ports:
       - 2181:2181
+    networks:
+      - a
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -59,6 +67,8 @@ services:
       JVM_OPTS: '-Xmx256M'
     depends_on:
       - kafka
+    networks:
+      - a
 
   translation_consumer:
     image: diploma-base
@@ -73,6 +83,8 @@ services:
       - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
     depends_on:
       - kafka
+    networks:
+      - a
 
   mail_consumer:
     image: diploma-base
@@ -87,14 +99,50 @@ services:
       - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
     depends_on:
       - kafka
+    networks:
+      - a
 
   redis:
     image: redis:7.4.1
     ports:
       - "6379:6379"
     restart: always
+    networks:
+      - a
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - api
+      - vue-dev
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - a
+
+  vue-dev:
+    build:
+      context: ../..
+      dockerfile: contrib/docker/vue-dev/Dockerfile
+    volumes:
+      - ../front/:/app
+    command:
+      - "npm"
+      - "run"
+      - "dev"
+      - "--"
+      - "--host"
+      - "0.0.0.0"
+    networks:
+      - a
 
 
 volumes:
   pg_data:
     driver: local
+
+networks:
+  a:
+    external: true

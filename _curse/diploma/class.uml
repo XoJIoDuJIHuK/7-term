@@ -1,0 +1,157 @@
+@startuml
+!theme plain
+class User {
+    + id : uuid.UUID
+    + name : String
+    + email : String
+    + email_verified : Boolean
+    + password_hash : String
+    + role : Role
+    + logged_with_provider : String
+    + provider_id : String
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class Session {
+    + id : uuid.UUID
+    + user_id : uuid.UUID
+    + ip : String
+    + user_agent : String
+    + is_closed : Boolean
+    + refresh_token_id : uuid.UUID
+    + created_at : datetime
+    + closed_at : datetime
+}
+
+class ConfirmationCode {
+    + id : Integer
+    + code : String
+    + reason : ConfirmationType
+    + user_id : uuid.UUID
+    + expired_at : datetime
+    + is_used : Boolean
+    + created_at : datetime
+}
+
+class Language {
+    + id : Integer
+    + name : String
+    + iso_code : String
+}
+
+class Article {
+    + id : uuid.UUID
+    + title : String
+    + text : String
+    + user_id : uuid.UUID
+    + language_id : Integer
+    + original_article_id : uuid.UUID
+    + like : Boolean
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class ReportReason {
+    + id : Integer
+    + text : String
+    + order_position : Integer
+}
+
+class Report {
+    + id : uuid.UUID
+    + text : String
+    + article_id : uuid.UUID
+    + status : ReportStatus
+    + closed_by_user_id : uuid.UUID
+    + reason_id : Integer
+    + created_at : datetime
+    + closed_at : datetime
+}
+
+class Comment {
+    + id : uuid.UUID
+    + text : String
+    + sender_id : uuid.UUID
+    + report_id : uuid.UUID
+    + created_at : datetime
+}
+
+class StylePrompt {
+    + id : Integer
+    + title : String
+    + text : String
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class AIModel {
+    + id : Integer
+    + name : String
+    + provider : String
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class TranslationConfig {
+    + id : Integer
+    + user_id : uuid.UUID
+    + prompt_id : Integer
+    + name : String
+    + language_ids : list[Integer]
+    + model_id : Integer
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class TranslationTask {
+    + id : uuid.UUID
+    + article_id : uuid.UUID
+    + source_language_id : Integer
+    + target_language_id : Integer
+    + prompt_id : Integer
+    + model_id : Integer
+    + status : TranslationTaskStatus
+    + data : dict
+    + translated_article_id : uuid.UUID
+    + created_at : datetime
+    + deleted_at : datetime
+}
+
+class Notification {
+    + id : uuid.UUID
+    + title : String
+    + text : String
+    + user_id : uuid.UUID
+    + type : NotificationType
+    + read_at : datetime
+    + created_at : datetime
+}
+
+
+User "1" *-- "*" Session : has
+User "1" *-- "*" ConfirmationCode : has
+User "1" *-- "*" Article : creates
+User "1" *-- "*" Report : closes
+User "1" *-- "*" Comment : sends
+User "1" *-- "*" TranslationConfig : owns
+User "1" *-- "*" Notification : receives
+
+Article "1" *-- "1" Language : uses
+Article "1" *-- "1" Report : has
+Article "1" *-- "*" TranslationTask : is_source_of
+Article "1" *-- "0..1" Article : translated_from
+
+Report "1" *-- "1" ReportReason : has
+Report "1" *-- "*" Comment : has
+Report "1" *-- "1" User : closed_by
+
+TranslationConfig "1" *-- "1" StylePrompt : uses
+TranslationConfig "1" *-- "1" AIModel : uses
+
+TranslationTask "1" *-- "1" Language : source_language
+TranslationTask "1" *-- "1" Language : target_language
+TranslationTask "1" *-- "1" StylePrompt : uses
+TranslationTask "1" *-- "1" AIModel : uses
+TranslationTask "1" *-- "0..1" Article : translates_to
+@enduml

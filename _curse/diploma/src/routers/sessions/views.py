@@ -1,10 +1,6 @@
-import uuid
-
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
-    status,
 )
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,8 +16,6 @@ from src.services.session import SessionRepository
 from src.util.auth.classes import JWTBearer
 from src.util.auth.helpers import put_tokens_in_black_list
 from src.util.auth.schemes import UserInfo
-from src.util.common.schemes import SuccessResponse
-from src.util.storage.classes import RedisHandler
 
 router = APIRouter(
     prefix='/sessions',
@@ -30,7 +24,7 @@ router = APIRouter(
 
 
 @router.get(
-    '/sessions/',
+    '/',
     response_model=ListResponse[SessionOutScheme],
     responses=get_responses(400, 401)
 )
@@ -52,7 +46,7 @@ async def get_sessions(
 
 
 @router.post(
-    '/sessions/close/',
+    '/close/',
     response_model=BaseResponse,
     responses=get_responses(400, 401)
 )

@@ -31,3 +31,12 @@ def build_where_clause(filter_params: Scheme, model: Type[Base]):
     elif len(where_clauses) == 1:
         return where_clauses[0]
     return and_(*where_clauses)
+
+
+def update_model_by_scheme(
+        model: Base,
+        scheme: Scheme
+):
+    for field_name, value in scheme.model_dump(exclude_unset=True).items():
+        setattr(model, field_name, value)
+    return model

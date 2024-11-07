@@ -18,4 +18,4 @@ class CreateNotificationScheme(NotificationBase):
 
 class NotificationOutScheme(NotificationBase):
     id: uuid.UUID
-    read_at: datetime
+    read_at: datetime | None

@@ -4,12 +4,13 @@ from typing import List, Tuple
 from fastapi_pagination import Page, Params
 from sqlalchemy.orm import joinedload
 
+from src.database.helpers import update_model_by_scheme
 # from fastapi_pagination.ext.sqlalchemy import paginate
 
 from src.database.models import Article
 from src.pagination import PaginationParams, paginate
 from src.routers.articles.schemes import ArticleOutScheme, CreateArticleScheme, \
-    ArticleListItemScheme
+    ArticleListItemScheme, EditArticleScheme
 
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,7 +30,7 @@ class ArticleRepository:
         query = select(Article).where(
             Article.user_id == user_id,
             Article.deleted_at.is_(None)
-        )
+        ).order_by(Article.created_at)
         if original_article_id is None:
             query = query.where(Article.original_article_id.is_(None))
         else:
@@ -108,11 +109,13 @@ class ArticleRepository:
     @staticmethod
     async def update(
             article: Article,
-            new_title: str | None,
-            new_text: str | None,
+            article_data: EditArticleScheme,
             db_session: AsyncSession
     ) -> Article:
-
+        update_model_by_scheme(
+            model=article,
+            scheme=article_data
+        )
         db_session.add(article)
         await db_session.commit()
         await db_session.refresh(article)

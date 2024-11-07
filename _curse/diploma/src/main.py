@@ -13,6 +13,7 @@ from src.routers.articles.views import router as articles_router
 from src.routers.config.views import router as config_router
 from src.routers.languages.views import router as languages_router
 from src.routers.models.views import router as models_router
+from src.routers.notifications.views import router as notifications_router
 from src.routers.prompts.views import router as prompts_router
 from src.routers.sessions.views import router as sessions_router
 from src.routers.translation.views import router as translation_router
@@ -21,7 +22,7 @@ from src.routers.users.views import router as users_router
 from starlette.middleware.cors import CORSMiddleware
 
 
-app = FastAPI()
+app = FastAPI(root_path='/api')
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,6 +40,7 @@ app.include_router(auth_router)
 app.include_router(config_router)
 app.include_router(languages_router)
 app.include_router(models_router)
+app.include_router(notifications_router)
 app.include_router(prompts_router)
 app.include_router(reports_router)
 app.include_router(sessions_router)

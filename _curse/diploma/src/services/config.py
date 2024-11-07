@@ -24,12 +24,14 @@ class ConfigRepository:
     @staticmethod
     async def config_exists_by_name(
             name: str,
+            old_config_id: int | None,
             user_id: uuid.UUID,
             db_session: AsyncSession
     ) -> bool:
         result = await db_session.execute(select(exists().where(
             TranslationConfig.user_id == user_id,
-            TranslationConfig.name == name
+            TranslationConfig.name == name,
+            TranslationConfig.id != old_config_id,
         )))
         return result.scalar_one_or_none()
 
@@ -41,7 +43,7 @@ class ConfigRepository:
         result = await db_session.execute(select(TranslationConfig).where(
             TranslationConfig.user_id == user_id,
             TranslationConfig.deleted_at.is_(None)
-        ))
+        ).order_by(TranslationConfig.created_at))
         return [
             ConfigOutScheme.model_validate(c) for c in result.scalars().all()
         ]
@@ -66,6 +68,7 @@ class ConfigRepository:
         if await ConfigRepository.config_exists_by_name(
             name=config_data.name,
             user_id=user_id,
+            old_config_id=None,
             db_session=db_session
         ):
             raise name_conflicts_error
@@ -90,6 +93,7 @@ class ConfigRepository:
         if await ConfigRepository.config_exists_by_name(
             name=new_data.name,
             user_id=config.user_id,
+            old_config_id=config.id,
             db_session=db_session
         ):
             raise name_conflicts_error

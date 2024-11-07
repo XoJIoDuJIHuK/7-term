@@ -9,16 +9,16 @@ from src.routers.notifications.schemes import NotificationOutScheme
 from src.util.time.helpers import get_utc_now
 
 
-class NotificationRepository:
+class NotificationRepo:
     @staticmethod
-    async def get_notifications(
+    async def get_list(
             user_id: uuid.UUID,
             db_session: AsyncSession
     ) -> list[NotificationOutScheme]:
         result = await db_session.execute(select(Notification).where(
             Notification.user_id == user_id,
             Notification.read_at.is_(None)
-        ))
+        ).order_by(Notification.created_at))
         notifications = result.scalars().all()
         return [
             NotificationOutScheme.model_validate(n) for n in notifications
@@ -34,4 +34,5 @@ class NotificationRepository:
             Notification.user_id == user_id,
             Notification.created_at <= max_datetime
         ).values(read_at=get_utc_now()))
+        await db_session.commit()
         return result.rowcount

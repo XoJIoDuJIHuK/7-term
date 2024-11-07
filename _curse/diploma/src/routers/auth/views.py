@@ -1,13 +1,18 @@
+import json
+import time
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
     Request,
+    Response,
     Query,
     status
 )
 
 from pydantic import EmailStr
+from starlette.responses import JSONResponse
 
 from src.database.models import ConfirmationType
 from src.depends import get_session
@@ -18,7 +23,7 @@ from src.routers.users.schemes import CreateUserScheme
 from src.services.confirmation_code import ConfirmationCodeRepository
 from src.services.session import SessionRepository
 from src.services.user import UserRepository
-from src.settings import Role, KafkaConfig, UnisenderConfig
+from src.settings import Role, KafkaConfig, UnisenderConfig, JWTConfig
 from src.util.auth.classes import AuthHandler
 from src.util.auth.helpers import get_password_hash, get_user_agent
 from src.util.auth.schemes import LoginScheme, TokensScheme
@@ -36,15 +41,13 @@ router = APIRouter(
 
 @router.post(
     '/login/',
-    response_model=DataResponse.single_by_key(
-        'tokens',
-        TokensScheme
-    ),
+    # response_model=BaseResponse,
     responses=get_responses(404)
 )
 async def login(
         login_data: LoginScheme,
         request: Request,
+        response: Response,
         db_session: AsyncSession = Depends(get_session)
 ):
     user = await UserRepository.get_by_email(
@@ -71,11 +74,32 @@ async def login(
         db_session=db_session
     )
     await db_session.refresh(user)
-    return await AuthHandler.login(
+    tokens = await AuthHandler.login(
         user=user,
         request=request,
         db_session=db_session
     )
+    response = JSONResponse(json.dumps({'message': 'Аутентифицирован'}))
+    response.set_cookie(
+        JWTConfig.auth_cookie_name,
+        tokens.access_token,
+        # int(time.time()) + JWTConfig.auth_jwt_exp_sec,
+        samesite='none',
+        secure=True
+    )
+    response.set_cookie(
+        JWTConfig.refresh_cookie_name,
+        tokens.refresh_token,
+        # int(time.time()) + JWTConfig.refresh_jwt_exp_sec,
+    )
+    return response
+
+
+@router.get('/cookie/')
+async def get_cookie(response: Response):
+    response.set_cookie('lmao', 'pososi', secure=True, path='/landing')
+    return 'xd'
+
 
 
 @router.post(
@@ -235,19 +259,40 @@ async def restore_password(
 
 @router.post(
     '/refresh/',
-    response_model=DataResponse.single_by_key(
-        'tokens',
-        TokensScheme
-    ),
+    response_model=BaseResponse,
     responses=get_responses(400, 401)
 )
 async def refresh_tokens(
         refresh_token: str,
         request: Request,
+        response: Response,
         db_session: AsyncSession = Depends(get_session)
 ):
-    return await AuthHandler.refresh_tokens(
+    tokens = await AuthHandler.refresh_tokens(
         refresh_token=refresh_token,
         request=request,
         db_session=db_session
     )
+    response.set_cookie(
+        JWTConfig.auth_cookie_name,
+        tokens.access_token,
+        int(time.time()) + JWTConfig.auth_jwt_exp_sec
+    )
+    response.set_cookie(
+        JWTConfig.refresh_cookie_name,
+        tokens.refresh_token,
+        int(time.time()) + JWTConfig.refresh_jwt_exp_sec
+    )
+    return BaseResponse(message='Токены обновлены')
+
+
+@router.get(
+    '/logout/',
+    response_model=BaseResponse
+)
+async def logout(
+        response: Response
+):
+    response.set_cookie(JWTConfig.auth_cookie_name, '')
+    response.set_cookie(JWTConfig.refresh_cookie_name, '')
+    return BaseResponse(message='Вышел')

@@ -15,6 +15,11 @@ class EditPromptScheme(CreatePromptScheme):
     text: str | None = Field(None, min_length=1, max_length=200)
 
 
-class PromptOutScheme(CreatePromptScheme):
+class PromptOutScheme(Scheme):
     id: int
+    title: str
+
+
+class PromptOutAdminScheme(PromptOutScheme):
+    text: str
     created_at: datetime

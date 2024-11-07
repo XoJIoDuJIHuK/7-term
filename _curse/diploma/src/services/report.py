@@ -44,7 +44,7 @@ class ReportRepository:
         query = select(Report).join(
             Article,
             Article.id == Report.article_id
-        )
+        ).order_by(Report.created_at)
         user_id = filter_params.user_id
         filter_params.user_id = None
         if user_id is not None:
@@ -76,7 +76,7 @@ class ReportRepository:
                     Report.article_id == Article.id
                 )
                 .outerjoin(User, Comment.sender_id == User.id)
-            ).where(Article.id == article_id)
+            ).where(Article.id == article_id).order_by(Comment.created_at)
         )
         results = result.fetchall()
         return [
