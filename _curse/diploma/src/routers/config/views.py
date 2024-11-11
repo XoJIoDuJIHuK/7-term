@@ -1,23 +1,20 @@
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
-    Path,
-    status,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import TranslationConfig
 from src.depends import get_session
 from src.http_responses import get_responses
-from src.responses import ListResponse, DataResponse, BaseResponse, \
+from src.responses import DataResponse, BaseResponse, \
     SimpleListResponse
 from src.routers.config.helpers import get_config
 from src.routers.config.schemes import ConfigOutScheme, CreateConfigScheme, \
     EditConfigScheme
-from src.services.config import ConfigRepository
+from src.database.repos.config import ConfigRepo
 from src.settings import Role
-from src.util.auth.classes import JWTBearer
+from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 
 router = APIRouter(
@@ -33,9 +30,9 @@ router = APIRouter(
 )
 async def get_configs(
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
-    configs = await ConfigRepository.get_list(
+    configs = await ConfigRepo.get_list(
         user_id=user_info.id,
         db_session=db_session
     )
@@ -53,9 +50,9 @@ async def get_configs(
 async def create_config(
         config_data: CreateConfigScheme,
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
-    config = await ConfigRepository.create(
+    config = await ConfigRepo.create(
         config_data=config_data,
         user_id=user_info.id,
         db_session=db_session
@@ -79,9 +76,9 @@ async def update_config(
         config_data: EditConfigScheme,
         config: TranslationConfig = Depends(get_config),
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
-    config = await ConfigRepository.update(
+    config = await ConfigRepo.update(
         config=config,
         new_data=config_data,
         db_session=db_session
@@ -101,9 +98,9 @@ async def update_config(
 async def delete_config(
         config: TranslationConfig = Depends(get_config),
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
-    config = await ConfigRepository.delete(
+    config = await ConfigRepo.delete(
         config=config,
         db_session=db_session
     )

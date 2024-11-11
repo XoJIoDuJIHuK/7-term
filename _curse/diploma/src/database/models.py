@@ -222,11 +222,18 @@ class Article(Base):
         'Report',
         back_populates='article',
         cascade='all, delete-orphan',
-        uselist=False
+        uselist=False,
+        lazy='selectin'
     )
     language: Mapped[Language] = relationship(
         'Language',
-        uselist=False
+        uselist=False,
+        lazy='selectin'
+    )
+    original_article: Mapped['Article'] = relationship(
+        'Article',
+        uselist=False,
+        lazy='selectin'
     )
 
 
@@ -283,17 +290,17 @@ class Report(Base):
         'Article',
         back_populates='report',
         uselist=False,
-        # lazy='joined',
+        lazy='selectin',
     )
     closed_by_user: Mapped[User] = relationship(
         'User',
         uselist=False,
-        lazy='joined'
+        lazy='selectin',
     )
     reason: Mapped[ReportReason] = relationship(
         'ReportReason',
         uselist=False,
-        lazy='joined'
+        lazy='selectin',
     )
 
 
@@ -409,9 +416,6 @@ class TranslationTask(Base):
     )
     article_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE')
-    )
-    source_language_id: Mapped[int] = mapped_column(
-        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE')
     )
     target_language_id: Mapped[int] = mapped_column(
         ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE')

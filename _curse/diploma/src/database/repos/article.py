@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.util.time.helpers import get_utc_now
 
 
-class ArticleRepository:
+class ArticleRepo:
     @staticmethod
     async def get_list(
             user_id: uuid.UUID,

@@ -4,7 +4,7 @@
             {{ article.title }}
             <v-spacer></v-spacer>
             <span class="article-language">
-                {{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id).iso_code : '' }}
+                {{ store.languages.getValue(article.language_id) === null ? '' : store.languages.getValue(article.language_id).iso_code }}
             </span>
         </v-card-title>
         <v-card-text>
@@ -17,7 +17,7 @@
               <v-icon icon="mdi-eye"/>
             </v-btn>
           </router-link>
-          <router-link :to="`/articles/${article.id}/update`">
+          <router-link :to="`/articles/${article.id}/update`" v-if="isOriginal">
             <v-btn variant="tonal" color="green">
               <v-icon icon="mdi-pencil"/>
             </v-btn>
@@ -25,7 +25,7 @@
           <v-btn variant="tonal" color="red" @click="() => { delete_article(article.id) }">
             <v-icon icon="mdi-delete"/>
           </v-btn>
-          <router-link :to="`/articles/${article.id}/translations`">
+          <router-link :to="`/articles/${article.id}/translations`" v-if="isOriginal">
             <v-btn variant="tonal" color="blue">
               <v-icon icon="mdi-earth"/>
             </v-btn>
@@ -46,6 +46,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    isOriginal: {
+        type: Boolean,
+        required: true,
+    }
 });
 
 async function delete_article(article_id: string) {
@@ -54,12 +58,12 @@ async function delete_article(article_id: string) {
       'DELETE',
     )
     if (result) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+      UnnecessaryEventEmitter.emit('AlertMessage', {
         title: undefined,
         text: 'Статья успешно удалена',
         severity: 'success'
-        })
-        location.reload()
+      })
+      location.reload()
     }
 }
 </script>

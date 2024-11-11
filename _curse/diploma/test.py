@@ -1,4 +1,13 @@
+import asyncio
+import uuid
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.database import get_session
+from src.database.models import Article, AIModel, StylePrompt, Language
 from src.util.storage.classes import RedisHandler
+from src.util.translator.classes import Gpt4freeTranslator
 
 prompt = (
     'Translate following text from english to belarusian: Rommel was a highly'
@@ -31,14 +40,20 @@ prompt = (
 #
 # print(response.text)
 
-# import asyncio
-# async def foo():
-#     pubsub = RedisHandler().get_pubsub()
-#     await pubsub.subscribe('notifications')
-#     while True:
-#         message = await pubsub.get_message(timeout=1.0)
-#         if message:
-#             print(message)
-#
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(foo())
+async def main():
+    async with get_session() as db:
+        article = (await db.execute(select(Article).filter_by(id=uuid.UUID('c10394b8-5cdd-4d88-9d25-0e654678ab64')))).scalars().first()
+        model = (await db.execute(select(AIModel).filter_by(id=1))).scalars().first()
+        prompt = (await db.execute(select(StylePrompt).filter_by(id=1))).scalars().first()
+        language = (await db.execute(select(Language).filter_by(id=5))).scalars().first()
+
+        await Gpt4freeTranslator().translate(
+            text='hello, it\'s me, Mario',
+            source_language=None,
+            target_language=language,
+            model=model,
+            prompt_object=prompt
+        )
+
+if __name__ == '__main__':
+    asyncio.run(main())

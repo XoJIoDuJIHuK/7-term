@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-from src.services.model import ModelRepository
+from src.database.repos.model import ModelRepo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ async def check_model_conflicts(
         provider: str,
         db_session: AsyncSession
 ):
-    if await ModelRepository.exists_by_name_and_provider(
+    if await ModelRepo.exists_by_name_and_provider(
         name=name,
         provider=provider,
         db_session=db_session

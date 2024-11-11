@@ -1,13 +1,13 @@
 from src.database.models import AIModel
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import delete, exists, select, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.routers.models.schemes import ModelOutScheme, CreateModelScheme, \
     UpdateModelScheme
 
 
-class ModelRepository:
+class ModelRepo:
     @staticmethod
     async def exists_by_id(
             model_id: int,
@@ -33,11 +33,11 @@ class ModelRepository:
     @staticmethod
     async def get_list(
             db_session: AsyncSession
-    ) -> list[ModelOutScheme]:
-        result = await db_session.execute(select(AIModel))
-        return [
-            ModelOutScheme.model_validate(m) for m in result.scalars().all()
-        ]
+    ) -> list[AIModel]:
+        result = await db_session.execute(select(AIModel).order_by(
+            AIModel.created_at
+        ))
+        return list(result.scalars().all())
 
     @staticmethod
     async def get_by_id(

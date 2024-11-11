@@ -1,9 +1,6 @@
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
-    Path,
-    status,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,9 +10,9 @@ from src.responses import SimpleListResponse, DataResponse, BaseResponse
 from src.routers.prompts.helpers import get_prompt
 from src.routers.prompts.schemes import PromptOutScheme, CreatePromptScheme, \
     EditPromptScheme, PromptOutAdminScheme
-from src.services.prompt import PromptRepository
+from src.database.repos.prompt import PromptRepo
 from src.settings import Role
-from src.util.auth.classes import JWTBearer
+from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 
 router = APIRouter(
@@ -30,9 +27,9 @@ router = APIRouter(
 )
 async def get_admin_prompts(
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
 ):
-    prompts = await PromptRepository.get_list(
+    prompts = await PromptRepo.get_list(
         db_session=db_session
     )
     return SimpleListResponse[PromptOutAdminScheme].from_list(items=[
@@ -47,7 +44,7 @@ async def get_admin_prompts(
 async def get_prompts(
         db_session: AsyncSession = Depends(get_session)
 ):
-    prompts = await PromptRepository.get_list(
+    prompts = await PromptRepo.get_list(
         db_session=db_session
     )
     return SimpleListResponse[PromptOutScheme].from_list(items=[
@@ -65,9 +62,9 @@ async def get_prompts(
 async def create_prompt(
         prompt_data: CreatePromptScheme,
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
 ):
-    prompt = await PromptRepository.create(
+    prompt = await PromptRepo.create(
         prompt_data=prompt_data,
         db_session=db_session
     )
@@ -89,9 +86,9 @@ async def update_prompt(
         prompt_data: EditPromptScheme,
         prompt: StylePrompt = Depends(get_prompt),
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
 ):
-    prompt = await PromptRepository.update(
+    prompt = await PromptRepo.update(
         prompt=prompt,
         prompt_data=prompt_data,
         db_session=db_session
@@ -110,9 +107,9 @@ async def update_prompt(
 async def delete_prompt(
         prompt: StylePrompt = Depends(get_prompt),
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
 ):
-    await PromptRepository.delete(
+    await PromptRepo.delete(
         prompt=prompt,
         db_session=db_session
     )

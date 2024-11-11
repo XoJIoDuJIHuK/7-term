@@ -20,14 +20,12 @@ from src.routers.users.schemes import (
     UserOutAdminScheme,
     UserOutScheme, EditUserScheme,
 )
-from src.services.user import UserRepository
+from src.database.repos.user import UserRepo
 from src.settings import Role
-from src.util.auth.classes import JWTBearer
+from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.util.time.helpers import get_utc_now
 
 router = APIRouter(
     prefix='/users',
@@ -44,10 +42,10 @@ router = APIRouter(
     responses=get_responses(400, 401)
 )
 async def get_my_info(
-        user_info: UserInfo = Depends(JWTBearer()),
+        user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.get_by_id(
+    user = await UserRepo.get_by_id(
         user_id=user_info.id,
         db_session=db_session
     )
@@ -69,13 +67,13 @@ async def get_my_info(
     responses=get_responses(400, 401)
 )
 async def get_list(
-        filter_email_verified: bool | None,
-        filter_role: Role | None,
+        filter_email_verified: bool | None = None,
+        filter_role: Role | None = None,
         pagination: PaginationParams = Depends(get_pagination_params),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    users, count = await UserRepository.get_list(
+    users, count = await UserRepo.get_list(
         pagination_params=pagination,
         filter_params=FilterUserScheme(
             email_verified=filter_email_verified,
@@ -98,10 +96,10 @@ async def get_list(
 async def change_name(
         user_id: uuid.UUID = Path(),
         new_name: str = Form(min_length=1, max_length=20),
-        user_info: UserInfo = Depends(JWTBearer()),
+        user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.get_by_id(
+    user = await UserRepo.get_by_id(
         user_id=user_info.id,
         db_session=db_session
     )
@@ -131,10 +129,10 @@ async def change_name(
 )
 async def create_user(
         new_user_data: CreateUserScheme,
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.create(
+    user = await UserRepo.create(
         user_data=new_user_data,
         db_session=db_session
     )
@@ -156,10 +154,10 @@ async def create_user(
 async def update_user(
         new_user_info: EditUserScheme,
         user: User = Depends(get_user),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    user = await UserRepository.update(
+    user = await UserRepo.update(
         user=user,
         new_data=new_user_info,
         db_session=db_session
@@ -181,10 +179,10 @@ async def update_user(
 )
 async def delete_user(
         user: User = Depends(get_user),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.admin])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    user = await UserRepository.delete(
+    user = await UserRepo.delete(
         user=user,
         db_session=db_session
     )

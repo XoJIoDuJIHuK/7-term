@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'worker.dart';
 import 'database_helper.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('MyApp');
 
 class WorkerFormScreen extends StatefulWidget {
   final Worker? worker;
@@ -17,7 +20,7 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   String _name = '';
   int _hoursWorked = 0;
-  int? _id = 0;
+  int? _id;
 
   @override
   void initState() {
@@ -30,6 +33,10 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
   }
 
   void _saveWorker() async {
+    _log.info("Saving worker");
+    _log.info(_id);
+    _log.info(_name);
+    _log.info(_hoursWorked);
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       print(_name);
@@ -47,6 +54,8 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
         // Update existing worker
         await _databaseHelper.updateWorker(worker.toMap());
       }
+    } else {
+      _log.severe("Validation not passed");
     }
   }
 
@@ -93,6 +102,17 @@ class _WorkerFormScreenState extends State<WorkerFormScreen> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (_id != null) {
+            _databaseHelper.deleteWorker(_id!);
+            _log.info("Worker deleted: $_id");
+          } else {
+            _log.severe("Worker ID is null");
+          }
+        },
+        child: const Icon(Icons.delete),
       ),
     );
   }

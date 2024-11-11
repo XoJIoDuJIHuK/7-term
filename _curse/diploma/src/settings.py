@@ -1,11 +1,9 @@
 import enum
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from src.util.common.classes import EnvParameter
-
 
 load_dotenv()
 
@@ -71,15 +69,6 @@ class AppEvent(enum.Enum):
     translation_end = 2
 
 
-_translator_config_path = os.path.join(
-    BASE_DIR,
-    EnvParameter(
-        'TRANSLATOR_CONFIG_PATH',
-        default='translator.yml'
-    ).__get__(None, None),
-)
-
-
 class TextTranslationConfig:
     max_words_in_text = EnvParameter(
         'TRANSLATOR_MAX_WORDS_IN_TEXT',
@@ -94,9 +83,14 @@ class TextTranslationConfig:
     special_characters = ['\\n', '\\t']
 
 
+class G4FConfig:
+    address = EnvParameter('G4F_ADDRESS', default='http://g4f:1337')
+
+
 class GeminiConfig:
-    gemini_api_key = EnvParameter('GEMINI_API_KEY')
+    api_key = EnvParameter('GEMINI_API_KEY')
     gemini_project_id = EnvParameter('GEMINI_PROJECT_ID')
+
 
 class KafkaConfig:
     translation_topic = EnvParameter('TRANSLATION_KAFKA_TOPIC')
@@ -135,6 +129,9 @@ class UnisenderConfig:
     )
     password_recovery_template_id = EnvParameter(
         'UNISENDER_PASSWORD_RECOVERY_TEMPLATE_ID'
+    )
+    translation_complete_template_id = EnvParameter(
+        'UNISENDER_TRANSLATION_COMPLETE_TEMPLATE_ID'
     )
     api_url = EnvParameter('UNISENDER_API_URL')
     list_id = EnvParameter('UNISENDER_LIST_ID')

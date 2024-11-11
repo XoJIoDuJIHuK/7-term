@@ -12,7 +12,7 @@ from src.util.common.helpers import generate_random_string
 from src.util.time.helpers import get_utc_now
 
 
-class ConfirmationCodeRepository:
+class ConfirmationCodeRepo:
     @staticmethod
     async def get(
             value: str,

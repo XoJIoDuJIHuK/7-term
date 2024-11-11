@@ -13,8 +13,7 @@ from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Session, User
-from src.responses import DataResponse
-from src.services.session import SessionRepository
+from src.database.repos.session import SessionRepo
 from src.settings import JWTConfig, LOGGER_PREFIX, Role
 from src.util.auth.helpers import (
     get_user_agent,
@@ -97,7 +96,10 @@ class JWTCookie(APIKeyCookie):
         self.roles = roles if roles else []
         self.logger = logging.getLogger(LOGGER_PREFIX + __name__)
 
-    async def __call__(self, request: Request):
+    async def __call__(
+            self,
+            request: Request
+    ):
         token: str
         try:
             token = await (
@@ -109,7 +111,6 @@ class JWTCookie(APIKeyCookie):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Неправильные данные входа'
             )
-
         error_invalid_token = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неправильный токен'
@@ -125,19 +126,20 @@ class JWTCookie(APIKeyCookie):
             ):
                 raise error_invalid_token
             provided_role = payload.role
-            if not await self.role_allowed(provided_role):
+            if not self.role_allowed(self.roles, provided_role):
                 raise error_no_rights
 
             return payload
         else:
             return None
 
-    async def role_allowed(self, provided_role: Role) -> bool:
-        if len(self.roles) == 0:
+    @staticmethod
+    def role_allowed(roles: list[Role], provided_role: Role) -> bool:
+        if len(roles) == 0:
             return True
         if not provided_role:
             return False
-        return provided_role in self.roles
+        return provided_role in roles
 
 
 class AuthHandler:
@@ -187,7 +189,7 @@ class AuthHandler:
         # This operation is much heavier than getting info from Redis
         # but will happen only if session was not expired so refresh tokens of
         # expired sessions will not trigger querying database
-        session = await SessionRepository.get_by_refresh_id(
+        session = await SessionRepo.get_by_refresh_id(
             refresh_token_id=payload.token_id,
             db_session=db_session
         )

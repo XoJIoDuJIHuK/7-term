@@ -9,7 +9,7 @@
         </v-card-title>
         <v-card-actions>
           <v-btn variant="tonal" color="green" @click="UnnecessaryEventEmitter.emit(
-            'ShowConfiEditPopup', config.id
+            'ShowConfigEditPopup', config.id
             )">
             <v-icon icon="mdi-pencil"/>
           </v-btn>
@@ -44,7 +44,7 @@ async function delete_config(article_id: string) {
   if (result) {
     UnnecessaryEventEmitter.emit('AlertMessage', {
       title: undefined,
-      text: 'Config deleted succesfully',
+      text: 'Конфиг успешно',
       severity: 'success'
     })
     location.reload()

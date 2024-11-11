@@ -15,7 +15,7 @@ from src.util.auth.helpers import get_password_hash
 from src.util.time.helpers import get_utc_now
 
 
-class UserRepository:
+class UserRepo:
     @staticmethod
     async def name_is_taken(
             name: str,
@@ -75,7 +75,7 @@ class UserRepository:
             user_data: CreateUserScheme,
             db_session: AsyncSession
     ) -> User:
-        existing_user = await UserRepository.get_by_email(
+        existing_user = await UserRepo.get_by_email(
             user_data.email,
             db_session
         )
@@ -104,9 +104,17 @@ class UserRepository:
             new_data: EditUserScheme,
             db_session: AsyncSession
     ) -> User:
-        for key, value in vars(new_data).items():
+        for key, value in filter(
+            lambda x: x != 'password',
+            vars(new_data).items()
+        ):
             if value is not None:
                 user.__setattr__(key, value)
+        if new_data.password:
+            print(user.password_hash, get_password_hash(new_data.password), user.password_hash == get_password_hash(new_data.password))
+            user.password_hash = get_password_hash(new_data.password)
+        else:
+             print('NO PASSWORD')
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)

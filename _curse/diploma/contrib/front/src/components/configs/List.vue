@@ -45,6 +45,11 @@ async function saveConfig() {
         JSON.stringify(currentEditConfig.value)
     );
     if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: undefined,
+            text: 'Конфиг обновлён',
+            severity: 'success'
+        })
         location.reload()
     }
 }
@@ -60,7 +65,7 @@ async function fetchConfigs() {
     }
 }
 
-UnnecessaryEventEmitter.on('ShowConfiEditPopup', config_id => {
+UnnecessaryEventEmitter.on('ShowConfigEditPopup', config_id => {
     Object.assign(currentEditConfig.value, configs.value.find(config => config.id === config_id));
 })
 </script>

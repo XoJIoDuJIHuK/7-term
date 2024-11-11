@@ -20,10 +20,10 @@ from src.routers.articles.schemes import (
     EditArticleScheme,
     UploadArticleScheme, ArticleListItemScheme, ArticleUpdateLikeScheme,
 )
-from src.services.article import ArticleRepository
-from src.services.report import ReportRepository
+from src.database.repos.article import ArticleRepo
+from src.database.repos.report import ReportRepo
 from src.settings import Role
-from src.util.auth.classes import JWTBearer
+from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 
 router = APIRouter(
@@ -43,11 +43,11 @@ article_not_found_error = HTTPException(
 )
 async def get_list(
         original_article_id: uuid.UUID | None = Query(None),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         pagination: PaginationParams = Depends(get_pagination_params),
         db_session: AsyncSession = Depends(get_session),
 ):
-    articles, count = await ArticleRepository.get_list(
+    articles, count = await ArticleRepo.get_list(
         original_article_id=original_article_id,
         user_id=user_info.id,
         pagination_params=pagination,
@@ -70,16 +70,16 @@ async def get_list(
 )
 async def get_article(
         article_id: uuid.UUID = Path(),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    article = await ArticleRepository.get_by_id(
+    article = await ArticleRepo.get_by_id(
         article_id=article_id,
         db_session=db_session
     )
     if not article or article.user_id != user_info.id:
         raise article_not_found_error
-    report_exists = bool(await ReportRepository.get_by_article_id(
+    report_exists = bool(await ReportRepo.get_by_article_id(
         article_id=article_id,
         db_session=db_session
     ))
@@ -101,10 +101,10 @@ async def get_article(
 )
 async def upload_article(
         article_data: UploadArticleScheme,
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         db_session: AsyncSession = Depends(get_session)
 ):
-    article = await ArticleRepository.create(
+    article = await ArticleRepo.create(
         article_data=CreateArticleScheme(
             title=article_data.title,
             text=article_data.text,
@@ -131,10 +131,10 @@ async def upload_article(
 async def update_article(
         new_article_data: EditArticleScheme,
         article_id: uuid.UUID = Path(),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    article = await ArticleRepository.get_by_id(article_id, db_session)
+    article = await ArticleRepo.get_by_id(article_id, db_session)
     if (
             not article
             or article.user_id != user_info.id
@@ -165,10 +165,10 @@ async def update_article(
 async def update_like(
         new_like_data: ArticleUpdateLikeScheme,
         article_id: uuid.UUID = Path(),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    article = await ArticleRepository.get_by_id(
+    article = await ArticleRepo.get_by_id(
         article_id=article_id,
         db_session=db_session
     )
@@ -199,13 +199,13 @@ async def update_like(
 )
 async def delete_article(
         article_id: uuid.UUID = Path(),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user])),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    article = await ArticleRepository.get_by_id(article_id, db_session)
+    article = await ArticleRepo.get_by_id(article_id, db_session)
     if not article or article.user_id != user_info.id:
         raise article_not_found_error
-    article = await ArticleRepository.delete(
+    article = await ArticleRepo.delete(
         article=article,
         db_session=db_session
     )

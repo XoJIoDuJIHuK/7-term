@@ -8,6 +8,25 @@
         <v-row>
             {{ report.text }}
         </v-row>
+        <v-row v-if="userRole == Config.userRoles.mod">
+            <v-expansion-panels>
+                <v-expansion-panel
+                    :title="`Исходная статья ${report.source_language_id === null ? '' : store.languages.getValue(report.source_language_id).name}`"
+                    :text="report.source_text"
+                ></v-expansion-panel>
+                <v-expansion-panel
+                    :title="`Переведённая статья ${report.translated_language_id !== null ? store.languages.getValue(report.translated_language_id).name : ''}`"
+                    :text="report.translated_text"
+                ></v-expansion-panel>
+            </v-expansion-panels>
+        </v-row>
+        <v-row v-if="userRole == Config.userRoles.mod && report.status === Config.reportStatuses.open">
+            <v-col><v-btn color="success" @click="updateStatus(Config.reportStatuses.satisfied)">Satisfy</v-btn></v-col>
+            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.rejected)">Reject</v-btn></v-col>
+        </v-row>
+        <v-row v-else-if="report.status === Config.reportStatuses.open">
+            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.closedByUser)">Close</v-btn></v-col>
+        </v-row>
         <v-row>
             <v-container>
                 <v-row v-if="comments.length === 0">No comments</v-row>
@@ -22,7 +41,7 @@
                         </v-container>
                     </v-col>
                 </v-row>
-                <v-row>
+                <v-row v-if="report.status === Config.reportStatuses.open">
                     <v-col>
                         <v-text-field v-model="commentText" label="Comment"></v-text-field>
                     </v-col>
@@ -38,12 +57,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, Ref, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
-import { Config } from '../../settings';
+import { Config, store } from '../../settings';
+import { UnnecessaryEventEmitter } from '../../eventBus';
 
-const comments = ref([]);
+const comments: Ref<Array<any>> = ref([]);
 const commentText = ref('');
 const report = reactive({
     text: '',
@@ -51,13 +71,18 @@ const report = reactive({
     status: '',
     created_at: new Date(),
     closed_at: null,
-    closed_by_user_name: null
+    closed_by_user_name: null,
+    source_text: '',
+    source_language_id: null,
+    translated_text: '',
+    translated_language_id: null
 });
 const route = useRoute();
 const router = useRouter();
-const socket = ref(null);
+const socket: Ref<WebSocket | null> = ref(null);
 
 const currentUserId = ref(null);
+const userRole = JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role
 
 onMounted(async () => {
     currentUserId.value = JSON.parse(localStorage.userInfo).id;
@@ -66,8 +91,7 @@ onMounted(async () => {
     else Object.assign(report, response.data.report)
 
     response = await fetch_data(`${Config.backend_address}/articles/${route.params.article_id}/report/comments/`)
-    if (!response) comments.value = [];
-    else comments.value = response.data.list;
+    comments.value = response ? response.data.list : [];
 
     socket.value = new WebSocket(`${Config.websocket_address}/articles/${route.params.article_id}/report/comments/ws/`)
     socket.value.addEventListener('message', event => {
@@ -87,6 +111,21 @@ async function sendComment() {
     if (response) {
         commentText.value = '';
         comments.value.push(response.data.comment)
+    }
+}
+
+async function updateStatus(newStatus: string) {
+    const response = await fetch_data(
+        `${Config.backend_address}/articles/${route.params.article_id}/report/status/?new_status=${newStatus}`,
+        'PATCH',
+    )
+    if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: 'Жалоба создана',
+            text: undefined,
+            severity: 'info'
+        });
+        report.status = newStatus;
     }
 }
 

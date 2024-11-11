@@ -7,7 +7,6 @@ from fastapi import (
     HTTPException,
     Request,
     Response,
-    Query,
     status
 )
 
@@ -17,16 +16,16 @@ from starlette.responses import JSONResponse
 from src.database.models import ConfirmationType
 from src.depends import get_session
 from src.http_responses import get_responses
-from src.responses import BaseResponse, DataResponse
-from src.routers.auth.schemes import RegistrationScheme
+from src.responses import BaseResponse
+from src.routers.auth.schemes import RegistrationScheme, ResetPasswordScheme
 from src.routers.users.schemes import CreateUserScheme
-from src.services.confirmation_code import ConfirmationCodeRepository
-from src.services.session import SessionRepository
-from src.services.user import UserRepository
+from src.database.repos.confirmation_code import ConfirmationCodeRepo
+from src.database.repos.session import SessionRepo
+from src.database.repos.user import UserRepo
 from src.settings import Role, KafkaConfig, UnisenderConfig, JWTConfig
 from src.util.auth.classes import AuthHandler
 from src.util.auth.helpers import get_password_hash, get_user_agent
-from src.util.auth.schemes import LoginScheme, TokensScheme
+from src.util.auth.schemes import LoginScheme
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,13 +46,14 @@ router = APIRouter(
 async def login(
         login_data: LoginScheme,
         request: Request,
-        response: Response,
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.get_by_email(
+    user = await UserRepo.get_by_email(
         email=login_data.email,
         db_session=db_session
     )
+    print('USER', user)
+    print(login_data, user.password_hash, get_password_hash(login_data.password), user.password_hash == get_password_hash(login_data.password))
     if (
             not user or
             user.password_hash != get_password_hash(login_data.password)
@@ -67,7 +67,7 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Подтвердите адрес электронной почты'
         )
-    await SessionRepository.close_all(
+    await SessionRepo.close_all(
         user_id=user.id,
         ip=request.client.host,
         user_agent=get_user_agent(request),
@@ -79,27 +79,18 @@ async def login(
         request=request,
         db_session=db_session
     )
-    response = JSONResponse(json.dumps({'message': 'Аутентифицирован'}))
+    response = JSONResponse(json.dumps({'detail': 'Аутентифицирован'}))
     response.set_cookie(
         JWTConfig.auth_cookie_name,
         tokens.access_token,
-        # int(time.time()) + JWTConfig.auth_jwt_exp_sec,
-        samesite='none',
-        secure=True
+        int(time.time()) + JWTConfig.auth_jwt_exp_sec,
     )
     response.set_cookie(
         JWTConfig.refresh_cookie_name,
         tokens.refresh_token,
-        # int(time.time()) + JWTConfig.refresh_jwt_exp_sec,
+        int(time.time()) + JWTConfig.refresh_jwt_exp_sec,
     )
     return response
-
-
-@router.get('/cookie/')
-async def get_cookie(response: Response):
-    response.set_cookie('lmao', 'pososi', secure=True, path='/landing')
-    return 'xd'
-
 
 
 @router.post(
@@ -111,7 +102,7 @@ async def register(
         registration_data: RegistrationScheme,
         db_session: AsyncSession = Depends(get_session)
 ):
-    if await UserRepository.name_is_taken(
+    if await UserRepo.name_is_taken(
         name=registration_data.name,
         db_session=db_session
     ):
@@ -119,7 +110,7 @@ async def register(
             status_code=status.HTTP_409_CONFLICT,
             detail='Имя занято'
         )
-    user = await UserRepository.create(
+    user = await UserRepo.create(
         user_data=CreateUserScheme(
             name=registration_data.name,
             email=registration_data.email,
@@ -133,7 +124,7 @@ async def register(
         bootstrap_servers=KafkaConfig.address,
         topic=KafkaConfig.mail_topic
     )
-    confirmation_code = await ConfirmationCodeRepository.create(
+    confirmation_code = await ConfirmationCodeRepo.create(
         user_id=user.id,
         reason=ConfirmationType.registration,
         db_session=db_session
@@ -159,19 +150,9 @@ async def register(
 )
 async def confirm_email(
         code: str,
-        email: EmailStr,
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.get_by_email(
-        email=email,
-        db_session=db_session
-    )
-    if not user or user.email_verified:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Пользователь не найден'
-        )
-    confirmation_code = await ConfirmationCodeRepository.get(
+    confirmation_code = await ConfirmationCodeRepo.get(
         value=code,
         reason=ConfirmationType.registration,
         db_session=db_session
@@ -180,6 +161,16 @@ async def confirm_email(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неправильный код'
+        )
+
+    user = await UserRepo.get_by_id(
+        user_id=confirmation_code.user_id,
+        db_session=db_session
+    )
+    if not user or user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователь не найден'
         )
     user.email_verified = True
     db_session.add(user)
@@ -196,7 +187,7 @@ async def request_password_restoration_code(
         email: EmailStr,
         db_session: AsyncSession = Depends(get_session)
 ):
-    user = await UserRepository.get_by_email(
+    user = await UserRepo.get_by_email(
         email=email,
         db_session=db_session
     )
@@ -205,7 +196,7 @@ async def request_password_restoration_code(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Неправильный адрес электронной почты'
         )
-    confirmation_code = await ConfirmationCodeRepository.create(
+    confirmation_code = await ConfirmationCodeRepo.create(
         user_id=user.id,
         reason=ConfirmationType.password_reset,
         db_session=db_session
@@ -234,12 +225,11 @@ async def request_password_restoration_code(
     responses=get_responses(400, 404)
 )
 async def restore_password(
-        new_password: str,
-        code: str,
+        request_data: ResetPasswordScheme,
         db_session: AsyncSession = Depends(get_session)
 ):
-    confirmation_code = await ConfirmationCodeRepository.get(
-        value=code,
+    confirmation_code = await ConfirmationCodeRepo.get(
+        value=request_data.code,
         reason=ConfirmationType.password_reset,
         db_session=db_session
     )
@@ -248,8 +238,8 @@ async def restore_password(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Код восстановления пароля не найден'
         )
-    new_password_hash = get_password_hash(new_password)
-    await UserRepository.update_password_hash(
+    new_password_hash = get_password_hash(request_data.new_password)
+    await UserRepo.update_password_hash(
         user_id=confirmation_code.user_id,
         new_password_hash=new_password_hash,
         db_session=db_session

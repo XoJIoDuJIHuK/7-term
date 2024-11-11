@@ -101,4 +101,4 @@ class GeminiTranslatorConfig(BaseModel):
     api_key: str | None = None
 
     def model_post_init(self, __context):
-        self.api_key: str = GeminiConfig.gemini_api_key
+        self.api_key: str = GeminiConfig.api_key

@@ -1,11 +1,12 @@
 import uuid
 from datetime import  datetime
 
+from fastapi import HTTPException, status
+
 from pydantic import Field
 
-from src.database.models import ReportStatus, Report
+from src.database.models import ReportStatus, Report, Article
 from src.responses import Scheme
-from src.settings import Role
 
 
 class FilterReportsScheme(Scheme):
@@ -31,7 +32,7 @@ class ReportListItemScheme(Scheme):
     closed_by_user_name: str | None = None
 
     @classmethod
-    def create(cls, report_object: Report):
+    def create(cls, report_object: Report, **kwargs):
         closed_by_user = report_object.closed_by_user
         closed_by_user_name = closed_by_user.name if closed_by_user else None
         return cls(
@@ -47,7 +48,7 @@ class ReportOutScheme(ReportListItemScheme):
     text: str = Field(min_length=1, max_length=1024)
 
     @classmethod
-    def create(cls, report_object: Report):
+    def create(cls, report_object: Report, **kwargs):
         closed_by_user = report_object.closed_by_user
         closed_by_user_name = closed_by_user.name if closed_by_user else None
         return cls(
@@ -57,6 +58,39 @@ class ReportOutScheme(ReportListItemScheme):
             closed_at=report_object.closed_at,
             closed_by_user_name=closed_by_user_name,
             reason_text=report_object.reason.text,
+        )
+
+
+class ReportOutModScheme(ReportOutScheme):
+    source_text: str
+    source_language_id: int | None
+    translated_text: str
+    translated_language_id: int
+
+    @classmethod
+    def create(cls, report_object: Report, **kwargs):
+        required_kwargs = [
+            'source_text', 'source_language_id',
+            'translated_text', 'translated_language_id'
+        ]
+        if len(set(required_kwargs).difference(set(kwargs))) != 0:
+            raise Exception(
+                f'ReportOutModScheme.create expected {required_kwargs}'
+                f', got {kwargs.keys()}'
+            )
+        articles_info = {}
+        for key in required_kwargs:
+            articles_info[key] = kwargs.get(key)
+        closed_by_user = report_object.closed_by_user
+        closed_by_user_name = closed_by_user.name if closed_by_user else None
+        return cls(
+            text=report_object.text,
+            article_id=report_object.article_id,
+            status=report_object.status,
+            closed_at=report_object.closed_at,
+            closed_by_user_name=closed_by_user_name,
+            reason_text=report_object.reason.text,
+            **articles_info
         )
 
 

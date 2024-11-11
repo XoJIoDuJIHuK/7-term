@@ -26,6 +26,7 @@ import { store } from '../../settings';
 import { fetch_data } from '../../helpers';
 import { Config } from '../../settings';
 import { useRoute, useRouter } from 'vue-router';
+import { UnnecessaryEventEmitter } from '../../eventBus';
 
 const route = useRoute();
 const router = useRouter();
@@ -40,6 +41,13 @@ async function createReport() {
         'POST',
         JSON.stringify(reportData),
     )
-    if (response) router.push(`/articles/${route.params.article_id}/report`)
+    if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: 'Жалоба создана',
+            text: undefined,
+            severity: 'info'
+        });
+        router.push(`/articles/${route.params.article_id}/report`);
+    }
 }
 </script>

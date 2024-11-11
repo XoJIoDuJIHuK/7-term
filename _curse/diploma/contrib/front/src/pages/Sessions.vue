@@ -20,10 +20,9 @@
 import { onMounted, ref } from 'vue';
 import { fetch_data, logout } from '../helpers';
 import { Config } from '../settings';
-import { useRouter } from 'vue-router';
+import { UnnecessaryEventEmitter } from '../eventBus';
 
 const sessions = ref([]);
-const router = useRouter();
 
 onMounted(async () => {
     const response = await fetch_data(`${Config.backend_address}/sessions/`)
@@ -33,10 +32,17 @@ onMounted(async () => {
 })
 
 async function closeSessions() {
-    await fetch_data(
+    const response = await fetch_data(
         `${Config.backend_address}/sessions/close/`,
         'POST',
     )
-    await logout(router);
+    if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: response.message,
+            text: undefined,
+            severity: 'info'
+        })
+        await logout();
+    }
 }
 </script>

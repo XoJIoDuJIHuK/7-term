@@ -2,7 +2,7 @@
     <div class="articles-container">
         <Suspense>
             <div v-if="articles">
-                <ArticleListCard v-for="article in articles" :key="article.id" :article="article"/>
+                <ArticleListCard v-for="article in articles" :key="article.id" :article="article" :isOriginal="!Boolean(original_article_id)"/>
             </div>
             <template #fallback>
                 <div>Loading articles...</div>

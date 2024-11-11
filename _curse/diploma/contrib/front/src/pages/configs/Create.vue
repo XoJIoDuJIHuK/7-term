@@ -29,6 +29,11 @@ async function createConfig() {
         JSON.stringify(createdConfig.value),
     );
     if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: 'Конфиг создан',
+            text: undefined,
+            severity: 'info'
+        })
         router.push('/configs')
     }
 }

@@ -7,7 +7,7 @@ from src.database.models import TranslationTask
 from src.routers.translation.schemes import CreateTaskScheme
 
 
-class TaskRepository:
+class TaskRepo:
     @staticmethod
     async def get_by_id(
             task_id: uuid.UUID,
@@ -26,7 +26,6 @@ class TaskRepository:
     ) -> TranslationTask:
         task = TranslationTask(
             article_id=task_data.article_id,
-            source_language_id=task_data.source_language_id,
             target_language_id=task_data.target_language_id,
             model_id=task_data.model_id,
             prompt_id=task_data.prompt_id

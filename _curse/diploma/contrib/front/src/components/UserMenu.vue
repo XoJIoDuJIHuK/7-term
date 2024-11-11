@@ -29,10 +29,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import { logout } from '../helpers';
-
-const router = useRouter();
+import { Config } from '../settings';
 
 const userInfo = reactive({
     id: '',
@@ -42,9 +40,9 @@ const userInfo = reactive({
 })
 
 onMounted(async () => {
-    const cachedUserInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string) : {};
+    const cachedUserInfo = localStorage.getItem(Config.userInfoProperty) ? JSON.parse(localStorage.getItem(Config.userInfoProperty) as string) : {};
     if (!userInfo) {
-        await logout(router);
+        await logout();
     }
     userInfo.id = cachedUserInfo.id;
     userInfo.name = cachedUserInfo.name;

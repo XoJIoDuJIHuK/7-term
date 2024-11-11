@@ -4,7 +4,7 @@ import sys
 
 import click
 
-from src.consumers.translator.gemini import TranslationTaskConsumer
+from src.consumers.translator.classes import TranslationTaskConsumer
 from src.settings import KafkaConfig
 
 

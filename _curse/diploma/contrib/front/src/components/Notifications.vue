@@ -28,17 +28,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
 import { fetch_data } from '../helpers';
 import { Config } from '../settings';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
-const router = useRouter();
 const notifications = ref([])
 const socket = ref(null)
 
 onMounted(async () => {
+    const userRole = JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role;
+    if (userRole === Config.userRoles.admin) return;
     try {
         socket.value = new WebSocket(`${Config.websocket_address}/notifications/`)
         socket.value.addEventListener('message', event => {
@@ -47,7 +47,6 @@ onMounted(async () => {
                 notifications.value.push(n)
             }
         })
-
     } catch (e) {
         console.log(e)
     }
@@ -56,9 +55,8 @@ onMounted(async () => {
 async function clearNotifications() {
     const response = await fetch_data(
         `${Config.backend_address}/notifications/`,
-        'PUT'
+        'PUT',
     )
-    console.log(response)
     if (response) {
         notifications.value = []
         UnnecessaryEventEmitter.emit('AlertMessage', {

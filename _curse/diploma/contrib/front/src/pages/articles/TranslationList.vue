@@ -1,35 +1,35 @@
 <template>
     <v-container>
-      <v-row>
-        <h1>Translated articles</h1>
-      </v-row>
-      <v-row>
-        <div>
-            <!-- TODO: replace link to translation page -->
-            <router-link to="/articles/create">
-              <v-btn variant="outlined" color="primary">
-                Translate
-              </v-btn>
-            </router-link>
-        </div>
-        <div>
-          <router-link to="/articles">
-            <v-btn class="ml-4" variant="outlined" color="secondary">
-              Back
-            </v-btn>
-          </router-link>
-        </div>
-      </v-row>
-      <v-row>
-        <ArticlesList :original_article_id="original_article_id"/>
-      </v-row>
+        <v-row>
+            <h1>Переводы статьи</h1>
+        </v-row>
+        <v-row>
+            <ArticlesList :original_article_id="original_article_id"/>
+        </v-row>
     </v-container>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import ArticlesList from '../../components/articles/List.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { fetch_data } from '../../helpers';
+import { Config } from '../../settings';
+
 
 const route = useRoute();
+const router = useRouter();
 const original_article_id = route.params.original_article_id;
+
+const originalArticleName = ref('');
+
+onMounted(async () => {
+    const response = await fetch_data(`${Config.backend_address}/articles/${original_article_id}/`);
+    if (response) {
+        originalArticleName.value = response.data.article.title;
+    } else {
+        router.push('/error');
+    }
+});
 </script>

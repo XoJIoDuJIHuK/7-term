@@ -5,7 +5,7 @@ from src.database.models import Language
 from src.routers.languages.schemes import LanguageOutScheme
 
 
-class LanguageRepository:
+class LanguageRepo:
     @staticmethod
     async def exists(
             language_id: int,

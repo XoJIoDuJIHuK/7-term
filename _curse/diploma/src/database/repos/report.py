@@ -15,17 +15,19 @@ from src.database.models import (
 from src.pagination import PaginationParams, paginate
 from src.routers.reports.schemes import (
     CreateReportScheme,
-    EditReportScheme, CommentOutScheme, FilterReportsScheme, ReportOutScheme,
+    EditReportScheme,
+    CommentOutScheme,
+    FilterReportsScheme,
     ReportListItemScheme,
 )
 
-from sqlalchemy import select, exists, join, all_, and_
+from sqlalchemy import select, exists, join
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.util.time.helpers import get_utc_now
 
 
-class ReportRepository:
+class ReportRepo:
     @staticmethod
     async def get_reasons_list(
             db_session: AsyncSession

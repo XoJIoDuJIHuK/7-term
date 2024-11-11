@@ -1,7 +1,6 @@
 <template>
     <v-app>
         <v-main>
-        <router-view />
         <v-alert
             v-if="alertObject.isActive"
             :type="alertObject.severity"
@@ -11,6 +10,7 @@
             <v-alert-title>{{ alertObject.title }}</v-alert-title>
             {{ alertObject.text }}
         </v-alert>
+        <router-view />
         </v-main>
     </v-app>
 </template>
@@ -29,6 +29,7 @@ const alertObject = reactive({
 })
 
 function showAlarm(params: AlertMessageParams) {
+    console.log(params)
     Object.assign(alertObject, params)
     alertObject.isActive = true
     setTimeout(() => {

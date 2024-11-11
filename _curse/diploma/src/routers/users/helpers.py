@@ -8,7 +8,7 @@ from fastapi import (
 )
 
 from src.depends import get_session
-from src.services.user import UserRepository
+from src.database.repos.user import UserRepo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +17,7 @@ async def get_user(
         db_session: AsyncSession = Depends(get_session),
         user_id: uuid.UUID = Path(),
 ):
-    user = await UserRepository.get_by_id(user_id, db_session)
+    user = await UserRepo.get_by_id(user_id, db_session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

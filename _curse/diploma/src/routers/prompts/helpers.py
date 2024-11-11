@@ -9,14 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import StylePrompt
 from src.depends import get_session
-from src.services.prompt import PromptRepository
+from src.database.repos.prompt import PromptRepo
 
 
 async def get_prompt(
         prompt_id: int = Path(),
         db_session: AsyncSession = Depends(get_session),
 ) -> StylePrompt:
-    prompt = await PromptRepository.get_by_id(
+    prompt = await PromptRepo.get_by_id(
         prompt_id=prompt_id,
         db_session=db_session
     )

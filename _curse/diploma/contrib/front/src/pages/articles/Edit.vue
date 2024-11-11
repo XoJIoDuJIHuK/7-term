@@ -52,6 +52,7 @@
   import { useRoute, useRouter } from 'vue-router';
   import { fetch_data } from '../../helpers';
   import { get_article } from './helpers';
+  import { UnnecessaryEventEmitter } from '../../eventBus';
 
   
   const form = ref(null);
@@ -116,7 +117,12 @@
               language_id: article.language_id
             })
         )
-        if (response !== undefined) {
+        if (response) {
+          UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: 'Статья сохранена',
+            text: undefined,
+            severity: 'info'
+          })
           router.push(`/articles/${response.data.article.id}/get`)
         }
       } catch (error) {

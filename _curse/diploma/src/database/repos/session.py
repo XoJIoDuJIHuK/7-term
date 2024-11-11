@@ -11,7 +11,7 @@ from src.routers.sessions.schemes import SessionOutScheme
 from src.util.time.helpers import get_utc_now
 
 
-class SessionRepository:
+class SessionRepo:
     @staticmethod
     async def get_refresh_token_ids(
             user_id: uuid.UUID,

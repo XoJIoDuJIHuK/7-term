@@ -61,3 +61,9 @@ def put_tokens_in_black_list(
 def get_user_agent(request: Request) -> str:
     user_agent = request.headers.get('user-agent')
     return user_agent[:100] if user_agent else 'not provided'
+
+
+async def close_sessions(
+        user_id: uuid.UUID
+):
+    pass

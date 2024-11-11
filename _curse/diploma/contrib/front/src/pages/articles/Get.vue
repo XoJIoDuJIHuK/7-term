@@ -1,5 +1,5 @@
 <template>
-    <v-container v-if="translationConfigState.isVisible">
+    <v-container v-if="article.original_article_id === null && translationConfigState.isVisible">
         <v-row>
             <h4>Config</h4>
             <v-select
@@ -73,14 +73,17 @@
                     </div>
                 </div>
                 <div>{{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id).iso_code : 'Language not specified' }}</div>
-                <router-link :to="`/articles/${article.id}/update`">
+                <router-link :to="`/articles/${article.id}/update`" v-if="article.original_article_id === null">
                     <v-btn variant="tonal" color="green">
                         <v-icon icon="mdi-pencil" aria-hidden="false"/>
                     </v-btn>
                 </router-link>
-                <v-btn @click="translationConfigState.isVisible = true" variant="tonal" color="blue">
-                    <v-icon icon="mdi-earth"/>
-                </v-btn>
+                <v-btn 
+                    @click="translationConfigState.isVisible = true"
+                    v-if="article.original_article_id === null"
+                    variant="tonal"
+                    color="blue"
+                ><v-icon icon="mdi-earth"/></v-btn>
                 <router-link :to="`/articles/${article.id}/report/${article.report_exists ? '' : 'create'}`">
                     <v-btn variant="tonal" color="error">
                         <v-icon icon="mdi-bug" aria-hidden="false"/>
@@ -100,6 +103,7 @@ import { get_article } from './helpers';
 import { useRoute, useRouter } from 'vue-router';
 import { Config, store } from '../../settings';
 import { fetch_data } from '../../helpers';
+import { UnnecessaryEventEmitter } from '../../eventBus';
 
 const route = useRoute();
 const router = useRouter();
@@ -110,7 +114,7 @@ const article = reactive({
     language_id: null,
     created_at: '',
     original_article_id: null,
-    like: null,
+    like: null as boolean | null,
     id: null,
     report_exists: false,
 })
@@ -129,6 +133,8 @@ onMounted(async () => {
         router.push('/error')
     }
     Object.assign(article, response)
+    console.log(article.original_article_id);
+    
 
     response = await fetch_data(`${Config.backend_address}/configs/`)
     if (response) {
@@ -144,7 +150,7 @@ async function setLike(newValue: boolean | null) {
             like: newValue
         })
     )
-    if (response) location.reload()
+    if (response) article.like = newValue
 }
 
 async function startTranslation() {
@@ -160,6 +166,11 @@ async function startTranslation() {
         }),
     )
     if (result) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: result.message,
+            text: undefined,
+            severity: 'info'
+        })
         translationConfigState.isVisible = false;
     }
 }

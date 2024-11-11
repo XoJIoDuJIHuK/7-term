@@ -36,9 +36,9 @@
 | Subject | Amount of passed labs | Total |
 | ------- | --------------------- | ----- |
 | BRBIT   | 3                     |       |
-| CIS     | 6                     | 12    |
+| CIS     | 7                     | 12    |
 | DCS     | 7+7                   | 7+7+? |
 | IPDAT   | 16                    | 16    |
-| ISD     | 4                     | 7     |
+| ISD     | 7                     | 7     |
 | MAD     | 6                     | 12    |
 | WSD     | 4                     | 8     |

@@ -1,9 +1,6 @@
-import uuid
-
 from fastapi import (
     APIRouter,
     Depends,
-    Form,
     HTTPException,
     status,
 )
@@ -16,13 +13,13 @@ from src.http_responses import get_responses
 from src.responses import BaseResponse
 from src.routers.translation.schemes import CreateTranslationScheme, \
     CreateTaskScheme
-from src.services.article import ArticleRepository
-from src.services.language import LanguageRepository
-from src.services.model import ModelRepository
-from src.services.prompt import PromptRepository
-from src.services.translation_task import TaskRepository
+from src.database.repos.article import ArticleRepo
+from src.database.repos.language import LanguageRepo
+from src.database.repos.model import ModelRepo
+from src.database.repos.prompt import PromptRepo
+from src.database.repos.translation_task import TaskRepo
 from src.settings import KafkaConfig, Role
-from src.util.auth.classes import JWTBearer
+from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 from src.util.brokers.producer.kafka import KafkaProducer
 
@@ -45,10 +42,10 @@ router = APIRouter(
 async def create_translation(
         translation_data: CreateTranslationScheme,
         db_session: AsyncSession = Depends(get_session),
-        user_info: UserInfo = Depends(JWTBearer(roles=[Role.user]))
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
     # TODO: make source_language_id nullable
-    article = await ArticleRepository.get_by_id(
+    article = await ArticleRepo.get_by_id(
         article_id=translation_data.article_id,
         db_session=db_session
     )
@@ -62,18 +59,7 @@ async def create_translation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Нельзя переводить перевод'
         )
-    if (
-        translation_data.source_language_id
-        and not await LanguageRepository.exists(
-            language_id=translation_data.source_language_id,
-            db_session=db_session
-        )
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Исходный язык не поддерживается'
-        )
-    if not await ModelRepository.exists_by_id(
+    if not await ModelRepo.exists_by_id(
         model_id=translation_data.model_id,
         db_session=db_session
     ):
@@ -81,7 +67,7 @@ async def create_translation(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Модель не существует'
         )
-    if not await PromptRepository.exists_by_id(
+    if not await PromptRepo.exists_by_id(
         prompt_id=translation_data.prompt_id,
         db_session=db_session
     ):
@@ -96,7 +82,7 @@ async def create_translation(
     )
 
     for target_language_id in translation_data.target_language_ids:
-        if not await LanguageRepository.exists(
+        if not await LanguageRepo.exists(
                 language_id=target_language_id,
                 db_session=db_session
         ):
@@ -105,12 +91,11 @@ async def create_translation(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Конечный язык не поддерживается'
             )
-        task = await TaskRepository.create(
+        task = await TaskRepo.create(
             task_data=CreateTaskScheme(
                 article_id=translation_data.article_id,
                 model_id=translation_data.model_id,
                 prompt_id=translation_data.prompt_id,
-                source_language_id=translation_data.source_language_id,
                 target_language_id=target_language_id
             ),
             db_session=db_session

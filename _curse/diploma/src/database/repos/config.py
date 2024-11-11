@@ -20,7 +20,7 @@ name_conflicts_error = HTTPException(
 )
 
 
-class ConfigRepository:
+class ConfigRepo:
     @staticmethod
     async def config_exists_by_name(
             name: str,
@@ -65,7 +65,7 @@ class ConfigRepository:
             user_id: uuid.UUID,
             db_session: AsyncSession,
     ) -> TranslationConfig:
-        if await ConfigRepository.config_exists_by_name(
+        if await ConfigRepo.config_exists_by_name(
             name=config_data.name,
             user_id=user_id,
             old_config_id=None,
@@ -90,7 +90,7 @@ class ConfigRepository:
             new_data: EditConfigScheme,
             db_session: AsyncSession
     ) -> TranslationConfig:
-        if await ConfigRepository.config_exists_by_name(
+        if await ConfigRepo.config_exists_by_name(
             name=new_data.name,
             user_id=config.user_id,
             old_config_id=config.id,

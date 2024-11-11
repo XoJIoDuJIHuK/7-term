@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import Field
 
 from src.responses import Scheme
@@ -15,3 +17,7 @@ class UpdateModelScheme(Scheme):
 
 class ModelOutScheme(CreateModelScheme):
     id: int
+
+
+class ModelAdminOutScheme(ModelOutScheme):
+    created_at: datetime

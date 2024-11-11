@@ -12,8 +12,8 @@ from src.responses import ListResponse, BaseResponse
 from src.routers.sessions.schemes import (
     SessionOutScheme,
 )
-from src.services.session import SessionRepository
-from src.util.auth.classes import JWTBearer
+from src.database.repos.session import SessionRepo
+from src.util.auth.classes import JWTCookie
 from src.util.auth.helpers import put_tokens_in_black_list
 from src.util.auth.schemes import UserInfo
 
@@ -29,11 +29,11 @@ router = APIRouter(
     responses=get_responses(400, 401)
 )
 async def get_sessions(
-        user_info: UserInfo = Depends(JWTBearer()),
+        user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session),
         pagination: PaginationParams = Depends(get_pagination_params)
 ):
-    sessions, count = await SessionRepository.get_list(
+    sessions, count = await SessionRepo.get_list(
         user_id=user_info.id,
         pagination_params=pagination,
         db_session=db_session
@@ -51,15 +51,15 @@ async def get_sessions(
     responses=get_responses(400, 401)
 )
 async def close_sessions(
-        user_info: UserInfo = Depends(JWTBearer()),
+        user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session),
 ):
-    refresh_token_ids = await SessionRepository.get_refresh_token_ids(
+    refresh_token_ids = await SessionRepo.get_refresh_token_ids(
         user_id=user_info.id,
         db_session=db_session
     )
     put_tokens_in_black_list(refresh_token_ids)
-    await SessionRepository.close_all(
+    await SessionRepo.close_all(
         user_id=user_info.id,
         db_session=db_session
     )

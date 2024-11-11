@@ -8,7 +8,7 @@ from src.util.db.helpers import update_object
 from src.util.time.helpers import get_utc_now
 
 
-class PromptRepository:
+class PromptRepo:
     @staticmethod
     async def exists_by_id(
             prompt_id: int,
@@ -23,10 +23,12 @@ class PromptRepository:
     @staticmethod
     async def exists_by_title(
             title: str,
+            edited_object_id: int | None,
             db_session: AsyncSession
     ) -> bool:
         result = await db_session.execute(select(exists().where(
             StylePrompt.title == title,
+            StylePrompt.id != edited_object_id,
             StylePrompt.deleted_at.is_(None)
         )))
         return result.scalar_one_or_none()
@@ -37,7 +39,7 @@ class PromptRepository:
     ) -> list[StylePrompt]:
         result = await db_session.execute(select(StylePrompt).where(
             StylePrompt.deleted_at.is_(None)
-        ))
+        ).order_by(StylePrompt.created_at))
         return result.scalars().all()
 
     @staticmethod
@@ -59,6 +61,7 @@ class PromptRepository:
     ) -> StylePrompt:
         if await cls.exists_by_title(
             title=prompt_data.title,
+            edited_object_id=None,
             db_session=db_session
         ):
             raise HTTPException(
@@ -83,6 +86,7 @@ class PromptRepository:
     ) -> StylePrompt:
         if prompt_data.title is not None and await cls.exists_by_title(
                 title=prompt_data.title,
+            edited_object_id=prompt.id,
                 db_session=db_session
         ):
             raise HTTPException(

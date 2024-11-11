@@ -25,6 +25,7 @@ class UserOutScheme(Scheme):
     id: uuid.UUID
     name: str
     email: EmailStr
+    email_verified: bool
     role: Role
 
 

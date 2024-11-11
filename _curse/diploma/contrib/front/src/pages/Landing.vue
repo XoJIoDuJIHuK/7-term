@@ -56,6 +56,15 @@
                     variant="elevated"
                     block
                 >Cancel</v-btn>
+
+                <v-btn
+                    v-if="loginData.isLogin"
+                    @click="onForgotPassword"
+                    color="purple"
+                    size="large"
+                    variant="elevated"
+                    block
+                >Forgot password</v-btn>
             </v-form>
         </v-card>
     </v-container>
@@ -63,14 +72,31 @@
         <v-app-bar color="primary" dark>
             <v-toolbar-title>{{ appName }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" @click="() => {
-                loginData.isVisible = true;
-                loginData.isLogin = true;
-            }" variant="outlined">Login</v-btn>
-            <v-btn color="secondary" @click="() => {
-                loginData.isVisible = true;
-                loginData.isLogin = false;
-            }" variant="outlined" class="ml-4">Register</v-btn>
+            <div v-if="userRole === Config.userRoles.guest" class="mr-4">
+                <v-btn color="secondary" @click="() => {
+                    loginData.isVisible = true;
+                    loginData.isLogin = true;
+                }" variant="outlined">Login</v-btn>
+                <v-btn color="secondary" @click="() => {
+                    loginData.isVisible = true;
+                    loginData.isLogin = false;
+                }" variant="outlined" class="ml-4">Register</v-btn>
+            </div>
+            <div v-else-if="userRole === Config.userRoles.user" class="mr-4">
+                <router-link to="/articles">
+                    <v-btn>Articles</v-btn>
+                </router-link>
+            </div>
+            <div v-else-if="userRole === Config.userRoles.mod" class="mr-4">
+                <router-link to="/reports">
+                    <v-btn>Reports</v-btn>
+                </router-link>
+            </div>
+            <div v-else class="mr-4">
+                <router-link to="/users">
+                    <v-btn>Users</v-btn>
+                </router-link>
+            </div>
         </v-app-bar>
 
         <v-main>
@@ -121,10 +147,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { fetch_data, logout } from '../helpers';
-import { Config, userRoles } from '../settings';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
+import { Config } from '../settings';
+import { UnnecessaryEventEmitter } from '../eventBus';
 
 const loginData = reactive({
     form: false,
@@ -137,7 +161,7 @@ const loginData = reactive({
     name: '',
 })
 const userRole = ref(
-    localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo') as string).role : userRoles.guest
+    localStorage.getItem(Config.userInfoProperty) ? JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role : Config.userRoles.guest
 );
 
 const icons = ref([
@@ -171,7 +195,6 @@ function required (v: string) {
 
 async function onSubmit() {
     loginData.isLoading = true;
-    console.log(Config)
     try {
         const result = await fetch_data(
             `${Config.backend_address}/auth/${loginData.isLogin ? 'login' : 'register'}/`,
@@ -192,10 +215,17 @@ async function onSubmit() {
             loginData.name = '';
             const userInfoResponse = await fetch_data(`${Config.backend_address}/users/me/`)
             if (!userInfoResponse) {
-                await logout(router)
+                await logout()
+                return
             }
-            localStorage.setItem('userInfo', JSON.stringify(userInfoResponse.data.user));
+            localStorage.setItem(Config.userInfoProperty, JSON.stringify(userInfoResponse.data.user));
             userRole.value = userInfoResponse.data.user.role;
+
+            UnnecessaryEventEmitter.emit('AlertMessage', {
+                title: result.detail,
+                text: undefined,
+                severity: 'info'
+            })
         }
     } catch(e) {
         console.log(e)
@@ -205,6 +235,25 @@ async function onSubmit() {
         }, 3000)
     }
     loginData.isLoading = false;
+}
+
+async function onForgotPassword() {
+    if (!loginData.email) {
+        loginData.displayError = 'Email is required';
+        return
+    }
+    const response = await fetch_data(
+        `${Config.backend_address}/auth/restore-password/request/?email=${loginData.email}`,
+        'POST',
+    )
+    if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: response.message,
+            text: undefined,
+            severity: 'info'
+        })
+        loginData.isVisible = false;
+    }
 }
 </script>
 
