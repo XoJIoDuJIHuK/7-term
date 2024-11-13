@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "a64679f9dd350d43",
+        "id": "578801cbb1935e6e",
         "type": "tabs",
         "children": [
           {
-            "id": "32eb39facc086810",
+            "id": "8c4c0f8e78360565",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Philosophy/2024-11-11.md",
+                "file": "BRBIT/2024-11-13.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2024-11-11"
+              "title": "2024-11-13"
             }
           }
         ]
@@ -173,10 +173,15 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "32eb39facc086810",
+  "active": "8c4c0f8e78360565",
   "lastOpenFiles": [
-    "Philosophy/2024-11-04.md",
+    "BRBIT/2024-10-30.md",
+    "BRBIT/2024-09-04.md",
+    "BRBIT/2024-11-13.md",
+    "BRBIT/2024-10-30 пз.md",
+    "Achievements.md",
     "Philosophy/2024-11-11.md",
+    "Philosophy/2024-11-04.md",
     "labs.md",
     "_diploma/kanBAN chuchelo.md",
     "_diploma/поправки в конституцию.md",
@@ -185,9 +190,6 @@
     "WSD/2024-11-04.md",
     "ISD/2024-10-31.md",
     "ISD/2024-10-03.md",
-    "BRBIT/2024-10-30 пз.md",
-    "BRBIT/2024-10-30.md",
-    "BRBIT/2024-09-04.md",
     "Philosophy/2024-10-28.md",
     "Philosophy/2024-10-21.md",
     "ITPM/2024-10-24.md",
@@ -206,7 +208,6 @@
     "Philosophy/2024-.zip",
     "ISD/2024-09-19.md",
     "Psychology/2024-10-09.md",
-    "Psychology/2024-09-25.md",
     "IPMB/histogram_differentiated.png",
     "IPMB/histogram_with_message.png",
     "IPMB/histogram_clean.png",
@@ -215,7 +216,6 @@
     "IPMB/block_example.png",
     "IPMB/combined_image.jpg",
     "IPMB/Реферат алгоритм Коха-Жао.html",
-    "ITPM/2024-10-10.md",
     "IPMB/0d6a9bb1a9eedda6874f60046dee69bbd4b94c93.svg",
     "Untitled",
     "IPMB",
