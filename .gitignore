@@ -1,6 +1,9 @@
 MAD/cmdline-tools
 MAD/flutter
 MAD/labs/**/build
+MAD/labs/**/ios
+MAD/labs/**/windows
+MAD/labs/**/linux
 venv
 .venv
 WSD/labs/**/obj
