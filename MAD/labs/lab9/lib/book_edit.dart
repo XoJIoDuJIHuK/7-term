@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import './user_state.dart';
-import 'package:provider/provider.dart';
 import 'book.dart';
 import 'book_details.dart';
 
 
 class BookListPage extends StatefulWidget {
-  const BookListPage({super.key});
+  final int userId;
+
+  const BookListPage({super.key, required this.userId});
 
   @override
-  _BookListPageState createState() => _BookListPageState();
+  _BookListPageState createState() => _BookListPageState(userId: userId);
 }
 
 
 class _BookListPageState extends State<BookListPage> {
-  bool isFavourite(int bookId, int userId) {
-    print("bookId = $bookId; userId = $userId");
+  final int userId;
+
+  _BookListPageState({required this.userId});
+
+  bool isFavourite(int id) {
     for (int i = 0; i < Hive.box('favourites').length; i++) {
       var el = Hive.box('favourites').getAt(i);
-      if (el['bookId'] == bookId && el['userId'] == userId) {
-        print('true');
+      if (el['bookId'] == id) {
         return true;
       }
     }
-    print('false');
     return false;
   }
 
@@ -35,44 +36,43 @@ class _BookListPageState extends State<BookListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Books')),
       body: ValueListenableBuilder(
-        valueListenable: Hive.box('books').listenable(),
-        builder: (context, booksBox, _) {
-          return ListView.builder(
-            itemCount: booksBox.length,
-            itemBuilder: (context, index) {
-              final element = booksBox.getAt(index)!;
-              final book = Book.xd(id: element['id'], name: element['name'], description: element['description'], price: element['price'], isFavourite: element['isFavourite']);
-              return Consumer<UserNotifierModel>(builder: (context, userModel, child) {
+          valueListenable: Hive.box('books').listenable(),
+          builder: (context, booksBox, _) {
+            return ListView.builder(
+              itemCount: booksBox.length,
+              itemBuilder: (context, index) {
+                final element = booksBox.getAt(index)!;
+                final book = Book.xd(id: element['id'], name: element['name'], description: element['description'], price: element['price'], isFavourite: element['isFavourite']);
                 return ListTile(
-                    title: Text(book.name),
-                    subtitle: Text(book.description),
-                    trailing: IconButton(
-                      icon: Icon(isFavourite(book.id, userModel.selectedUser['id']) ? Icons.favorite : Icons.favorite_border), // Or Icons.favorite if already favourited
-                      onPressed: () {
-                        _toggleFavourite(book, index, userModel.selectedUser['id']); // Implement favourite logic
-                      },
-                    ),
-                    onTap: () {
-                      // Navigate to details page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookDetailsPage(book: book),
-                        ),
-                      );
+                  title: Text(book.name),
+                  subtitle: Text(book.description),
+                  trailing: IconButton(
+                    icon: Icon(isFavourite(book.id) ? Icons.favorite : Icons.favorite_border), // Or Icons.favorite if already favourited
+                    onPressed: () {
+                      _toggleFavourite(book, index); // Implement favourite logic
                     },
-                  );
-                }
-              );
-            },
-          );
-        }
-      )
+                  ),
+                  onTap: () {
+                    // Navigate to details page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookDetailsPage(book: book),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
+      ),
     );
   }
-
-  void _toggleFavourite(Book book, int index, int userId) {
+  void _toggleFavourite(Book book, int index) {
+    final bookBox = Hive.box('books');
     final favouritesBox = Hive.box('favourites');
+    // book.isFavourite = !book.isFavourite;
+    // bookBox.put(index, book.toJson());
     int maxFavouritesId = 0;
     for (int i = 0; i < favouritesBox.length; i++) {
       if (favouritesBox.getAt(i)['id'] > maxFavouritesId) {
@@ -80,7 +80,7 @@ class _BookListPageState extends State<BookListPage> {
       }
     }
 
-    if (isFavourite(book.id, userId)) {
+    if (isFavourite(book.id)) {
       for (int i = 0; i < favouritesBox.length; i++) {
         var el = favouritesBox.getAt(i);
         if (el['userId'] == userId && el['bookId'] == book.id) {

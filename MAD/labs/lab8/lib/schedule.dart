@@ -5,9 +5,12 @@ Color mainPurpleColor = const Color(0xFF6348ed);
 Color accentPurpleColor = const Color(0xFF5135e1);
 
 class SchedulePage extends StatelessWidget {
-  final String transfer_value;
+  // final String transfer_value;
 
-  const SchedulePage({super.key, required this.transfer_value});
+  const SchedulePage({
+    super.key,
+    // required this.transfer_value
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,123 +18,129 @@ class SchedulePage extends StatelessWidget {
     double scale = screenWidth / 100;
 
     return Scaffold(
-      body: Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            color: mainPurpleColor,
-            child: Column(
-              children: [
-                Text(
-                  transfer_value,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: scale * 10,
-                    color: Colors.white
-                  ),
-                ),
-                SizedBox(
-                  width: scale * 80,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Container(
+                  color: mainPurpleColor,
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          IconButton(onPressed: (){},icon: const Icon(Icons.alarm))
-                        ],
+                      Text(
+                        'transfer_value',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: scale * 10,
+                          color: Colors.white
+                        ),
+                      ),
+                      SizedBox(
+                        width: scale * 80,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                IconButton(onPressed: (){},icon: const Icon(Icons.alarm))
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '28 March, 2021',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: scale * 4,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    getDayElement('Mo', '22', scale),
+                                    getDayElement('Tu', '23', scale),
+                                    getDayElement('We', '24', scale),
+                                    getDayElement('Th', '25', scale),
+                                    getDayElement('Fr', '26', scale),
+                                    getDayElement('Sa', '27', scale),
+                                    getDayElement('Su', '28', scale, isActive: true),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '28 March, 2021',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: scale * 4,
-                                fontWeight: FontWeight.bold
-                            ),
+                      Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(scale * 10),
+                                  topRight: Radius.circular(scale * 10),
+                              ),
+                              color: Colors.white
                           ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              getDayElement('Mo', '22', scale),
-                              getDayElement('Tu', '23', scale),
-                              getDayElement('We', '24', scale),
-                              getDayElement('Th', '25', scale),
-                              getDayElement('Fr', '26', scale),
-                              getDayElement('Sa', '27', scale),
-                              getDayElement('Su', '28', scale, isActive: true),
+                              SizedBox(
+                                width: scale * 80,
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: scale * 8),
+                                    SizedBox(
+                                      width: scale * 80,
+                                      child: Row(
+                                        children: [
+                                          Image.asset('assets/mechet.png', width: scale * 20),
+                                          SizedBox(width: scale * 5),
+                                          const Text(
+                                            'Do you have a\nfasting today?',
+                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(width: scale * 10),
+                                          const Icon(Icons.check)
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Schedule',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: scale * 4
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    getScheduleElement(true, 'Suhoor', '02:00 AM - 04:36 AM', 'moon.png', scale),
+                                    getScheduleElement(false, 'Dhuhur', '12:07 PM - 04:12 PM', 'sun.png', scale),
+                                    getScheduleElement(false, 'Asr', '04:30 PM - 06:12 PM', 'cloudy.png', scale),
+                                    getScheduleElement(false, 'Iftar', '06:16 PM - 07:28 PM', 'cloudy-wind.png', scale),
+                                  ],
+                                ),
+                              )
                             ],
-                          ),
-                        ],
+                          )
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(scale * 10),
-                            topRight: Radius.circular(scale * 10),
-                        ),
-                        color: Colors.white
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: scale * 80,
-                          child: Column(
-                            children: [
-                              SizedBox(height: scale * 8),
-                              SizedBox(
-                                width: scale * 80,
-                                child: Row(
-                                  children: [
-                                    Image.asset('assets/mechet.png', width: scale * 20),
-                                    SizedBox(width: scale * 5),
-                                    const Text(
-                                      'Do you have a\nfasting today?',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(width: scale * 10),
-                                    const Icon(Icons.check)
-                                  ],
-                                ),
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Schedule',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: scale * 4
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              getScheduleElement(true, 'Suhoor', '02:00 AM - 04:36 AM', 'moon.png', scale),
-                              getScheduleElement(false, 'Dhuhur', '12:07 PM - 04:12 PM', 'sun.png', scale),
-                              getScheduleElement(false, 'Asr', '04:30 PM - 06:12 PM', 'cloudy.png', scale),
-                              getScheduleElement(false, 'Iftar', '06:16 PM - 07:28 PM', 'cloudy-wind.png', scale),
-                            ],
-                          ),
-                        )
-                      ],
-                    )
-                ),
-              ],
-            ),
-          ),
+              )
+            )
+          ],
         )
       )
     );

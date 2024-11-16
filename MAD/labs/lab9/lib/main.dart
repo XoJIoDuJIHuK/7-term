@@ -1,13 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:provider/provider.dart';
 
 import './home.dart';
 import './schedule.dart';
 import './book_edit.dart';
 import './favourites.dart';
 import './book.dart';
-import './user_state.dart';
 
 
 void main() async {
@@ -21,7 +20,6 @@ void main() async {
   usersBox.addAll([
     Map.from({ 'id': 1, 'name': 'User', 'isAdmin': false }),
     Map.from({ 'id': 2, 'name': 'Admin', 'isAdmin': true }),
-    Map.from({ 'id': 3, 'name': 'User 2', 'isAdmin': false }),
   ]);
 
   await Hive.openBox('favourites');
@@ -30,8 +28,6 @@ void main() async {
   favouritesBox.addAll([
     Map.from({ 'id': 1, 'userId': 1, 'bookId': 3 }),
     Map.from({ 'id': 2, 'userId': 1, 'bookId': 2 }),
-    Map.from({ 'id': 3, 'userId': 3, 'bookId': 1 }),
-    Map.from({ 'id': 4, 'userId': 3, 'bookId': 4 }),
   ]);
 
   await Hive.openBox('books');
@@ -45,12 +41,7 @@ void main() async {
     Book.xd(id: 5, name: 'Тора', description: 'Ага угу', price: 12.34, isFavourite: true).toJson(),
   ]);
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserNotifierModel(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -77,10 +68,11 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  Map<String, dynamic> selectedUser = Map.from(Hive.box('users').get(0));
   final String _inputValue = '';
 
-  bool isAdmin(UserNotifierModel userModel) {
-    return userModel.selectedUser['isAdmin'];
+  bool isAdmin() {
+    return selectedUser['isAdmin'];
   }
   List<Map<String, dynamic>> getUsers() {
     var usersBox = Hive.box('users');
@@ -89,14 +81,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
 
-  List<Widget> _screens(UserNotifierModel userModel) {
+  List<Widget> _screens() {
     return [
       const Home(),
-      SchedulePage(
-        // transfer_value: _inputValue
-      ),
-      isAdmin(userModel) ? const ManageBooksPage() : BookListPage(), // Conditional page
-      isAdmin(userModel) ? Container() :  FavouritesPage(userId: userModel.selectedUser['id']), // Only for users
+      SchedulePage(transfer_value: _inputValue),
+      isAdmin() ? const ManageBooksPage() : BookListPage(userId: selectedUser['id']), // Conditional page
+      isAdmin() ? Container() :  FavouritesPage(userId: selectedUser['id']), // Only for users
     ];
   }
 
@@ -116,57 +106,53 @@ class _MainScreenState extends State<MainScreen> {
         child: Text(option['name']),
       );
     }).toList();
-    return Consumer<UserNotifierModel>(builder: (context, userModel, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Input App'),
-            actions: [
-              DropdownButton<int>(
-                value: userModel.selectedUser['id'],
-                items: usersItems,
-                onChanged: (int? newUserId) {
-                  // TODO: remove
-                  // setState(() {_selectedIndex = 0;});
-                  if (newUserId != null) {
-                    for (int i = 0; i < users.length; i++) {
-                        if (users[i]['id'] != newUserId) continue;
-                        userModel.setSelectedUser(users[i]);
-                        break;
-                      }
-                    setState(() {});
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Input App'),
+        actions: [
+          DropdownButton<int>(
+            value: selectedUser['id'],
+            items: usersItems,
+            onChanged: (int? newUserId) {
+              setState(() {_selectedIndex = 0;});
+              if (newUserId != null) {
+                for (int i = 0; i < users.length; i++) {
+                    if (users[i]['id'] != newUserId) continue;
+                    selectedUser = users[i];
+                    break;
                   }
-                },
-              ),
-            ],
+                setState(() {});
+              }
+            },
           ),
-          body: _screens(userModel)[_selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            items:  <BottomNavigationBarItem>[
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.input),
-                label: 'Input',
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.text_fields),
-                label: isAdmin(userModel) ? 'Manage Books' : 'Books',
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.details),
-                label: 'Details', // Placeholder – actual book details will be shown
-              ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
-                label: 'Favourites',
-              ),
+        ],
+      ),
+      body: _screens()[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items:  <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.input),
+            label: 'Input',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.text_fields),
+            label: isAdmin() ? 'Manage Books' : 'Books',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.details),
+            label: 'Details', // Placeholder – actual book details will be shown
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favourites',
+          ),
 
 
-            ].where((item) => !isAdmin(userModel) || item.label != 'Favourites').toList(), // Filter if admin
-              // Dynamically show/hide Favourites based on user role
-          ),
-        );
-      }
+        ].where((item) => !isAdmin() || item.label != 'Favourites').toList(), // Filter if admin
+          // Dynamically show/hide Favourites based on user role
+      ),
     );
   }
 }
