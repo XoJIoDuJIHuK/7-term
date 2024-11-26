@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "767034663448",
+    "project_id": "booming-cosine-439006-p2",
+    "storage_bucket": "booming-cosine-439006-p2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:767034663448:android:297fc77eb7e0862960996d",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "767034663448-lviub85h5v3uhibsfkg55o0779lb0k02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt2WXk4v89TPLY-AEz_C4N0Hpyj7Ev3uY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "767034663448-lviub85h5v3uhibsfkg55o0779lb0k02.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,7 +5,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Notification
-from src.routers.notifications.schemes import NotificationOutScheme
+from src.routers.notifications.schemes import NotificationOutScheme, \
+    NotificationCreateScheme
 from src.util.time.helpers import get_utc_now
 
 
@@ -23,6 +24,22 @@ class NotificationRepo:
         return [
             NotificationOutScheme.model_validate(n) for n in notifications
         ]
+
+    @staticmethod
+    async def create(
+            notification_scheme: NotificationCreateScheme,
+            db_session: AsyncSession,
+    ) -> Notification:
+        notification_object = Notification(
+            title=notification_scheme.title,
+            text=notification_scheme.text,
+            user_id=notification_scheme.user_id,
+            type=notification_scheme.type
+        )
+        db_session.add(notification_object)
+        await db_session.commit()
+        await db_session.refresh(notification_object)
+        return notification_object
 
     @staticmethod
     async def read_all(

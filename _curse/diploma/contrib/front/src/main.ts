@@ -20,6 +20,7 @@ import ReportList from './pages/ReportList.vue'
 import UserList from './pages/UserList.vue'
 import PromptList from './pages/PromptList.vue'
 import ModelList from './pages/ModelList.vue'
+import AnalyticsPage from './pages/Analytics.vue'
 
 const vuetify = createVuetify({
     components,
@@ -40,6 +41,7 @@ const router = createRouter({
                 { path: 'models', component: ModelList },
                 { path: 'reports', component: ReportList },
                 { path: 'sessions', component: SessionsPage },
+                { path: 'analytics', component: AnalyticsPage },
             ],
             props: true
         },

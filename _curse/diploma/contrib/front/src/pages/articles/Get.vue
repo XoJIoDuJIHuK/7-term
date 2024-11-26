@@ -72,7 +72,7 @@
                         </v-btn>
                     </div>
                 </div>
-                <div>{{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id).iso_code : 'Language not specified' }}</div>
+                <div>{{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id)!.iso_code : 'Language not specified' }}</div>
                 <router-link :to="`/articles/${article.id}/update`" v-if="article.original_article_id === null">
                     <v-btn variant="tonal" color="green">
                         <v-icon icon="mdi-pencil" aria-hidden="false"/>
@@ -133,7 +133,6 @@ onMounted(async () => {
         router.push('/error')
     }
     Object.assign(article, response)
-    console.log(article.original_article_id);
     
 
     response = await fetch_data(`${Config.backend_address}/configs/`)

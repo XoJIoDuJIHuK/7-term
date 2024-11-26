@@ -7,6 +7,7 @@ from src.responses import Scheme
 class SessionOutScheme(Scheme):
     id: uuid.UUID
     user_id: uuid.UUID
+    user_agent: str
     ip: str
     is_closed: bool
     refresh_token_id: uuid.UUID

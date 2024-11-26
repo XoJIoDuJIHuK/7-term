@@ -7,9 +7,10 @@ from src.handlers import (
 
 from src.settings import AppConfig
 
+from src.routers.articles.views import router as articles_router
+from src.routers.analytics.views import router as analytics_router
 from src.routers.auth.views import router as auth_router
 from src.routers.reports.views import router as reports_router
-from src.routers.articles.views import router as articles_router
 from src.routers.config.views import router as config_router
 from src.routers.languages.views import router as languages_router
 from src.routers.models.views import router as models_router
@@ -36,6 +37,7 @@ init_exc_handlers(app, AppConfig.debug)
 init_responses(app)
 
 app.include_router(articles_router)
+app.include_router(analytics_router)
 app.include_router(auth_router)
 app.include_router(config_router)
 app.include_router(languages_router)

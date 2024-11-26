@@ -101,37 +101,34 @@ class JWTCookie(APIKeyCookie):
             request: Request
     ):
         token: str
+        error_invalid_token = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Неправильные данные входа'
+        )
+
         try:
             token = await (
                 super(JWTCookie, self).__call__(request)
             )
         except HTTPException as e:
             self.logger.exception(e)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Неправильные данные входа'
-            )
-        error_invalid_token = HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Неправильный токен'
-        )
-        error_no_rights = HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Недостаточно прав'
-        )
+            raise error_invalid_token
 
-        if token:
-            if not (
-                payload := verify_jwt(token)
-            ):
-                raise error_invalid_token
-            provided_role = payload.role
-            if not self.role_allowed(self.roles, provided_role):
-                raise error_no_rights
-
-            return payload
-        else:
+        if not token:
             return None
+        if not (
+            payload := verify_jwt(token)
+        ):
+            raise error_invalid_token
+        if not self.role_allowed(self.roles, payload.role):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Недостаточно прав'
+            )
+        if payload.user_agent != request.headers.get('user-agent'):
+            raise error_invalid_token
+
+        return payload
 
     @staticmethod
     def role_allowed(roles: list[Role], provided_role: Role) -> bool:
@@ -163,6 +160,7 @@ class AuthHandler:
         await db_session.refresh(user)
         return cls.get_tokens_scheme(
             user_id=user.id,
+            user_agent=request.headers.get('user-agent'),
             session_id=session.id,
             role=user.role,
             refresh_token_id=refresh_token_id
@@ -210,8 +208,10 @@ class AuthHandler:
         session.refresh_token_id = new_refresh_token_id
         db_session.add(session)
         await db_session.commit()
+        await db_session.refresh(session)
         return cls.get_tokens_scheme(
             user_id=payload.id,
+            user_agent=request.headers.get('user-agent'),
             session_id=session_id,
             refresh_token_id=new_refresh_token_id,
             role=payload.role
@@ -221,11 +221,13 @@ class AuthHandler:
     def get_access_token(
             cls,
             user_id: uuid.UUID,
+            user_agent: str,
             role: Role
     ) -> str:
         access_payload = {
             JWTConfig.user_info_property: {
                 'id': str(user_id),
+                'user_agent': user_agent,
                 'role': role.value,
             },
             'exp': time.time() + JWTConfig.auth_jwt_exp_sec
@@ -240,6 +242,7 @@ class AuthHandler:
     def get_refresh_token(
             cls,
             user_id: uuid.UUID,
+            user_agent: str,
             session_id: uuid.UUID,
             refresh_token_id: uuid.UUID,
             role: Role
@@ -248,6 +251,7 @@ class AuthHandler:
             JWTConfig.user_info_property: {
                 'id': str(user_id),
                 'role': role.value,
+                'user_agent': user_agent,
                 'session_id': str(session_id),
                 'token_id': str(refresh_token_id),
             },
@@ -263,14 +267,15 @@ class AuthHandler:
     def get_tokens_scheme(
             cls,
             user_id: uuid.UUID,
+            user_agent: str,
             session_id: uuid.UUID,
             role: Role,
             refresh_token_id: uuid.UUID
     ) -> TokensScheme:
         return TokensScheme(
-            access_token=cls.get_access_token(user_id, role),
+            access_token=cls.get_access_token(user_id, user_agent, role),
             refresh_token=cls.get_refresh_token(
-                user_id, session_id, refresh_token_id, role
+                user_id, user_agent, session_id, refresh_token_id, role
             )
         )
 

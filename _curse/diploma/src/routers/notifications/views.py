@@ -57,8 +57,10 @@ async def get_notifications(
                 if message and message['type'] == 'message':
                     notification_data = message['data'].decode('utf-8')
                     try:
-                        notification = NotificationOutScheme.model_validate_json(
-                            notification_data
+                        notification = (
+                            NotificationOutScheme.model_validate_json(
+                                notification_data
+                            )
                         )
                         await websocket.send_json(
                             notification.model_dump(exclude_unset=True)

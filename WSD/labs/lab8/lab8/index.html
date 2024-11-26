@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+            .form-control label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+        .input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .flex {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flex-row {
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex: 1;
+            margin: 5px 5px;
+        }
+
+            .btn:hover {
+                background-color: #0056b3;
+            }
+
+        #res {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Wraps long lines */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Calculator</h1>
+        <div class="flex">
+            <div class="form-control">
+                <label for="k">k</label>
+                <input type="text" id="k" class="input" />
+            </div>
+            <div class="form-control">
+                <label for="v">x</label>
+                <input type="text" id="v" class="input" />
+            </div>
+        </div>
+        <div class="flex-row">
+            <button class="btn" onclick="invoke('GetM')">GetM</button>
+            <button class="btn" onclick="invoke('SetM')">SetM</button>
+            <button class="btn" onclick="invoke('AddM')">AddM</button>
+            <button class="btn" onclick="invoke('SubM')">SubM</button>
+            <button class="btn" onclick="invoke('MulM')">MulM</button>
+            <button class="btn" onclick="invoke('DivM')">DivM</button>
+            <button class="btn" onclick="invoke('ErrorExit')">ErrorExit</button>
+        </div>
+        <pre id="res" class="border rounded w-fit p-5"></pre>
+    </div>
+
+    <script>
+        function invoke(methodName) {
+            var k = document.getElementById('k').value;
+            var v = document.getElementById('v').value;
+            var url = 'http://localhost:52460/api/JRService';
+            var json = {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "params": {
+                    "k": k,
+                    "x": v
+                },
+                "method": methodName
+            };
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    "Content-Type": 'application/json',
+                },
+                body: JSON.stringify(json, null, 4),
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                document.getElementById('res').innerHTML = JSON.stringify(data, null, 4);
+            });
+        }
+    </script>
+</body>
+</html>

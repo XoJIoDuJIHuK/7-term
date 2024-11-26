@@ -95,7 +95,6 @@ onMounted(async () => {
 
     socket.value = new WebSocket(`${Config.websocket_address}/articles/${route.params.article_id}/report/comments/ws/`)
     socket.value.addEventListener('message', event => {
-        console.log(JSON.parse(event.data))
         comments.value.push(JSON.parse(event.data))
     })
 })

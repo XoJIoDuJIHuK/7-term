@@ -29,7 +29,6 @@ const alertObject = reactive({
 })
 
 function showAlarm(params: AlertMessageParams) {
-    console.log(params)
     Object.assign(alertObject, params)
     alertObject.isActive = true
     setTimeout(() => {

@@ -31,7 +31,6 @@ class _BookListPageState extends State<BookListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var favouritesBox = Hive.box('favourites');
     return Scaffold(
       appBar: AppBar(title: const Text('Books')),
       body: ValueListenableBuilder(

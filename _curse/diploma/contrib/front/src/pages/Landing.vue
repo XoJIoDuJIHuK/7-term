@@ -228,7 +228,6 @@ async function onSubmit() {
             })
         }
     } catch(e) {
-        console.log(e)
         loginData.displayError = e as string;
         setTimeout(function() {
             loginData.displayError = '';

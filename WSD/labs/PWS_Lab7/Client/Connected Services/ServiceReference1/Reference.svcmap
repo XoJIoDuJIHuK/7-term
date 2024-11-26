@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="7f0d6080-af1f-4dc1-9065-a61a93a7e3a9" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:8733/SyndicationService/mex" Protocol="mex" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="f6e7d789-cc83-4382-8dd3-8fe3d53444fd" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="d42c5121-5a23-4ee3-b12f-06f9ec20cfde" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="System.ServiceModel.Syndication.xsd" MetadataType="Schema" ID="4b552edc-7007-435c-8fcf-4c48993822f9" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="Atom.xsd" MetadataType="Schema" ID="f984a370-7c24-48b3-8033-6f35822ab384" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="6f341b6a-3e7e-490f-a93a-a6542067424f" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="WSNAPModel.xsd" MetadataType="Schema" ID="3e7667c5-b3c7-4328-87e9-c99623103a14" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+    <MetadataFile FileName="service2.xsd" MetadataType="Schema" ID="4807134f-6add-43c8-9721-ba3eaaabff5f" SourceId="1" SourceUrl="http://localhost:8733/SyndicationService/mex" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

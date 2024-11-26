@@ -137,7 +137,6 @@ onMounted(async () => {
 async function editItem (item: Model) {
     editedIndex.value = users.value.indexOf(item)
     Object.assign(editedItem, item)
-    console.log(editedItem)
     dialog.value = true
 }
 

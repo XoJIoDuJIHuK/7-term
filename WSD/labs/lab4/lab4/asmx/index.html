@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>AJAX JSON Call to ASMX Service</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnAdd').click(function () {
+                var x = parseInt($('#txtX').val());
+                var y = parseInt($('#txtY').val());
+
+                // Выполняем AJAX-запрос к веб-сервису
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:49807/WebService1.asmx/AddS",  // URL метода веб-сервиса
+                    data: JSON.stringify({ x: x, y: y }),  // Передаем параметры
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        // Показываем результат
+                        $('#result').text('Result: ' + response.d);
+                    },
+                    error: function (error) {
+                        alert('Error: ' + error.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <h2>AJAX вызов метода AddS веб-сервиса Simplex</h2>
+            <label>Введите первое число (x): </label>
+            <input type="text" id="txtX" /><br />
+            <label>Введите второе число (y): </label>
+            <input type="text" id="txtY" /><br /><br />
+            <button type="button" id="btnAdd">Выполнить сложение</button><br /><br />
+            <span id="result"></span>
+        </div>
+    </form>
+</body>
+</html>

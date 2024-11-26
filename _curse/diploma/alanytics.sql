@@ -1,3 +1,4 @@
+-- Active: 1729409889429@@127.0.0.1@5432@diploma@public
 DO $$
 DECLARE
     article_record RECORD;

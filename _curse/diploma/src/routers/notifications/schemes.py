@@ -9,13 +9,13 @@ class NotificationBase(Scheme):
     title: str
     text: str
     type: NotificationType
-    created_at: datetime
 
 
-class CreateNotificationScheme(NotificationBase):
+class NotificationCreateScheme(NotificationBase):
     user_id: uuid.UUID
 
 
 class NotificationOutScheme(NotificationBase):
     id: uuid.UUID
+    created_at: datetime
     read_at: datetime | None

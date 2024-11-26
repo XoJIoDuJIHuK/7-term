@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch, watchEffect } from 'vue';
+import { ref, onMounted, reactive,  } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
 import { Config } from '../../settings';

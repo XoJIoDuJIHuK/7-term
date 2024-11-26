@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{57441364-D86C-4D5D-ACA7-BB40376F38CC}|SyndicationServiceLibrary\\SyndicationServiceLibrary.csproj|c:\\users\\docker\\wsd\\pws_lab7\\syndicationservicelibrary\\ifeed.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{57441364-D86C-4D5D-ACA7-BB40376F38CC}|SyndicationServiceLibrary\\SyndicationServiceLibrary.csproj|solutionrelative:syndicationservicelibrary\\ifeed.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{57441364-D86C-4D5D-ACA7-BB40376F38CC}|SyndicationServiceLibrary\\SyndicationServiceLibrary.csproj|c:\\users\\docker\\wsd\\pws_lab7\\syndicationservicelibrary\\feed.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{57441364-D86C-4D5D-ACA7-BB40376F38CC}|SyndicationServiceLibrary\\SyndicationServiceLibrary.csproj|solutionrelative:syndicationservicelibrary\\feed.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F9D6D0F6-19CE-48D8-8838-FF8DA275E0F5}|Client\\Client.csproj|C:\\Users\\Docker\\WSD\\PWS_Lab7\\client\\wcfsyndicationclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F9D6D0F6-19CE-48D8-8838-FF8DA275E0F5}|Client\\Client.csproj|solutionrelative:client\\wcfsyndicationclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "IFeed.cs",
+              "DocumentMoniker": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\SyndicationServiceLibrary\\IFeed.cs",
+              "RelativeDocumentMoniker": "SyndicationServiceLibrary\\IFeed.cs",
+              "ToolTip": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\SyndicationServiceLibrary\\IFeed.cs",
+              "RelativeToolTip": "SyndicationServiceLibrary\\IFeed.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAsAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-14T13:31:37.097Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Feed.cs",
+              "DocumentMoniker": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\SyndicationServiceLibrary\\Feed.cs",
+              "RelativeDocumentMoniker": "SyndicationServiceLibrary\\Feed.cs",
+              "ToolTip": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\SyndicationServiceLibrary\\Feed.cs",
+              "RelativeToolTip": "SyndicationServiceLibrary\\Feed.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAxwDsAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-14T12:59:18.486Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "WCFSyndicationClient.cs",
+              "DocumentMoniker": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\Client\\WCFSyndicationClient.cs",
+              "RelativeDocumentMoniker": "Client\\WCFSyndicationClient.cs",
+              "ToolTip": "C:\\Users\\Docker\\WSD\\PWS_Lab7\\Client\\WCFSyndicationClient.cs",
+              "RelativeToolTip": "Client\\WCFSyndicationClient.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAmwEUAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-14T11:28:21.459Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

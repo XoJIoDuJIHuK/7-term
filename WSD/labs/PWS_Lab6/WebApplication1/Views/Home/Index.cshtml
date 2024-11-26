@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@{
+    ViewBag.Title = "WCF Test Page";
+}
+
+<main>
+    <section class="row">
+        <h1 id="title">Демонстрация</h1>
+
+        <!-- Фильтрация по id -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$filter=id eq 1" class="btn btn-outline-primary btn-md">Фильтр студента по идентификатору (ФАЙЛ)</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$filter=id eq 1&$format=json" class="btn btn-outline-primary btn-md">Фильтр студента по идентификатору (ЖСОН)</a></p>
+
+        <!-- Выборочные поля -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=application%2Fatom%2Bxml" class="btn btn-outline-primary btn-md">Выбор столбца name (FILE)</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=json" class="btn btn-outline-primary btn-md">Выбор столбца name (JSON)</a></p>
+
+        <!-- Сортировка по имени -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$orderby=name&$format=json" class="btn btn-outline-primary btn-md">Сортировка по имени (JSON)</a></p>
+
+        <!-- Доступ к студенту по первичному ключу -->
+        <p><a href="http://localhost:60376/Service1.svc/student(1)?$format=json" class="btn btn-outline-primary btn-md">Получение студента по идентификатору (JSON)</a></p>
+
+        <!-- Оценки первого студента -->
+        <p><a href="http://localhost:60376/Service1.svc/student(1)/note?$format=json" class="btn btn-outline-primary btn-md">Получение связанных оценок по идентификатору студента (JSON)</a></p>
+
+        <!-- Фильтрация оценок (больше 2) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=note1 gt 2&$format=json" class="btn btn-outline-primary btn-md">Фильтр по оценкам &gt; 2 (JSON)</a></p>
+
+        <!-- Вывести выборочные поля с расширением связанных записей -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=json" class="btn btn-outline-primary btn-md">Выбор столбца name (ЖСОН)</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$expand=note&$format=json" class="btn btn-outline-primary btn-md">Расширение <s>территории</s> оценок по каждому студенту (JSON)</a></p>
+
+        <!-- Фильтрация оценок (больше или равно 8 и не равно 10) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=note1 ge 8 and note1 ne 10&$format=json" class="btn btn-outline-primary btn-md">Выбор оценок между 8 и 10 (JSON)</a></p>
+
+        <!-- Фильтрация оценок (исключить 10) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=not (note1 eq 10)&$format=json" class="btn btn-outline-primary btn-md">Фильтр оценок, не равных 10 (JSON)</a></p>
+
+    </section>
+</main>

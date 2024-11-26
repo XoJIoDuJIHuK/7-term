@@ -8,6 +8,7 @@ from src.settings import Role
 
 class UserInfo(Scheme):
     id: uuid.UUID
+    user_agent: str
     role: Role
 
 

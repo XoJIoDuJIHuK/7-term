@@ -4,14 +4,14 @@
         variant="elevated"
         color="red"
     >
-        Close all
+        Закрыть все
     </v-btn>
     <v-list lines="one">
         <v-list-item
             v-for="session in sessions"
             :key="session.id"
-            :title="session.ip"
-            :subtitle="(new Date(session.created_at)).toLocaleString()"
+            :title="`IP-адрес: ${session.ip}. Устройство: ${session.user_agent}`"
+            :subtitle="`Дата открытия: ${(new Date(session.created_at)).toLocaleString()}`"
         ></v-list-item>
     </v-list>
 </template>

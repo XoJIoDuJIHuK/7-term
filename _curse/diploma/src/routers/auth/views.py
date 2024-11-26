@@ -52,8 +52,6 @@ async def login(
         email=login_data.email,
         db_session=db_session
     )
-    print('USER', user)
-    print(login_data, user.password_hash, get_password_hash(login_data.password), user.password_hash == get_password_hash(login_data.password))
     if (
             not user or
             user.password_hash != get_password_hash(login_data.password)

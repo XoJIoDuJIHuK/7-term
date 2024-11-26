@@ -2,8 +2,7 @@ import logging
 
 from src.consumers.translator.schemes import TranslationMessage
 from src.database import get_session
-from src.events import handle_event
-from src.database.models import TranslationTaskStatus
+from src.database.models import TranslationTaskStatus, NotificationType
 from src.routers.articles.schemes import CreateArticleScheme
 from src.database.repos.article import ArticleRepo
 from src.database.repos.language import LanguageRepo
@@ -11,15 +10,17 @@ from src.database.repos.model import ModelRepo
 from src.database.repos.prompt import PromptRepo
 from src.database.repos.translation_task import TaskRepo
 from src.database.repos.user import UserRepo
+from src.routers.notifications.schemes import NotificationCreateScheme
 from src.settings import (
     AppEvent,
     KafkaConfig,
     LOGGER_PREFIX,
-    TranslationTaskConfig, UnisenderConfig,
+    TranslationTaskConfig, UnisenderConfig, NotificationConfig,
 )
 from src.util.brokers.consumer.kafka import AbstractKafkaConsumer
 from src.util.brokers.producer.kafka import KafkaProducer
 from src.util.mail.schemes import SendEmailScheme
+from src.util.notifications.helpers import send_notification
 from src.util.translator.classes import Gpt4freeTranslator
 from src.util.translator.exceptions import TranslatorAPITimeoutError
 
@@ -134,7 +135,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     user_id=article.user_id,
                     db_session=db_session
                 )
-                kafka_message = SendEmailScheme(
+                email_task_message = SendEmailScheme(
                     to_address=user.email,
                     from_address=UnisenderConfig.from_address,
                     from_name=UnisenderConfig.from_name,
@@ -145,12 +146,9 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                         'translated_article_title': translated_article.title
                     }
                 )
-                # TODO: add notification
                 await producer.send_message(
-                    kafka_message.model_dump(mode='json'))
-
-                db_session.add(task)
-                await db_session.commit()
+                    email_task_message.model_dump(mode='json')
+                )
             except TranslatorAPITimeoutError:
                 if message.retry_count >= TranslationTaskConfig.MAX_RETRIES:
                     if not task.data:
@@ -159,8 +157,6 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     task.data['error'] = (
                         'Превышено максимальное количество попыток'
                     )
-                    db_session.add(task)
-                    await db_session.commit()
                 else:
                     producer = KafkaProducer(
                         bootstrap_servers=KafkaConfig.address,
@@ -177,7 +173,31 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     task.data = {}
                 task.status = TranslationTaskStatus.failed
                 task.data['error'] = str(e)
-                db_session.add(task)
-                await db_session.commit()
 
-        await handle_event(AppEvent.translation_end.value, task=task)
+            db_session.add(task)
+            await db_session.commit()
+            await db_session.refresh(task)
+
+            translation_error = bool(task.data)
+            await send_notification(
+                notification_scheme=NotificationCreateScheme(
+                    title=(
+                        NotificationConfig.Subjects.translation_ended
+                        if not translation_error else
+                        NotificationConfig.Subjects.translation_error
+                    ),
+                    text=(
+                        NotificationConfig.translation_success_message.format(
+                            article_name=article.title,
+                            target_lang=target_lang.name,
+                        ) if not translation_error else
+                        task.data.get('error')
+                    ),
+                    type=(
+                        NotificationType.info if not translation_error else
+                        NotificationType.error
+                    ),
+                    user_id=article.user_id
+                ),
+                db_session=db_session
+            )

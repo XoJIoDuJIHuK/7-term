@@ -28,6 +28,7 @@ class ReportListItemScheme(Scheme):
     article_id: uuid.UUID
     status: ReportStatus
     reason_text: str
+    text: str
     closed_at: datetime | None = None
     closed_by_user_name: str | None = None
 
@@ -41,6 +42,7 @@ class ReportListItemScheme(Scheme):
             closed_at=report_object.closed_at,
             closed_by_user_name=closed_by_user_name,
             reason_text = report_object.reason.text,
+            text=report_object.text,
         )
 
 

@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@{
+    ViewBag.Title = "WCF Test Page";
+}
+
+<main>
+    <section class="row">
+        <h1 id="title">KNS WCF Data Service Test Links</h1>
+
+        <!-- Фильтрация по id -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$filter=id eq 1" class="btn btn-outline-primary btn-md">Filter student by id = 1</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$filter=id eq 1&$format=json" class="btn btn-outline-primary btn-md">Filter student by id = 1 (JSON)</a></p>
+
+        <!-- Выборочные поля -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=application%2Fatom%2Bxml" class="btn btn-outline-primary btn-md">Select 'name' field (ATOM)</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=json" class="btn btn-outline-primary btn-md">Select 'Name' field (JSON)</a></p>
+
+        <!-- Сортировка по имени -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$orderby=name&$format=json" class="btn btn-outline-primary btn-md">Order students by name (JSON)</a></p>
+
+        <!-- Доступ к студенту по первичному ключу -->
+        <p><a href="http://localhost:60376/Service1.svc/student(1)?$format=json" class="btn btn-outline-primary btn-md">Get student by ID = 1 (JSON)</a></p>
+
+        <!-- Оценки первого студента -->
+        <p><a href="http://localhost:60376/Service1.svc/student(1)/note?$format=json" class="btn btn-outline-primary btn-md">Get notes of student ID = 1 (JSON)</a></p>
+
+        <!-- Фильтрация оценок (больше 2) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=note1 gt 2&$format=json" class="btn btn-outline-primary btn-md">Filter notes where note1 &gt; 2 (JSON)</a></p>
+
+        <!-- Вывести выборочные поля с расширением связанных записей -->
+        <p><a href="http://localhost:60376/Service1.svc/student?$select=name&$format=json" class="btn btn-outline-primary btn-md">Select 'Name' and show in JSON format</a></p>
+        <p><a href="http://localhost:60376/Service1.svc/student?$expand=note&$format=json" class="btn btn-outline-primary btn-md">Expand related 'Note' records (JSON)</a></p>
+
+        <!-- Фильтрация оценок (больше или равно 8 и не равно 10) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=note1 ge 8 and note1 ne 10&$format=json" class="btn btn-outline-primary btn-md">Filter notes where note1 &ge; 8 and note1 &ne; 10 (JSON)</a></p>
+
+        <!-- Фильтрация оценок (исключить 10) -->
+        <p><a href="http://localhost:60376/Service1.svc/note?$filter=not (note1 eq 10)&$format=json" class="btn btn-outline-primary btn-md">Filter notes where note1 is not equal to 10 (JSON)</a></p>
+
+    </section>
+</main>

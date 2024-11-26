@@ -184,7 +184,6 @@ onMounted(async () => {
 async function editItem (item: User) {
     editedIndex.value = prompts.value.indexOf(item)
     Object.assign(editedItem, item)
-    console.log(editedItem)
     dialog.value = true
 }
 

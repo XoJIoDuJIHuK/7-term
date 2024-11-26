@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WCF</title>
+    <script>
+function callService(operation, x, y) {
+    var url = "http://localhost:8733/Design_Time_Addresses/WCF/Service1/" + operation;
+  var data = {};
+  if (operation !== "Concat") {
+      data.x = x;
+      data.y = y;
+  } else {
+      data.x = x;
+      data.y = parseFloat(y);
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function() {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        var response = JSON.parse(xhr.responseText);
+        displayResult(operation, response);
+      } catch (e) {
+        displayResult(operation, "Error parsing JSON response: " + e.message);
+      }
+    } else {
+      displayResult(operation, "Error: " + xhr.status + " " + xhr.statusText);
+    }
+  };
+  xhr.onerror = function() {
+    displayResult(operation, "Request failed");
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+
+function displayResult(operation, result) {
+  var resultDiv = document.getElementById("result");
+  resultDiv.innerHTML += "<p>" + operation + " Result: " + result + "</p>";
+}
+
+    </script>
+</head>
+<body>
+    <h1>WCF</h1>
+
+    <div>
+        <h3>Add Integers</h3>
+        X: <input type="number" id="xAdd"><br>
+        Y: <input type="number" id="yAdd"><br>
+        <button onclick="callService('Add', document.getElementById('xAdd').value, document.getElementById('yAdd').value)">Add</button>
+    </div>
+
+    <div>
+        <h3>Concatenate String and Double</h3>
+        String: <input type="text" id="xConcat"><br>
+        Double: <input type="number" id="yConcat"><br>
+        <button onclick="callService('Concat', document.getElementById('xConcat').value, document.getElementById('yConcat').value)">Concatenate</button>
+    </div>
+
+    <div>
+        <h3>Sum Complex Type A</h3>
+        X: <input type="number" id="xA"><br>
+        Y: <input type="number" id="yA"><br>
+        <button onclick="callService('Sum', document.getElementById('xA').value, document.getElementById('yA').value)">Sum A</button>
+    </div>
+
+    <div id="result"></div>
+
+</body>
+</html>

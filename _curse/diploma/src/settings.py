@@ -141,5 +141,9 @@ class NotificationConfig:
     class Subjects:
         new_message = 'Непрочитанное сообщение'
         translation_ended = 'Перевод завершён'
+        translation_error = 'Ошибка при переводе'
     time_to_live_in_redis = 10
     topic_name = 'notifications_{}'
+    translation_success_message = (
+        'Статья {article_name} успешно переведена на {target_lang} язык'
+    )
