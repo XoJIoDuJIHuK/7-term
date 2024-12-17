@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import uuid
 
 from fastapi import (
@@ -15,6 +14,7 @@ from starlette.websockets import WebSocketDisconnect
 from src.depends import get_session, validate_token_for_ws
 from src.database.models import Report, ReportStatus
 from src.http_responses import get_responses
+from src.logger import get_logger
 from src.pagination import PaginationParams, get_pagination_params
 from src.responses import ListResponse, DataResponse, SimpleListResponse
 from src.routers.reports.helpers import get_report
@@ -24,7 +24,9 @@ from src.routers.reports.schemes import (
     CreateReportScheme,
     EditReportScheme,
     ReportOutScheme,
-    ReportReasonOutScheme, FilterReportsScheme, ReportListItemScheme,
+    ReportReasonOutScheme,
+    FilterReportsScheme,
+    ReportListItemScheme,
     ReportOutModScheme,
 )
 from src.database.repos.article import ArticleRepo
@@ -38,7 +40,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.util.storage.classes import RedisHandler
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 router = APIRouter(
     prefix='',
     tags=['Reports']

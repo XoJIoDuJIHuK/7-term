@@ -1,11 +1,11 @@
 import json
-import logging
 from abc import abstractmethod
 from typing import Any
 
 from aiokafka import AIOKafkaConsumer
 
-from src.settings import LOGGER_PREFIX
+from src.logger import get_logger
+from src.settings import LOGGER_PREFIX, KafkaConfig
 from src.util.brokers.consumer.abstract import AbstractConsumer
 
 
@@ -18,10 +18,15 @@ class AbstractKafkaConsumer(AbstractConsumer):
     are processed.
     """
 
-    logger = logging.getLogger(LOGGER_PREFIX + __name__)
+    logger = get_logger(LOGGER_PREFIX + __name__)
 
-    def __init__(self, topic: Any, bootstrap_servers: Any, group_id: str,
-                 auto_offset_reset: str):
+    def __init__(
+            self,
+            topic: Any,
+            bootstrap_servers: Any,
+            group_id: str,
+            auto_offset_reset: str
+    ):
         """Initializes the Kafka consumer with the given configuration.
 
         Args:
@@ -43,7 +48,6 @@ class AbstractKafkaConsumer(AbstractConsumer):
         """
         try:
             self.logger.info('Running KafkaConsumer...')
-            self.logger.error('Running KafkaConsumer...')
             await self.connect()
             await self.start()
             self.logger.info('Connection successful!')
@@ -51,7 +55,6 @@ class AbstractKafkaConsumer(AbstractConsumer):
             async for msg in self.consumer:
                 await self.on_message(msg)
         except Exception as e:
-            self.logger.error(f'Error while running Kafka consumer: {e}')
             self.logger.exception(f'Error while running Kafka consumer: {e}')
             await self.stop()
 
@@ -64,7 +67,8 @@ class AbstractKafkaConsumer(AbstractConsumer):
                 bootstrap_servers=self.bootstrap_servers,
                 value_deserializer=lambda v: json.loads(v.decode('utf-8')),
                 group_id=self.group_id,
-                auto_offset_reset=self.auto_offset_reset
+                auto_offset_reset=self.auto_offset_reset,
+                max_poll_interval_ms=KafkaConfig.max_poll_interval_ms
             )
         except Exception as e:
             self.logger.error(f'Error while connecting to Kafka: {e}')

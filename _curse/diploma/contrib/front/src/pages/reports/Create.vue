@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-row>
-            <h2>Create report</h2>
+            <h2>Создать жалобу</h2>
         </v-row>
         <v-row>
             <v-select
@@ -10,12 +10,12 @@
             ></v-select>
         </v-row>
         <v-row>
-            <v-textarea v-model="reportData.text" label="Text">
+            <v-textarea v-model="reportData.text" label="Текст">
 
             </v-textarea>
         </v-row>
         <v-row>
-            <v-btn @click="createReport">Save</v-btn>
+            <v-btn @click="createReport">Сохранить</v-btn>
         </v-row>
     </v-container>
 </template>
@@ -43,11 +43,11 @@ async function createReport() {
     )
     if (response) {
         UnnecessaryEventEmitter.emit('AlertMessage', {
-            title: 'Жалоба создана',
-            text: undefined,
-            severity: 'info'
+            title: undefined,
+            text: 'Жалоба создана',
+            severity: 'success'
         });
-        router.push(`/articles/${route.params.article_id}/report`);
+        await router.push(`/articles/${route.params.article_id}/report`);
     }
 }
 </script>

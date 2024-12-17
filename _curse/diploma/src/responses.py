@@ -16,17 +16,17 @@ class BaseResponse(Scheme):
     All app responses must inherit from this schema.
     """
     success: bool = True
-    message: str = ""
+    message: str = ''
 
 
 class ErrorResponse(BaseResponse):
     success: bool = False
-    message: str = 'Error'
+    message: str = 'Ошибка'
 
 
 class ValidationErrorResponse(ErrorResponse):
     """Pydantic validation error schema."""
-    message: str = 'Validation error'
+    message: str = 'Ошибка валидации'
     errors: list[ErrorDetails]
 
 
@@ -42,7 +42,7 @@ class DataResponse[Data](BaseResponse):
     Data must be placed at `data` field.
     """
     success: bool = True
-    message: str = 'Data retrieved successfully'
+    message: str = 'Данные успешно извлечены'
     data: Data
 
     @classmethod

@@ -25,6 +25,7 @@ export type Language = {
 }
 export type Model = {
     id: number,
+    show_name: string,
     name: string,
     provider: string
 }
@@ -36,6 +37,8 @@ export type ReportReason = {
     id: number,
     text: string
 }
+
+export type StoreKeys = 'languages' | 'models' | 'prompts' | 'reportReasons'
 
 export const store = reactive({
     languages: {
@@ -68,7 +71,7 @@ export const store = reactive({
         getSelectItems: function(): {value: number, title: string}[] {
             return this.items.map((value) => ({
                 value: value.id,
-                title: `${value.provider} ${value.name}`,
+                title: value.show_name,
             }));
         }
     },
@@ -107,3 +110,20 @@ export const store = reactive({
         }
     }
 })
+
+export const validationRules = {
+    required: (v: string | undefined) => !!v || 'Обязательное поле',
+    email: (value: string) => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        return pattern.test(value) || 'Неправильный адрес электронной почты.'
+    },
+    tooLong: (maxLength: number) => (value: string) => value.length <= maxLength || 'Превышена длина'
+}
+
+export interface DataTableHeader {
+    key: string
+    title: string
+    align?: 'start' | 'end' | 'center'
+    sortable?: boolean
+    width?: string | number
+}

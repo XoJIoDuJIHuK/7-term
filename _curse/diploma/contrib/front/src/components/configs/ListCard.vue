@@ -29,6 +29,7 @@ import { Config } from '../../settings';
 import { UnnecessaryEventEmitter } from '../../eventBus';
 
 const router = useRouter();
+//@ts-ignore
 const props = defineProps({
   config: {
     type: Object,
@@ -44,12 +45,12 @@ async function delete_config(article_id: string) {
   if (result) {
     UnnecessaryEventEmitter.emit('AlertMessage', {
       title: undefined,
-      text: 'Конфиг успешно',
+      text: 'Конфиг успешно удалён',
       severity: 'success'
     })
     location.reload()
   } else {
-    router.push('/')
+    await router.push('/')
   }
 }
 </script>

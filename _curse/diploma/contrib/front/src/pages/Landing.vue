@@ -1,72 +1,106 @@
 <template>
-    <v-container v-if="loginData.isVisible">
-        <v-card class="mx-auto px-6 py-8" max-width="344">
-            <v-form
-                v-model="loginData.form"
-                @submit.prevent="onSubmit"
-            >
-                <h3>{{ loginData.isLogin ? 'Login' : 'Register' }}</h3>
-                <br>
-                <v-text-field
-                    v-if="!loginData.isLogin"
-                    v-model="loginData.name"
-                    :readonly="loginData.isLoading"
-                    :rules="[required]"
-                    class="mb-2"
-                    label="Name"
-                    clearable
-                ></v-text-field>
+    <v-container class="login-form-wrapper" v-if="loginData.isVisible">
+        <v-container class="login-form">
+            <v-card class="mx-auto px-6 py-8" max-width="344">
+                <v-form
+                    v-model="loginData.form"
+                    @submit.prevent="onSubmit"
+                >
+                    <h3>{{ loginData.isLogin ? 'Войти' : 'Зарегистрироваться' }}</h3>
+                    <br>
+                    <v-text-field
+                        v-if="!loginData.isLogin"
+                        v-model="loginData.name"
+                        :readonly="loginData.isLoading"
+                        :rules="[rules.required, rules.tooLong(20)]"
+                        class="mb-2"
+                        label="Имя"
+                        clearable
+                    ></v-text-field>
 
-                <v-text-field
-                    v-model="loginData.email"
-                    :readonly="loginData.isLoading"
-                    :rules="[required]"
-                    class="mb-2"
-                    label="Email"
-                    clearable
-                ></v-text-field>
+                    <v-text-field
+                        v-model="loginData.email"
+                        :readonly="loginData.isLoading"
+                        :rules="[rules.required, rules.email, rules.tooLong(255)]"
+                        class="mb-2"
+                        label="Почта"
+                        clearable
+                    ></v-text-field>
 
-                <v-text-field
-                    v-model="loginData.password"
-                    :readonly="loginData.isLoading"
-                    :rules="[required]"
-                    label="Password"
-                    placeholder="Enter your password"
-                    clearable
-                ></v-text-field>
+                    <v-text-field
+                        v-model="loginData.password"
+                        :append-icon="loginData.showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="loginData.showPassword ? 'text' : 'password'"
+                        :readonly="loginData.isLoading"
+                        :rules="[rules.required]"
+                        label="Пароль"
+                        class="input-group--focused"
+                        placeholder="Введите пароль"
+                        clearable
+                        @click:append="loginData.showPassword = !loginData.showPassword"
+                    ></v-text-field>
 
-                <h4 v-if="loginData.displayError" style="color: red">{{ loginData.displayError }}</h4>
+                    <h4 v-if="loginData.displayError" style="color: red">{{ loginData.displayError }}</h4>
 
-                <v-btn
-                    :disabled="!loginData.form"
-                    :loading="loginData.isLoading"
-                    color="success"
-                    size="large"
-                    type="submit"
-                    variant="elevated"
-                    block
-                >Sign {{ loginData.isLogin ? 'In' : 'Up' }}</v-btn>
+                    <v-btn
+                        :disabled="!loginData.form"
+                        :loading="loginData.isLoading"
+                        color="success"
+                        size="large"
+                        type="submit"
+                        variant="elevated"
+                        block
+                    >{{ loginData.isLogin ? 'Войти' : 'Зарегистрироваться' }}</v-btn>
 
-                <br>
+                    <br>
 
-                <v-btn
-                    @click="loginData.isVisible = false"
-                    color="error"
-                    size="large"
-                    variant="elevated"
-                    block
-                >Cancel</v-btn>
+                    <v-btn
+                        @click="loginData.isVisible = false"
+                        color="error"
+                        size="large"
+                        variant="elevated"
+                        block
+                    >Отмена</v-btn>
 
-                <v-btn
-                    v-if="loginData.isLogin"
-                    @click="onForgotPassword"
-                    color="purple"
-                    size="large"
-                    variant="elevated"
-                    block
-                >Forgot password</v-btn>
-            </v-form>
-        </v-card>
+                    <br>
+
+                    <v-btn
+                        v-if="loginData.isLogin"
+                        @click="onForgotPassword"
+                        color="purple"
+                        size="large"
+                        variant="elevated"
+                        block
+                    >Забыли пароль?</v-btn>
+
+                    <br>
+
+                    <v-btn
+                        v-if="loginData.isLogin"
+                        @click="onConfirmEmail"
+                        color="yellow"
+                        size="large"
+                        variant="elevated"
+                        block
+                    >Нужно подтвердить почту?</v-btn>
+
+                    <v-container>
+                        <v-row>
+                            <a v-for="provider in oauthProviders" :href="`${Config.backend_address}/oauth/login/?provider=${provider.code}`">
+                                <v-container>
+                                    <v-row>
+                                        <v-icon>{{provider.icon}}</v-icon>
+                                    </v-row>
+                                    <v-row>
+                                        {{provider.name}}
+                                    </v-row>
+                                </v-container>
+                            </a>
+                        </v-row>
+                    </v-container>
+                </v-form>
+            </v-card>
+        </v-container>
     </v-container>
     <v-app>
         <v-app-bar color="primary" dark>
@@ -76,26 +110,29 @@
                 <v-btn color="secondary" @click="() => {
                     loginData.isVisible = true;
                     loginData.isLogin = true;
-                }" variant="outlined">Login</v-btn>
+                }" variant="outlined">Войти</v-btn>
                 <v-btn color="secondary" @click="() => {
                     loginData.isVisible = true;
                     loginData.isLogin = false;
-                }" variant="outlined" class="ml-4">Register</v-btn>
+                }" variant="outlined" class="ml-4">Зарегистрироваться</v-btn>
             </div>
             <div v-else-if="userRole === Config.userRoles.user" class="mr-4">
                 <router-link to="/articles">
-                    <v-btn>Articles</v-btn>
+                    <v-btn>Статьи</v-btn>
                 </router-link>
             </div>
             <div v-else-if="userRole === Config.userRoles.mod" class="mr-4">
                 <router-link to="/reports">
-                    <v-btn>Reports</v-btn>
+                    <v-btn>Жалобы</v-btn>
                 </router-link>
             </div>
             <div v-else class="mr-4">
                 <router-link to="/users">
-                    <v-btn>Users</v-btn>
+                    <v-btn>Пользователи</v-btn>
                 </router-link>
+            </div>
+            <div v-if="userRole !== Config.userRoles.guest" class="mr-4">
+                <v-btn @click="logout">Выйти</v-btn>
             </div>
         </v-app-bar>
 
@@ -146,8 +183,8 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { fetch_data, logout } from '../helpers';
-import { Config } from '../settings';
+import {fetch_data, fetchPersonalInfo, logout} from '../helpers';
+import { Config, validationRules as rules } from '../settings';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
 const loginData = reactive({
@@ -156,6 +193,7 @@ const loginData = reactive({
     isVisible: false,
     isLogin: true,
     isLoading: false,
+    showPassword: false,
     email: '',
     password: '',
     name: '',
@@ -163,6 +201,29 @@ const loginData = reactive({
 const userRole = ref(
     localStorage.getItem(Config.userInfoProperty) ? JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role : Config.userRoles.guest
 );
+
+const oauthProviders = [
+    {
+        code: 'google',
+        name: 'Google',
+        icon: 'google'
+    },
+    {
+        code: 'mail_ru',
+        name: 'Mail.ru',
+        icon: 'at'
+    },
+    {
+        code: 'yandex',
+        name: 'Яндекс',
+        icon: 'alpha-y-circle'
+    },
+    {
+        code: 'vk',
+        name: 'ВКонтакте',
+        icon: 'alpha-v-box'
+    }
+]
 
 const icons = ref([
     'mdi-facebook',
@@ -189,10 +250,6 @@ const features = ref([
     }
 ])
 
-function required (v: string) {
-    return !!v || 'Field is required'
-}
-
 async function onSubmit() {
     loginData.isLoading = true;
     try {
@@ -207,19 +264,19 @@ async function onSubmit() {
             false,
             true
         )
+        console.log(result)
         if (result) {
             loginData.isVisible = false;
             loginData.form = false;
             loginData.email = '';
             loginData.password = '';
             loginData.name = '';
-            const userInfoResponse = await fetch_data(`${Config.backend_address}/users/me/`)
-            if (!userInfoResponse) {
-                await logout()
-                return
-            }
-            localStorage.setItem(Config.userInfoProperty, JSON.stringify(userInfoResponse.data.user));
-            userRole.value = userInfoResponse.data.user.role;
+            loginData.showPassword = false;
+
+            if (!loginData.isLogin) return;
+
+            await fetchPersonalInfo()
+            location.reload()
 
             UnnecessaryEventEmitter.emit('AlertMessage', {
                 title: result.detail,
@@ -238,11 +295,30 @@ async function onSubmit() {
 
 async function onForgotPassword() {
     if (!loginData.email) {
-        loginData.displayError = 'Email is required';
+        loginData.displayError = 'Введите почту';
         return
     }
     const response = await fetch_data(
         `${Config.backend_address}/auth/restore-password/request/?email=${loginData.email}`,
+        'POST',
+    )
+    if (response) {
+        UnnecessaryEventEmitter.emit('AlertMessage', {
+            title: response.message,
+            text: undefined,
+            severity: 'info'
+        })
+        loginData.isVisible = false;
+    }
+}
+
+async function onConfirmEmail() {
+    if (!loginData.email) {
+        loginData.displayError = 'Введите почту';
+        return
+    }
+    const response = await fetch_data(
+        `${Config.backend_address}/auth/confirm-email/request/?email=${loginData.email}`,
         'POST',
     )
     if (response) {
@@ -261,5 +337,24 @@ async function onForgotPassword() {
   min-height: calc(100vh - 64px);
 }
 
+.login-form {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: 90%;
+    border-radius: 8px;
+}
 
+.login-form-wrapper {
+    z-index: 9998;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+}
 </style>

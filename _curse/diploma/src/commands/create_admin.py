@@ -17,7 +17,7 @@ from sqlalchemy import select
 
 @click.command()
 @click.option('-pw', '--password', help='Password of user', default='string')
-@click.option('-e', '--email', help='Email of user', default='user@d.com')
+@click.option('-e', '--email', help='Email of user', default='admin@d.com')
 @click.option('-n', '--name', help='Name of user', default='Admin')
 def create_admin(
         name: str,

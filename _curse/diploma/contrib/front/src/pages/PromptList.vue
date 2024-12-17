@@ -31,26 +31,23 @@
                         <v-card-text>
                             <v-container>
                                 <v-row>
-                                <v-col
-                                    cols="12"
-                                    md="4"
-                                    sm="6"
-                                >
-                                    <v-text-field
-                                        v-model="editedItem.title"
-                                        label="Название"
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col
-                                    cols="12"
-                                    md="4"
-                                    sm="6"
-                                >
-                                    <v-text-field
-                                        v-model="editedItem.text"
-                                        label="Текст"
-                                    ></v-text-field>
-                                </v-col>
+                                    <v-col cols="12" md="4" sm="6">
+                                        <!-- Single-line text field for the title -->
+                                        <v-text-field
+                                            v-model="editedItem.title"
+                                            label="Название"
+                                            outlined
+                                        ></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="8" sm="12">
+                                        <v-textarea
+                                            v-model="editedItem.text"
+                                            label="Текст"
+                                            outlined
+                                            rows="4"
+                                            auto-grow
+                                        ></v-textarea>
+                                    </v-col>
                                 </v-row>
                             </v-container>
                         </v-card-text>
@@ -89,8 +86,8 @@
 
 <script setup lang="ts">
 import { fetch_data } from '../helpers';
-import { onMounted, reactive, ref, Ref } from 'vue';
-import { Config } from '../settings';
+import {computed, onMounted, reactive, ref, Ref} from 'vue';
+import {Config, DataTableHeader} from '../settings';
 import { Method } from '../helpers';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
@@ -109,23 +106,40 @@ const formTitle = ref('Новый промпт');
 const editButtonLoading = ref(false);
 const deleteButtonLoading = ref(false);
 const editedItem = reactive({
+    id: '',
     title: '',
     text: '',
 })
 const defaultItem = Object.assign({}, editedItem);
 
-const headers = [
-    {
-        title: 'ID',
-        align: 'start',
-        sortable: false,
-        key: 'id',
-    },
-    { title: 'Название', key: 'title', sortable: true },
-    { title: 'Текст', key: 'text' },
-    { title: 'Дата создания', key: 'created_at' },
-    { title: 'Действия', key: 'actions', sortable: false },
-]
+const headers = computed<DataTableHeader[]>(() => {
+    const rawHeaders = [
+        {
+            title: 'ID',
+            align: 'start',
+            sortable: false,
+            key: 'id',
+        },
+        { title: 'Название', key: 'title', sortable: true },
+        { title: 'Текст', key: 'text' },
+        { title: 'Дата создания', key: 'created_at' },
+        { title: 'Действия', key: 'actions', sortable: false },
+    ];
+    // @ts-ignore
+    const headers: DataTableHeader[] = rawHeaders.map(e => {
+        const baseHeader = {
+            key: '',
+            title: '',
+            align: 'start',
+            sortable: true,
+            width: undefined,
+        };
+        Object.assign(baseHeader, e);
+        return baseHeader;
+    });
+
+    return headers;
+});
 
 
 onMounted(async () => {

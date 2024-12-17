@@ -14,13 +14,20 @@
             <v-list-item>
                 <router-link to="/sessions">
                     <v-btn variant="tonal" color="primary">
-                        <v-list-item-title>Sessions</v-list-item-title>
+                        <v-list-item-title>Сессии</v-list-item-title>
+                    </v-btn>
+                </router-link>
+            </v-list-item>
+            <v-list-item>
+                <router-link to="/personal">
+                    <v-btn variant="tonal" color="primary">
+                        <v-list-item-title>Личная информация</v-list-item-title>
                     </v-btn>
                 </router-link>
             </v-list-item>
             <v-list-item>
                 <v-btn variant="tonal" color="primary" @click="logout">
-                    <v-list-item-title>Logout</v-list-item-title>
+                    <v-list-item-title>Выйти</v-list-item-title>
                 </v-btn>
             </v-list-item>
         </v-list>

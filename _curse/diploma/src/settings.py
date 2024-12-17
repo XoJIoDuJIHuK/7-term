@@ -1,3 +1,4 @@
+import dataclasses
 import enum
 from pathlib import Path
 
@@ -9,6 +10,7 @@ load_dotenv()
 
 LOGGER_PREFIX = 'diploma_'
 BASE_DIR = Path(__file__).resolve().parent.resolve().parent
+
 
 class AppConfig:
     app_name = EnvParameter('APP_NAME', default='GPTranslate')
@@ -70,15 +72,20 @@ class AppEvent(enum.Enum):
 
 
 class TextTranslationConfig:
+    max_text_length = EnvParameter(
+        'TRANSLATOR_MAX_TEXT_LENGTH',
+        type_=int,
+        default=10000000
+    )
     max_words_in_text = EnvParameter(
         'TRANSLATOR_MAX_WORDS_IN_TEXT',
         type_=int,
-        default=10000,
+        default=1000000,
     )
     max_words_in_chunk = EnvParameter(
         'TRANSLATOR_MAX_WORDS_IN_CHUNK',
         type_=int,
-        default=200,
+        default=400,
     )
     special_characters = ['\\n', '\\t']
 
@@ -97,6 +104,9 @@ class KafkaConfig:
     mail_topic = EnvParameter('MAIL_KAFKA_TOPIC')
     address = EnvParameter('KAFKA_ADDRESS')
     group_id = EnvParameter('KAFKA_GROUP_ID')
+    max_poll_interval_ms = EnvParameter(
+        'KAFKA_POLL_INTERVAL_MS', type_=int, default=30000
+    )
 
 
 class RedisConfig:
@@ -124,6 +134,9 @@ class UnisenderConfig:
     password_recovery_subject = EnvParameter(
         'UNISENDER_PASSWORD_RECOVERY_SUBJECT'
     )
+    translation_complete_subject = EnvParameter(
+        'UNISENDER_TRANSLATION_COMPLETE_SUBJECT'
+    )
     email_confirmation_template_id = EnvParameter(
         'UNISENDER_EMAIL_CONFIRMATION_TEMPLATE_ID'
     )
@@ -137,6 +150,12 @@ class UnisenderConfig:
     list_id = EnvParameter('UNISENDER_LIST_ID')
 
 
+class FrontConfig:
+    address = EnvParameter('FRONT_ADDRESS')
+    change_password_endpoint = EnvParameter('FRONT_PASSWORD_ENDPOINT')
+    confirm_email_endpoint = EnvParameter('FRONT_EMAIL_ENDPOINT')
+
+
 class NotificationConfig:
     class Subjects:
         new_message = 'Непрочитанное сообщение'
@@ -147,3 +166,145 @@ class NotificationConfig:
     translation_success_message = (
         'Статья {article_name} успешно переведена на {target_lang} язык'
     )
+
+
+@dataclasses.dataclass
+class MailOauth2Config:
+    response_type = 'code'
+    CLIENT_ID = EnvParameter('MAIL_CLIENT_ID')
+    CLIENT_SECRET = EnvParameter('MAIL_CLIENT_SECRET')
+    AUTHORIZATION_URL = EnvParameter(
+        "MAIL_AUTHORIZATION_URL",
+        default='https://oauth.mail.ru/login'
+    )
+    TOKEN_URL = EnvParameter(
+        "MAIL_TOKEN_URL",
+        default='https://oauth.mail.ru/token'
+    )
+    VALIDATE_URL = EnvParameter(
+        "MAIL_VALIDATE_URL",
+        default='https://oauth.mail.ru/userinfo'
+    )
+    REDIRECT_URI = EnvParameter(
+        "MAIL_REDIRECT_URI",
+        default='http://localhost:8001/oauth/Mail/callback/'
+    )
+    SCOPE = EnvParameter(
+        "MAIL_SCOPE",
+        default='userinfo'
+    )
+
+
+@dataclasses.dataclass
+class GoogleOauth2Config:
+    response_type = 'code'
+    CLIENT_ID = EnvParameter('GOOGLE_CLIENT_ID')
+    CLIENT_SECRET = EnvParameter('GOOGLE_CLIENT_SECRET')
+    AUTHORIZATION_URL = EnvParameter(
+        'GOOGLE_AUTHORIZATION_URL',
+        default='https://accounts.google.com/o/oauth2/auth'
+    )
+    TOKEN_URL = EnvParameter(
+        'GOOGLE_TOKEN_URL',
+        default='https://oauth2.googleapis.com/token'
+    )
+    VALIDATE_URL = EnvParameter(
+        'GOOGLE_VALIDATE_URL',
+        default='https://openidconnect.googleapis.com/v1/userinfo'
+    )
+    REDIRECT_URI = EnvParameter(
+        'GOOGLE_REDIRECT_URI',
+        default='http://localhost:8000/oauth/google/oauth-callback'
+    )
+    SCOPE = EnvParameter(
+        'GOOGLE_SCOPE',
+        default='email'
+    )
+
+
+@dataclasses.dataclass
+class YandexOauth2Config:
+    response_type = 'code'
+    CLIENT_ID = EnvParameter('YANDEX_CLIENT_ID')
+    CLIENT_SECRET = EnvParameter('YANDEX_CLIENT_SECRET')
+    AUTHORIZATION_URL = EnvParameter(
+        "YANDEX_AUTHORIZATION_URL",
+        default='https://oauth.yandex.ru/authorize'
+    )
+    TOKEN_URL = EnvParameter(
+        "YANDEX_TOKEN_URL",
+        default='https://oauth.yandex.com/token'
+    )
+    VALIDATE_URL = EnvParameter(
+        "YANDEX_VALIDATE_URL",
+        default='https://login.yandex.ru/info'
+    )
+    REDIRECT_URI = EnvParameter(
+        "YANDEX_REDIRECT_URI",
+        default='http://localhost:8001/oauth/Yandex/callback/'
+    )
+    SCOPE = EnvParameter(
+        "YANDEX_SCOPE",
+        default='login:info login:email'
+    )
+
+
+@dataclasses.dataclass
+class VKOauth2Config:
+    response_type = 'code'
+    CLIENT_ID = EnvParameter('VK_CLIENT_ID')
+    CLIENT_SECRET = EnvParameter('VK_CLIENT_SECRET')
+    AUTHORIZATION_URL = EnvParameter(
+        'VK_AUTHORIZATION_URL',
+        default='https://id.vk.com/authorize'
+    )
+    TOKEN_URL = EnvParameter(
+        'VK_TOKEN_URL',
+        default='https://id.vk.com/oauth2/auth'
+    )
+    VALIDATE_URL = EnvParameter(
+        'VK_VALIDATE_URL',
+        default='https://api.vk.com/method/users.get'
+    )
+    REDIRECT_URI = EnvParameter(
+        'VK_REDIRECT_URI',
+        default='http://localhost/oauth/VK/callback'
+    )
+    SCOPE = EnvParameter(
+        'VK_SCOPE',
+        default='userinfo email'
+    )
+    API_VERSION = EnvParameter(
+        'VK_API_VERSION',
+        default='5.199'
+    )
+
+
+class OAuthProvider(enum.StrEnum):
+    google = 'google'
+    yandex = 'yandex'
+    mail_ru = "mail_ru"
+    vk = 'vk'
+
+
+providers = {
+    OAuthProvider.google.value: GoogleOauth2Config,
+    OAuthProvider.mail_ru.value: MailOauth2Config,
+    OAuthProvider.yandex.value: YandexOauth2Config,
+    OAuthProvider.vk.value: VKOauth2Config,
+}
+
+
+@dataclasses.dataclass
+class OAuthConfig:
+    code_expiration_time = 60 * 10
+    auth_token_expiration_time = 60 * 60
+    refresh_token_time_expiration = 60 * 60 * 24 * 7
+    algorithm = 'HS256'
+    secret_key = EnvParameter(
+        'OAUTH_SECRET_KEY',
+        default=(
+            '1164znbm8jjmb3l9aqe0wz8t45ni30h3vev65p02pannvv1xwku9v74g98spw4us'
+        )
+    )
+    session_data_property = 'oauth_login_data'

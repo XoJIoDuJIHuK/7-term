@@ -4,13 +4,13 @@
             <h3>{{ currentEditConfig.name }}</h3>
         </v-row>
         <v-row v-if="!currentEditConfig.id">
-            <h4>Name</h4>
+            <h4>Название</h4>
             <v-text-field
                 v-model="currentEditConfig.name"
             ></v-text-field>
         </v-row>
         <v-row>
-            <h4>Model</h4>
+            <h4>Модель</h4>
             <v-select
                 v-model="currentEditConfig.model_id"
                 clearable
@@ -18,7 +18,7 @@
             ></v-select>
         </v-row>
         <v-row>
-            <h4>Prompt</h4>
+            <h4>Стиль</h4>
             <v-select
                 v-model="currentEditConfig.prompt_id"
                 clearable
@@ -26,7 +26,7 @@
             ></v-select>
         </v-row>
         <v-row>
-            <h4>Languages</h4>
+            <h4>Языки</h4>
             <v-select
                 v-model="currentEditConfig.language_ids"
                 clearable
@@ -36,10 +36,10 @@
         </v-row>
         <v-row>
             <v-btn @click="onCancel" color="error">
-                Cancel
+                Отмена
             </v-btn>
             <v-btn @click="onSave" color="primary">
-                Save
+                Сохранить
             </v-btn>
         </v-row>
     </v-container>
@@ -48,6 +48,7 @@
 <script setup lang="ts">
 import { store } from '../../settings';
 
+//@ts-ignore
 const props = defineProps({
     currentEditConfig: {
         type: Object,

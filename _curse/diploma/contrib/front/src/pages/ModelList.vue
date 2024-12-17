@@ -31,26 +31,36 @@
                         <v-card-text>
                             <v-container>
                                 <v-row>
-                                <v-col
-                                    cols="12"
-                                    md="4"
-                                    sm="6"
-                                >
+                                  <v-col
+                                      cols="12"
+                                      md="4"
+                                      sm="6"
+                                  >
                                     <v-text-field
-                                        v-model="editedItem.name"
-                                        label="Название"
+                                        v-model="editedItem.show_name"
+                                        label="Отображаемое название"
                                     ></v-text-field>
-                                </v-col>
-                                <v-col
-                                    cols="12"
-                                    md="4"
-                                    sm="6"
-                                >
-                                    <v-text-field
-                                        v-model="editedItem.provider"
-                                        label="Провайдер"
-                                    ></v-text-field>
-                                </v-col>
+                                  </v-col>
+                                  <v-col
+                                      cols="12"
+                                      md="4"
+                                      sm="6"
+                                  >
+                                      <v-text-field
+                                          v-model="editedItem.name"
+                                          label="Название"
+                                      ></v-text-field>
+                                  </v-col>
+                                  <v-col
+                                      cols="12"
+                                      md="4"
+                                      sm="6"
+                                  >
+                                      <v-text-field
+                                          v-model="editedItem.provider"
+                                          label="Провайдер"
+                                      ></v-text-field>
+                                  </v-col>
                                 </v-row>
                             </v-container>
                         </v-card-text>
@@ -89,13 +99,14 @@
 
 <script setup lang="ts">
 import { fetch_data } from '../helpers';
-import { onMounted, reactive, ref, Ref } from 'vue';
-import { Config } from '../settings';
+import {computed, onMounted, reactive, ref, Ref} from 'vue';
+import {Config, DataTableHeader} from '../settings';
 import { Method } from '../helpers';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
 type Model = {
     id: string;
+    show_name: string;
     name: string;
     provider: string;
     created_at: string;
@@ -105,28 +116,41 @@ const users: Ref<Model[]> = ref([]);
 const editedIndex = ref(-1);
 const dialog = ref(false);
 const dialogDelete = ref(false);
-const formTitle = ref('Новый промпт');
+const formTitle = ref('Новая модель');
 const editButtonLoading = ref(false);
 const deleteButtonLoading = ref(false);
 const editedItem = reactive({
+    id: '',
+    show_name: '',
     name: '',
     provider: '',
 })
 const defaultItem = Object.assign({}, editedItem);
 
-const headers = [
-    {
-        title: 'ID',
-        align: 'start',
-        sortable: false,
-        key: 'id',
-    },
-    { title: 'Название', key: 'name', sortable: true },
-    { title: 'Провайдер', key: 'provider' },
-    { title: 'Дата создания', key: 'created_at' },
-    { title: 'Действия', key: 'actions', sortable: false },
-]
+const headers = computed<DataTableHeader[]>(() => {
+    const rawHeaders = [
+        { title: 'ID', sortable: false, key: 'id', },
+        { title: 'Отображаемое название', key: 'show_name' },
+        { title: 'Название', key: 'name' },
+        { title: 'Провайдер', key: 'provider' },
+        { title: 'Дата создания', key: 'created_at' },
+        { title: 'Действия', key: 'actions', sortable: false },
+    ];
+    // @ts-ignore
+    const headers: DataTableHeader[] = rawHeaders.map(e => {
+        const baseHeader = {
+            key: '',
+            title: '',
+            align: 'start',
+            sortable: true,
+            width: undefined,
+        };
+        Object.assign(baseHeader, e);
+        return baseHeader;
+    });
 
+    return headers;
+});
 
 onMounted(async () => {
     const response = await fetch_data(`${Config.backend_address}/models/admin/`);
@@ -178,7 +202,7 @@ async function save() {
     editButtonLoading.value = false;
     if (response) {
         UnnecessaryEventEmitter.emit('AlertMessage', {
-            title: 'Промпт сохранён',
+            title: 'Модель сохранена',
             text: undefined,
             severity: 'success'
         })

@@ -2,8 +2,8 @@
     <div v-if="currentEditConfig.id">
         <ConfigEditor
             :currentEditConfig="currentEditConfig"
-            :onSave="() => { saveConfig(currentEditConfig) }"
-            :onCancel="() => { currentEditConfig = {} }"
+            :onSave="() => { saveConfig() }"
+            :onCancel="() => { currentEditConfig = {id: undefined} }"
         ></ConfigEditor>
     </div>
     
@@ -13,15 +13,15 @@
                 <ConfigListCard v-for="config in configs" :key="config.id" :config="config"/>
             </div>
             <template #fallback>
-                <div>Loading configs...</div>
+                <div>Идёт загрузка...</div>
             </template>
         </Suspense>
-        <div v-if="(!configs || configs.length === 0) && !isLoading">There are no configs</div>
+        <div v-if="(!configs || configs.length === 0) && !isLoading">Конфигов нет</div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, Ref} from 'vue';
 import { useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
 import { Config } from '../../settings';
@@ -29,12 +29,16 @@ import ConfigListCard from './ListCard.vue';
 import { UnnecessaryEventEmitter } from '../../eventBus';
 import ConfigEditor from './Editor.vue';
 
+type Config = {
+    id: string | undefined;
+}
+
 const router = useRouter();
 
-const configs = ref([]);
+const configs: Ref<Array<Config>> = ref([]);
 const isLoading = ref(true);
 
-const currentEditConfig = ref({});
+const currentEditConfig: Ref<Config> = ref({id: undefined});
 
 onMounted(fetchConfigs);
 
@@ -58,7 +62,7 @@ async function fetchConfigs() {
     let url = new URL(`${Config.backend_address}/configs/`)
     try {
         const response = await fetch_data(url.toString());
-        if (!response) router.push('/')
+        if (!response) await router.push('/')
         configs.value = response.data.list
     } finally {
         isLoading.value = false;
@@ -66,7 +70,7 @@ async function fetchConfigs() {
 }
 
 UnnecessaryEventEmitter.on('ShowConfigEditPopup', config_id => {
-    Object.assign(currentEditConfig.value, configs.value.find(config => config.id === config_id));
+    Object.assign(currentEditConfig.value, configs.value.find((config: Config) => config.id === config_id));
 })
 </script>
 

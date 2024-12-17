@@ -26,6 +26,7 @@ class EditReportScheme(CreateReportScheme):
 
 class ReportListItemScheme(Scheme):
     article_id: uuid.UUID
+    article_title: str
     status: ReportStatus
     reason_text: str
     text: str
@@ -38,10 +39,11 @@ class ReportListItemScheme(Scheme):
         closed_by_user_name = closed_by_user.name if closed_by_user else None
         return cls(
             article_id=report_object.article_id,
+            article_title=report_object.article.title,
             status=report_object.status,
             closed_at=report_object.closed_at,
             closed_by_user_name=closed_by_user_name,
-            reason_text = report_object.reason.text,
+            reason_text=report_object.reason.text,
             text=report_object.text,
         )
 
@@ -56,6 +58,7 @@ class ReportOutScheme(ReportListItemScheme):
         return cls(
             text=report_object.text,
             article_id=report_object.article_id,
+            article_title=report_object.article.title,
             status=report_object.status,
             closed_at=report_object.closed_at,
             closed_by_user_name=closed_by_user_name,
@@ -88,6 +91,7 @@ class ReportOutModScheme(ReportOutScheme):
         return cls(
             text=report_object.text,
             article_id=report_object.article_id,
+            article_title=report_object.article.title,
             status=report_object.status,
             closed_at=report_object.closed_at,
             closed_by_user_name=closed_by_user_name,

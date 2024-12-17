@@ -22,9 +22,11 @@ from src.routers.users.schemes import CreateUserScheme
 from src.database.repos.confirmation_code import ConfirmationCodeRepo
 from src.database.repos.session import SessionRepo
 from src.database.repos.user import UserRepo
-from src.settings import Role, KafkaConfig, UnisenderConfig, JWTConfig
+from src.settings import Role, KafkaConfig, UnisenderConfig, JWTConfig, \
+    FrontConfig
 from src.util.auth.classes import AuthHandler
-from src.util.auth.helpers import get_password_hash, get_user_agent
+from src.util.auth.helpers import get_password_hash, get_user_agent, \
+    get_authenticated_response, send_email_confirmation_message
 from src.util.auth.schemes import LoginScheme
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -77,18 +79,7 @@ async def login(
         request=request,
         db_session=db_session
     )
-    response = JSONResponse(json.dumps({'detail': 'Аутентифицирован'}))
-    response.set_cookie(
-        JWTConfig.auth_cookie_name,
-        tokens.access_token,
-        int(time.time()) + JWTConfig.auth_jwt_exp_sec,
-    )
-    response.set_cookie(
-        JWTConfig.refresh_cookie_name,
-        tokens.refresh_token,
-        int(time.time()) + JWTConfig.refresh_jwt_exp_sec,
-    )
-    return response
+    return get_authenticated_response(tokens)
 
 
 @router.post(
@@ -118,27 +109,34 @@ async def register(
         ),
         db_session=db_session
     )
-    producer = KafkaProducer(
-        bootstrap_servers=KafkaConfig.address,
-        topic=KafkaConfig.mail_topic
-    )
-    confirmation_code = await ConfirmationCodeRepo.create(
-        user_id=user.id,
-        reason=ConfirmationType.registration,
+    await send_email_confirmation_message(
+        user=user,
+        email=registration_data.email,
         db_session=db_session
     )
-    kafka_message = SendEmailScheme(
-        to_address=registration_data.email,
-        from_address=UnisenderConfig.from_address,
-        from_name=UnisenderConfig.from_name,
-        subject=UnisenderConfig.email_confirmation_subject,
-        template_id=UnisenderConfig.email_confirmation_template_id,
-        params={
-            'code': confirmation_code.code
-        }
-    )
-    await producer.send_message(kafka_message.model_dump(mode='json'))
     return BaseResponse(message='Регистрация успешна. Проверьте почту')
+
+
+@router.post('/confirm-email/request/')
+async def request_email_confirmation(
+        email: EmailStr,
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepo.get_by_email(
+        email=email,
+        db_session=db_session
+    )
+    if not user or user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователь не найден'
+        )
+    await send_email_confirmation_message(
+        user=user,
+        email=email,
+        db_session=db_session
+    )
+    return BaseResponse(message='Проверьте почту')
 
 
 @router.post(
@@ -173,6 +171,10 @@ async def confirm_email(
     user.email_verified = True
     db_session.add(user)
     await db_session.commit()
+    await ConfirmationCodeRepo.mark_as_used(
+        confirmation_code=confirmation_code,
+        db_session=db_session
+    )
     return BaseResponse(message='Почта подтверждена. Можно входить')
 
 
@@ -210,7 +212,9 @@ async def request_password_restoration_code(
         subject=UnisenderConfig.password_recovery_subject,
         template_id=UnisenderConfig.password_recovery_template_id,
         params={
-            'code': confirmation_code.code
+            'link': f'{FrontConfig.address}'
+                    f'{FrontConfig.change_password_endpoint}'
+                    f'?code={confirmation_code.code}'
         }
     )
     await producer.send_message(kafka_message.model_dump(mode='json'))
@@ -240,6 +244,10 @@ async def restore_password(
     await UserRepo.update_password_hash(
         user_id=confirmation_code.user_id,
         new_password_hash=new_password_hash,
+        db_session=db_session
+    )
+    await ConfirmationCodeRepo.mark_as_used(
+        confirmation_code=confirmation_code,
         db_session=db_session
     )
     return BaseResponse(message='Пароль успешно изменён')

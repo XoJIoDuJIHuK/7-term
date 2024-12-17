@@ -11,8 +11,8 @@ from src.http_responses import get_responses
 from src.responses import DataResponse, BaseResponse, \
     SimpleListResponse
 from src.routers.models.helpers import check_model_conflicts
-from src.routers.models.schemes import ModelOutScheme, CreateModelScheme, \
-    UpdateModelScheme, ModelAdminOutScheme
+from src.routers.models.schemes import ModelOutScheme, ModelCreateScheme, \
+    ModelUpdateScheme, ModelAdminOutScheme
 from src.database.repos.model import ModelRepo
 from src.settings import Role
 from src.util.auth.classes import JWTCookie
@@ -64,13 +64,13 @@ async def get_admin_models(
     responses=get_responses(400, 401, 403, 409)
 )
 async def create_model(
-        model_data: CreateModelScheme,
+        model_data: ModelCreateScheme,
         db_session: AsyncSession = Depends(get_session),
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
 ):
     await check_model_conflicts(
-        name=model_data.name,
-        provider=model_data.provider,
+        model_data=model_data,
+        existing_model_id=None,
         db_session=db_session
     )
     model = await ModelRepo.create(
@@ -93,7 +93,7 @@ async def create_model(
     responses=get_responses(400, 401, 403, 404, 409)
 )
 async def update_model(
-        model_data: UpdateModelScheme,
+        model_data: ModelUpdateScheme,
         model_id: int = Path(),
         db_session: AsyncSession = Depends(get_session),
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
@@ -108,8 +108,8 @@ async def update_model(
             detail='Модели не существует'
         )
     await check_model_conflicts(
-        name=model_data.name,
-        provider=model_data.provider,
+        model_data=model_data,
+        existing_model_id=model_id,
         db_session=db_session
     )
     model = await ModelRepo.update(

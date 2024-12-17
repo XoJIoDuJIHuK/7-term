@@ -3,14 +3,14 @@
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-text-field
           v-model="article.title"
-          label="Title"
+          label="Название"
           :rules="[rules.required]"
           required
         ></v-text-field>
   
         <v-switch
           v-model="useWysiwyg"
-          label="Use text editor"
+          label="Использовать текстовый ввод"
           class="mt-4"
         ></v-switch>
   
@@ -22,8 +22,8 @@
         <div v-else>
           <v-file-input
             v-model="article.file"
-            label="Upload Text File"
-            accept=".txt"
+            label="Загрузите файл (.txt, .md)"
+            accept=".txt,.md"
             @change="handleFileChange"
             :rules="[rules.required]"
             required
@@ -34,102 +34,104 @@
           v-if="!route.params.article_id"
           v-model="article.language_id"
           :items="store.languages.getSelectItems()"
-          label="Language (Optional)"
+          label="Язык (необязательно)"
           chips
           clearable
         ></v-select>
   
         <v-btn color="primary" :disabled="!valid" @click="saveArticle">
-          {{ isEditing ? 'Update' : 'Create' }} Article
+          {{ isEditing ? 'Изменить' : 'Создать' }} статью
         </v-btn>
       </v-form>
     </v-container>
 </template>
   
-<script setup>
-  import { ref, reactive, onMounted } from 'vue';
-  import { Config, store } from '../../settings';
-  import { useRoute, useRouter } from 'vue-router';
-  import { fetch_data } from '../../helpers';
-  import { get_article } from './helpers';
-  import { UnnecessaryEventEmitter } from '../../eventBus';
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
+import { Config, store } from '../../settings';
+import { useRoute, useRouter } from 'vue-router';
+import { fetch_data } from '../../helpers';
+import { get_article } from './helpers';
+import { UnnecessaryEventEmitter } from '../../eventBus';
 
-  
-  const form = ref(null);
-  const valid = ref(false);
-  const useWysiwyg = ref(true);
-  const article = reactive({
+
+const form = ref(null);
+const valid = ref(false);
+const useWysiwyg = ref(true);
+const article = reactive({
     title: '',
     text: '',
     file: null,
     language_id: null,
-  });
-  
-  const rules = {
-    required: (value) => !!value || 'Required.',
-  };
-  
-  const route = useRoute();
-  const router = useRouter();
-  
-  const isEditing = ref(false);
-  
-  onMounted(async () => {
+});
+
+const rules = {
+    required: (value: string | null | undefined) => !!value || 'Обязательное поле',
+};
+
+const route = useRoute();
+const router = useRouter();
+
+const isEditing = ref(false);
+
+onMounted(async () => {
     const article_id = route.params.article_id
     if (article_id) {
-      isEditing.value = true;
-      try {
-        const response = await get_article(article_id)
-        if (!response) {
-          router.push('/error')
-          return
+        isEditing.value = true;
+        try {
+            const response = await get_article(article_id as string)
+            if (!response) {
+              await router.push('/error')
+              return
+            }
+            Object.assign(article, response);
+            } catch (error) {
+            console.error('Error fetching article:', error);
         }
-        Object.assign(article, response);
-      } catch (error) {
-        console.error('Error fetching article:', error);
-      }
     }
-  });
-  
-  const handleFileChange = async (file) => {
+});
+
+const handleFileChange = async (file: any) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        article.text = e.target.result;
-      };
-      reader.readAsText(file);
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent) => {
+            article.text = (e.target! as FileReader).result as string;
+        };
+        reader.readAsText(file.target.files[0]);
     }
-  };
-  
-  const saveArticle = async () => {
-    if (form.value.validate()) {
-      try {
-        const apiUrl = isEditing.value
-          ? `${Config.backend_address}/articles/${route.params.article_id}/`
-          : `${Config.backend_address}/articles/`;
-        const method = isEditing.value ? 'PUT' : 'POST';
-        const response = await fetch_data(
-            apiUrl,
-            method,
-            JSON.stringify({
-              title: article.title,
-              text: article.text,
-              language_id: article.language_id
-            })
-        )
-        if (response) {
-          UnnecessaryEventEmitter.emit('AlertMessage', {
-            title: 'Статья сохранена',
-            text: undefined,
-            severity: 'info'
-          })
-          router.push(`/articles/${response.data.article.id}/get`)
+};
+
+const saveArticle = async () => {
+    console.log(form, typeof form)
+    //@ts-ignore
+    if (form!.value!.validate()) {
+        try {
+            const apiUrl = isEditing.value
+                ? `${Config.backend_address}/articles/${route.params.article_id}/`
+                : `${Config.backend_address}/articles/`;
+            const method = isEditing.value ? 'PUT' : 'POST';
+            const response = await fetch_data(
+                apiUrl,
+                method,
+                JSON.stringify({
+                    title: article.title,
+                    text: article.text,
+                    language_id: article.language_id
+                })
+            )
+            if (response) {
+                UnnecessaryEventEmitter.emit('AlertMessage', {
+                    title: 'Статья сохранена',
+                    text: undefined,
+                    severity: 'info'
+                })
+                await router.push(`/articles/${response.data.article.id}/get`)
+            }
+        } catch (error) {
+            console.error('Error saving article:', error);
         }
-      } catch (error) {
-        console.error('Error saving article:', error);
-      }
     }
-  };
+};
 </script>
 
 <style lang="css" scoped>

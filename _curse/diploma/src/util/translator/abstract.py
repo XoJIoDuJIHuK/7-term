@@ -1,3 +1,4 @@
+import asyncio
 import re
 from abc import ABC, abstractmethod
 from logging import Logger
@@ -10,6 +11,7 @@ from src.util.translator.exceptions import TranslatorError, \
 
 class AbstractTranslator(ABC):
     logger: Logger
+
     async def translate(
             self,
             text: str,
@@ -58,11 +60,11 @@ class AbstractTranslator(ABC):
             TranslatorAPIError,
             TranslatorAPITimeoutError
         ) as e:
-            self.logger.exception(f'Error while translating: {e}')
+            self.logger.exception(f'Ошибка API: {e}')
             raise
         except Exception as e:
             self.logger.error(f'Some error occurred: {e}.')
-            raise TranslatorError(f'Some error occurred: {e}.')
+            raise TranslatorError(e)
 
     async def _process_translation(
             self,
@@ -72,7 +74,7 @@ class AbstractTranslator(ABC):
             model: AIModel,
             prompt_object: StylePrompt
     ) -> str:
-        """Processes the translation request using the OpenAI API.
+        """Processes the translation request
 
         This method handles the actual translation, including splitting text
         into chunks if necessary and storing the translation
@@ -92,10 +94,11 @@ class AbstractTranslator(ABC):
 
             prompt = prompt_object.text.format(
                 source_lang=(
-                    source_language.name if source_language
-                    else 'given language'
+                    f'language with ISO code {source_language.iso_code}'
+                    if source_language else 'given language'
                 ),
-                target_lang=target_language.name
+                target_lang=f'language with ISO code '
+                            f'{target_language.iso_code}'
             )
 
             chunks = [text]
@@ -108,21 +111,17 @@ class AbstractTranslator(ABC):
                     TextTranslationConfig.max_words_in_chunk
                 )
 
-            translations = []
-
-            for chunk in chunks:
-                translations.append(await self._process_chunk(
-                    model=model,
-                    prompt=prompt,
-                    chunk=chunk
-                ))
+            translations = await asyncio.gather(
+                *(self._process_chunk(model=model, prompt=prompt, chunk=chunk)
+                  for chunk in chunks)
+            )
 
             result = ' '.join(translations)
             return result
         except ValueError:
             raise Exception('Недопустимый текст')
         except Exception as e:
-            self.logger.exception(e)
+            self.logger.error(e)
             raise e
 
     @abstractmethod

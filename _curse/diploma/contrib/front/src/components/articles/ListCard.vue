@@ -4,7 +4,7 @@
             {{ article.title }}
             <v-spacer></v-spacer>
             <span class="article-language">
-                {{ store.languages.getValue(article.language_id) === null ? '' : store.languages.getValue(article.language_id).iso_code }}
+                {{ store.languages.getValue(article.language_id) === null ? '' : store.languages.getValue(article.language_id)!.iso_code }}
             </span>
         </v-card-title>
         <v-card-text>
@@ -41,6 +41,7 @@ import { fetch_data } from '../../helpers';
 import { Config } from '../../settings';
 import { UnnecessaryEventEmitter } from '../../eventBus';
 
+//@ts-ignore
 const props = defineProps({
     article: {
         type: Object,

@@ -4,7 +4,7 @@
             <h1>Переводы статьи</h1>
         </v-row>
         <v-row>
-            <ArticlesList :original_article_id="original_article_id"/>
+            <ArticlesList :original_article_id="original_article_id as string"/>
         </v-row>
     </v-container>
 </template>
@@ -29,7 +29,7 @@ onMounted(async () => {
     if (response) {
         originalArticleName.value = response.data.article.title;
     } else {
-        router.push('/error');
+        await router.push('/error');
     }
 });
 </script>

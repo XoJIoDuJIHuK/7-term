@@ -49,7 +49,8 @@ class NotificationRepo:
     ) -> int:
         result = await db_session.execute(update(Notification).where(
             Notification.user_id == user_id,
-            Notification.created_at <= max_datetime
+            Notification.created_at <= max_datetime,
+            Notification.read_at.is_(None)
         ).values(read_at=get_utc_now()))
         await db_session.commit()
         return result.rowcount

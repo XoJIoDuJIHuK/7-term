@@ -1,5 +1,4 @@
-import logging
-
+from src.logger import get_logger
 from src.settings import LOGGER_PREFIX
 from src.util.brokers.consumer.kafka import AbstractKafkaConsumer
 from src.util.mail.classes import UnisenderMailSender
@@ -7,7 +6,7 @@ from src.util.mail.schemes import SendEmailScheme
 
 
 class EmailTaskConsumer(AbstractKafkaConsumer):
-    logger = logging.getLogger(LOGGER_PREFIX + __name__)
+    logger = get_logger(LOGGER_PREFIX + __name__)
 
     async def on_message(self, msg):
         message = SendEmailScheme(**msg.value)

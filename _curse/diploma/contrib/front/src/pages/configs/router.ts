@@ -1,5 +1,6 @@
 import BaseLayout from "../../components/BaseLayout.vue"
 import List from "./List.vue"
+//@ts-ignore
 import Edit from "./Create.vue"
 
 export default {

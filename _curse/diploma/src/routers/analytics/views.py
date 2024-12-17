@@ -21,7 +21,7 @@ router = APIRouter(
 @router.get(
     '/models-stats/'
 )
-async def get_models_info(
+async def get_models_stats(
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session)
 ):
@@ -31,7 +31,7 @@ async def get_models_info(
 @router.get(
     '/prompts-stats/'
 )
-async def get_models_info(
+async def get_prompts_stats(
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session)
 ):

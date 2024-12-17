@@ -5,19 +5,23 @@ from pydantic import Field
 from src.responses import Scheme
 
 
-class CreateModelScheme(Scheme):
-    name: str = Field(min_length=1, max_length=20)
-    provider: str = Field(min_length=1, max_length=20)
+class ModelCreateScheme(Scheme):
+    show_name: str = Field(min_length=0, max_length=50)
+    name: str = Field(min_length=0)
+    provider: str = Field(min_length=0)
 
 
-class UpdateModelScheme(Scheme):
-    name: str | None = Field(min_length=1, max_length=20)
-    provider: str | None = Field(min_length=1, max_length=20)
+class ModelUpdateScheme(Scheme):
+    show_name: str | None = Field(min_length=0, max_length=50)
+    name: str | None = Field(min_length=0)
+    provider: str | None = Field(min_length=0)
 
 
-class ModelOutScheme(CreateModelScheme):
+class ModelOutScheme(Scheme):
+    show_name: str
     id: int
 
 
-class ModelAdminOutScheme(ModelOutScheme):
+class ModelAdminOutScheme(ModelCreateScheme):
+    id: int
     created_at: datetime

@@ -1,10 +1,12 @@
 from src.database.models import AIModel
 
-from sqlalchemy import delete, exists, select, Sequence
+from sqlalchemy import and_, delete, exists, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.routers.models.schemes import ModelOutScheme, CreateModelScheme, \
-    UpdateModelScheme
+from src.routers.models.schemes import (
+    ModelCreateScheme,
+    ModelUpdateScheme,
+)
 
 
 class ModelRepo:
@@ -19,16 +21,25 @@ class ModelRepo:
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def exists_by_name_and_provider(
-            name: str,
-            provider: str,
+    async def model_exists(
+            model_data: ModelUpdateScheme,
+            existing_model_id: int,
             db_session: AsyncSession
     ) -> bool:
         result = await db_session.execute(select(exists().where(
-            AIModel.name == name,
-            AIModel.provider == provider
+            and_(
+                AIModel.id != existing_model_id,
+                or_(
+                    AIModel.show_name == model_data.show_name,
+                    and_(
+                        AIModel.name == model_data.name,
+                        AIModel.provider == model_data.provider,
+                    )
+                )
+            )
+
         )))
-        return result.scalar_one_or_none()
+        return bool(result.scalar_one_or_none())
 
     @staticmethod
     async def get_list(
@@ -52,13 +63,10 @@ class ModelRepo:
 
     @staticmethod
     async def create(
-            model_data: CreateModelScheme,
+            model_data: ModelCreateScheme,
             db_session: AsyncSession
     ) -> AIModel:
-        model = AIModel(
-            name=model_data.name,
-            provider=model_data.provider,
-        )
+        model = AIModel(**model_data.model_dump())
         db_session.add(model)
         await db_session.commit()
         await db_session.refresh(model)
@@ -67,7 +75,7 @@ class ModelRepo:
     @staticmethod
     async def update(
             model: AIModel,
-            new_model_data: UpdateModelScheme,
+            new_model_data: ModelUpdateScheme,
             db_session: AsyncSession
     ) -> AIModel:
         for key, value in vars(new_model_data).items():

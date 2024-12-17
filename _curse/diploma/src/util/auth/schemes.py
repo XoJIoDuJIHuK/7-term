@@ -18,7 +18,7 @@ class RefreshPayload(UserInfo):
 
 
 class LoginScheme(Scheme):
-    email: EmailStr = Field(examples=['user@d.com'])
+    email: EmailStr = Field(examples=['user@d.com'], max_length=255)
     password: str = Field(min_length=1, max_length=1024)
 
 

@@ -1,4 +1,3 @@
-import logging
 import time
 import uuid
 
@@ -9,11 +8,12 @@ from fastapi.security import (
     APIKeyCookie,
 )
 
-from jose import jwt
+import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Session, User
 from src.database.repos.session import SessionRepo
+from src.logger import get_logger
 from src.settings import JWTConfig, LOGGER_PREFIX, Role
 from src.util.auth.helpers import (
     get_user_agent,
@@ -24,7 +24,7 @@ from src.util.auth.schemes import TokensScheme, RefreshPayload
 from src.util.storage.classes import RedisHandler
 
 
-logger = logging.getLogger(LOGGER_PREFIX + __name__)
+logger = get_logger(LOGGER_PREFIX + __name__)
 
 
 class JWTBearer(HTTPBearer):
@@ -35,7 +35,7 @@ class JWTBearer(HTTPBearer):
     ):
         super(JWTBearer, self).__init__(auto_error=auto_error)
         self.roles = roles if roles else []
-        self.logger = logging.getLogger(LOGGER_PREFIX + __name__)
+        self.logger = get_logger(LOGGER_PREFIX + __name__)
 
     async def __call__(self, request: Request):
         credentials: HTTPAuthorizationCredentials
@@ -94,7 +94,7 @@ class JWTCookie(APIKeyCookie):
             name=cookie_name,
         )
         self.roles = roles if roles else []
-        self.logger = logging.getLogger(LOGGER_PREFIX + __name__)
+        self.logger = get_logger(LOGGER_PREFIX + __name__)
 
     async def __call__(
             self,
@@ -177,7 +177,7 @@ class AuthHandler:
             token=refresh_token,
             is_access=False
         )
-        if RedisHandler().get(str(payload.token_id)):
+        if await RedisHandler().get(str(payload.token_id)):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Сессия истекла'

@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 
 from fastapi import (
     APIRouter,
@@ -12,10 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.websockets import WebSocketDisconnect
 
 from src.depends import get_session, validate_token_for_ws
-from src.responses import BaseResponse
+from src.logger import get_logger
+from src.responses import BaseResponse, SimpleListResponse
 from src.routers.notifications.schemes import NotificationOutScheme
 from src.database.repos.notification import NotificationRepo
-from src.settings import LOGGER_PREFIX, NotificationConfig
+from src.settings import NotificationConfig
 from src.util.auth.classes import JWTCookie
 from src.util.auth.schemes import UserInfo
 from src.util.storage.classes import RedisHandler
@@ -25,7 +25,24 @@ router = APIRouter(
     prefix='/notifications',
     tags=['Notifications']
 )
-logger = logging.getLogger(LOGGER_PREFIX + __name__)
+logger = get_logger(__name__)
+
+
+@router.get(
+    '/',
+    response_model=SimpleListResponse[NotificationOutScheme]
+)
+async def get_notifications_list(
+        user_info: UserInfo = Depends(validate_token_for_ws),
+        db_session: AsyncSession = Depends(get_session)
+):
+    notifications = await NotificationRepo.get_list(
+        user_id=user_info.id,
+        db_session=db_session
+    )
+    return SimpleListResponse[NotificationOutScheme].from_list(
+        items=notifications
+    )
 
 
 @router.websocket(
@@ -39,14 +56,6 @@ async def get_notifications(
     try:
         await websocket.accept()
 
-        notifications = await NotificationRepo.get_list(
-            user_id=user_info.id,
-            db_session=db_session
-        )
-        await websocket.send_json(
-            json.dumps([n.model_dump_json() for n in notifications])
-        )
-
         pubsub = RedisHandler().get_pubsub()
         await pubsub.subscribe(
             NotificationConfig.topic_name.format(user_info.id)
@@ -54,6 +63,8 @@ async def get_notifications(
         while True:
             try:
                 message = await pubsub.get_message(timeout=0.5)
+                if message:
+                    logger.info(f'Got message {message} from redis')
                 if message and message['type'] == 'message':
                     notification_data = message['data'].decode('utf-8')
                     try:
@@ -62,8 +73,8 @@ async def get_notifications(
                                 notification_data
                             )
                         )
-                        await websocket.send_json(
-                            notification.model_dump(exclude_unset=True)
+                        await websocket.send_text(
+                            notification.model_dump_json(exclude_unset=True)
                         )
                     except Exception as e:
                         logger.exception(e)
@@ -93,5 +104,5 @@ async def mark_notifications_read(
         max_datetime=get_utc_now(),
         db_session=db_session
     )
-    return BaseResponse(message=f'Cleared {closed_notifications}'
-                                f' notifications')
+    return BaseResponse(message=f'Очищено {closed_notifications}'
+                                f' уведомлений')

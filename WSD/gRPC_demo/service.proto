@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package example;
+option go_package = "generated/;example";
+
+service Greeter {
+  rpc Add (Parm2Request) returns (Parm2Result);
+  rpc Mul (Parm2Request) returns (Parm2Result);
+  rpc Sub (Parm2Request) returns (Parm2Result);
+  rpc Div (Parm2Request) returns (Parm2Result);
+  rpc Pow2 (Parm1Request) returns (Parm1Result);
+  rpc ReallyHeavyFunction (Parm2Request) returns (Parm1Result);
+}
+
+message Parm2Request {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Parm1Request {
+  int32 x = 1;
+}
+
+message Parm2Result {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+}
+
+message Parm1Result {
+  int32 x = 1;
+  int32 z = 2;
+}

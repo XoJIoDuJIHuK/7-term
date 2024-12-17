@@ -4,15 +4,17 @@ from src.database.repos.model import ModelRepo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.routers.models.schemes import ModelUpdateScheme, ModelCreateScheme
+
 
 async def check_model_conflicts(
-        name: str,
-        provider: str,
+        model_data: ModelUpdateScheme | ModelCreateScheme,
+        existing_model_id: int | None,
         db_session: AsyncSession
 ):
-    if await ModelRepo.exists_by_name_and_provider(
-        name=name,
-        provider=provider,
+    if await ModelRepo.model_exists(
+        model_data=model_data,
+        existing_model_id=existing_model_id,
         db_session=db_session
     ):
         raise HTTPException(

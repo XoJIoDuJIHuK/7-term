@@ -17,12 +17,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import {onMounted, Ref, ref} from 'vue';
 import { fetch_data, logout } from '../helpers';
 import { Config } from '../settings';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
-const sessions = ref([]);
+interface Session {
+    id: string;
+    ip: string;
+    user_agent: string;
+    created_at: string;
+}
+
+const sessions: Ref<Array<Session>> = ref([]);
 
 onMounted(async () => {
     const response = await fetch_data(`${Config.backend_address}/sessions/`)

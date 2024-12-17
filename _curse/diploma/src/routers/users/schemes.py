@@ -1,10 +1,14 @@
 import datetime
 import uuid
 
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
 
 from src.responses import Scheme
 from src.settings import Role
+
+
+class UserUpdateNameScheme(Scheme):
+    name: str = Field(min_length=1, max_length=20)
 
 
 class EditUserScheme(Scheme):

@@ -1,10 +1,10 @@
-import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import HTTPException
 
 from src.settings import Database, LOGGER_PREFIX
+from src.logger import get_logger
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -23,7 +23,7 @@ engine = create_async_engine(
     # echo=True
 )
 Session = async_sessionmaker(engine)
-logger = logging.getLogger(LOGGER_PREFIX + __name__)
+logger = get_logger(LOGGER_PREFIX + __name__)
 
 
 class Base(DeclarativeBase):

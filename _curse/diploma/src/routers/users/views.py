@@ -18,7 +18,7 @@ from src.routers.users.schemes import (
     CreateUserScheme,
     FilterUserScheme,
     UserOutAdminScheme,
-    UserOutScheme, EditUserScheme,
+    UserOutScheme, EditUserScheme, UserUpdateNameScheme,
 )
 from src.database.repos.user import UserRepo
 from src.settings import Role
@@ -94,8 +94,8 @@ async def get_list(
     responses=get_responses(400, 401, 409)
 )
 async def change_name(
+        request_data: UserUpdateNameScheme,
         user_id: uuid.UUID = Path(),
-        new_name: str = Form(min_length=1, max_length=20),
         user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session)
 ):
@@ -108,12 +108,12 @@ async def change_name(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Пользователь не найден'
         )
-    if user.name == new_name:
+    if user.name == request_data.name:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Новое имя не должно совпадать со старым'
         )
-    user.name = new_name
+    user.name = request_data.name
     db_session.add(user)
     await db_session.commit()
     return BaseResponse(message='Имя успешно изменено')
@@ -171,10 +171,6 @@ async def update_user(
 
 @router.delete(
     '/{user_id}/',
-    response_model=DataResponse.single_by_key(
-        'user',
-        UserOutScheme
-    ),
     responses=get_responses(400, 401, 403, 409)
 )
 async def delete_user(
@@ -182,12 +178,8 @@ async def delete_user(
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
         db_session: AsyncSession = Depends(get_session),
 ):
-    user = await UserRepo.delete(
+    await UserRepo.soft_delete(
         user=user,
         db_session=db_session
     )
-    return DataResponse(
-        data={
-            'user': UserOutAdminScheme.model_validate(user)
-        }
-    )
+    return BaseResponse(message='Пользователь удалён')

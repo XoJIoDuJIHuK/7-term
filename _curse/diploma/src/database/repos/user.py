@@ -8,9 +8,10 @@ from src.pagination import PaginationParams, paginate
 from src.routers.users.schemes import CreateUserScheme, FilterUserScheme, \
     UserOutScheme, EditUserScheme
 
-from sqlalchemy import exists, select, update
+from sqlalchemy import delete, exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.settings import OAuthProvider, Role
 from src.util.auth.helpers import get_password_hash
 from src.util.time.helpers import get_utc_now
 
@@ -71,6 +72,48 @@ class UserRepo:
         return users_list, count
 
     @staticmethod
+    async def register_for_oauth(
+            role: Role,
+            db_session: AsyncSession,
+            oauth_provider: OAuthProvider,
+            name: str,
+            email: str | None,
+            password_hash: str = '',
+            provider_id: str | None = None,
+    ) -> User:
+        user = User(
+            email=email,
+            name=name,
+            password_hash=password_hash,
+            role=role,
+            logged_with_provider=oauth_provider,
+            provider_id=provider_id,
+        )
+        if email:
+            user.email_verified = True
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        return user
+
+    @staticmethod
+    async def get_by_oauth_data(
+            provider: OAuthProvider,
+            provider_id: str,
+            db_session: AsyncSession
+    ) -> User | None:
+        """
+        Returns user by provider name and user's id of given provider
+        """
+        query = (select(User).filter_by(
+            logged_with_provider=provider,
+            provider_id=provider_id
+        ))
+        result = await db_session.execute(query)
+        user = result.scalar()
+        return user
+
+    @staticmethod
     async def create(
             user_data: CreateUserScheme,
             db_session: AsyncSession
@@ -111,10 +154,7 @@ class UserRepo:
             if value is not None:
                 user.__setattr__(key, value)
         if new_data.password:
-            print(user.password_hash, get_password_hash(new_data.password), user.password_hash == get_password_hash(new_data.password))
             user.password_hash = get_password_hash(new_data.password)
-        else:
-             print('NO PASSWORD')
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
@@ -129,15 +169,38 @@ class UserRepo:
         result = await db_session.execute(update(User).where(
             User.id == user_id
         ).values(password_hash=new_password_hash))
+        await db_session.commit()
         return result.rowcount
 
-    @staticmethod
-    async def delete(
+    @classmethod
+    async def soft_delete(
+            cls,
             user: User,
             db_session: AsyncSession
     ) -> User:
+        new_email = '@' + user.email
+        try:
+            await cls.hard_delete(new_email, db_session)
+        except HTTPException:
+            pass
+        user.email = new_email
         user.deleted_at = get_utc_now()
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
         return user
+
+    @staticmethod
+    async def hard_delete(
+            email: str,
+            db_session: AsyncSession
+    ):
+        result = await db_session.execute(delete(User).where(
+            User.email == email
+        ))
+        if result.rowcount == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Удаление невозможно: пользователь не найден'
+            )
+        await db_session.commit()

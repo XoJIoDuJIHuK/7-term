@@ -9,45 +9,49 @@
             {{ report.text }}
         </v-row>
         <v-row v-if="userRole == Config.userRoles.mod">
-            <v-expansion-panels>
-                <v-expansion-panel
-                    :title="`Исходная статья ${report.source_language_id === null ? '' : store.languages.getValue(report.source_language_id).name}`"
-                    :text="report.source_text"
-                ></v-expansion-panel>
-                <v-expansion-panel
-                    :title="`Переведённая статья ${report.translated_language_id !== null ? store.languages.getValue(report.translated_language_id).name : ''}`"
-                    :text="report.translated_text"
-                ></v-expansion-panel>
-            </v-expansion-panels>
+            <v-col cols="6">
+                <div v-html="renderedSourceMarkdown" class="markdown-renderer"></div>
+            </v-col>
+            <v-col cols="6">
+                <div v-html="renderedTranslatedMarkdown" class="markdown-renderer"></div>
+            </v-col>
         </v-row>
         <v-row v-if="userRole == Config.userRoles.mod && report.status === Config.reportStatuses.open">
-            <v-col><v-btn color="success" @click="updateStatus(Config.reportStatuses.satisfied)">Satisfy</v-btn></v-col>
-            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.rejected)">Reject</v-btn></v-col>
+            <v-col><v-btn color="success" @click="updateStatus(Config.reportStatuses.satisfied)">Удовлетворить</v-btn></v-col>
+            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.rejected)">Отклонить</v-btn></v-col>
         </v-row>
         <v-row v-else-if="report.status === Config.reportStatuses.open">
-            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.closedByUser)">Close</v-btn></v-col>
+            <v-col><v-btn color="error" @click="updateStatus(Config.reportStatuses.closedByUser)">Закрыть</v-btn></v-col>
         </v-row>
         <v-row>
             <v-container>
-                <v-row v-if="comments.length === 0">No comments</v-row>
-                <v-row v-for="comment in comments" :class="`comment ${currentUserId == comment.sender_id ? 'mine' : 'others'}`">
-                    <v-col style="max-width: 10vw;">{{ comment.sender_name }}</v-col>
+                <v-row v-if="comments.length === 0" justify="center" class="text--disabled">Комментариев нет</v-row>
+                <v-row
+                    v-for="comment in comments"
+                    :key="comment.id"
+                    :class="['comment', { mine: currentUserId === comment.sender_id, others: currentUserId !== comment.sender_id }]"
+                >
+                    <v-col cols="auto" class="pr-4">
+                        {{ comment.sender_name }}
+                    </v-col>
                     <v-col>
                         <v-container>
-                            <v-row>{{ comment.text }}</v-row>
                             <v-row>
-                                <v-col>{{ (new Date(comment.created_at)).toLocaleString() }}</v-col>
+                                {{ comment.text }}
+                            </v-row>
+                            <v-row class="text--secondary">
+                                {{ (new Date(comment.created_at)).toLocaleString() }}
                             </v-row>
                         </v-container>
                     </v-col>
                 </v-row>
                 <v-row v-if="report.status === Config.reportStatuses.open">
-                    <v-col>
-                        <v-text-field v-model="commentText" label="Comment"></v-text-field>
+                    <v-col cols="8">
+                        <v-text-field v-model="commentText" label="Комментарий" />
                     </v-col>
-                    <v-col>
+                    <v-col cols="4">
                         <v-btn variant="elevated" color="info" @click="sendComment">
-                            <v-icon icon="mdi-send"></v-icon>
+                            <v-icon icon="mdi-send" />
                         </v-btn>
                     </v-col>
                 </v-row>
@@ -60,8 +64,9 @@
 import { onMounted, reactive, Ref, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
-import { Config, store } from '../../settings';
+import { Config } from '../../settings';
 import { UnnecessaryEventEmitter } from '../../eventBus';
+import {marked} from "marked";
 
 const comments: Ref<Array<any>> = ref([]);
 const commentText = ref('');
@@ -80,6 +85,8 @@ const report = reactive({
 const route = useRoute();
 const router = useRouter();
 const socket: Ref<WebSocket | null> = ref(null);
+const renderedSourceMarkdown = ref('');
+const renderedTranslatedMarkdown = ref('');
 
 const currentUserId = ref(null);
 const userRole = JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role
@@ -87,8 +94,10 @@ const userRole = JSON.parse(localStorage.getItem(Config.userInfoProperty) as str
 onMounted(async () => {
     currentUserId.value = JSON.parse(localStorage.userInfo).id;
     let response = await fetch_data(`${Config.backend_address}/articles/${route.params.article_id}/report/`)
-    if (!response) router.push('/error')
+    if (!response) await router.push('/error')
     else Object.assign(report, response.data.report)
+    renderedSourceMarkdown.value = await marked(report.source_text);
+    renderedTranslatedMarkdown.value = await marked(report.translated_text);
 
     response = await fetch_data(`${Config.backend_address}/articles/${route.params.article_id}/report/comments/`)
     comments.value = response ? response.data.list : [];
@@ -135,13 +144,45 @@ async function updateStatus(newStatus: string) {
     margin-bottom: 8px;
     padding: 4px;
     border-radius: 8px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .comment.mine {
     background-color: rgb(182, 182, 255);
+    border-left: 4px solid rgb(100, 100, 255);
 }
 
 .comment.others {
     background-color: rgb(164, 229, 164);
+    border-right: 4px solid rgb(100, 255, 100);
+}
+
+.comment .v-col {
+    padding: 0;
+}
+
+.comment .v-col:first-child {
+    font-weight: bold;
+}
+
+.comment .v-container {
+    padding: 5px;
+}
+
+.comment .v-row {
+    margin-bottom: 4px;
+}
+
+.comment .v-row:last-child {
+    margin-bottom: 0;
+}
+
+.comment .v-text-field {
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+.comment .v-btn {
+    margin-left: 8px;
 }
 </style>

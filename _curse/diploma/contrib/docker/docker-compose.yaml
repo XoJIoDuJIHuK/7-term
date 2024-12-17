@@ -1,14 +1,13 @@
 services:
   api:
+    image: diploma-base
     build:
       context: ../..
       dockerfile: contrib/docker/fastapi/Dockerfile
     env_file:
       - ../../.env
-#    ports:
-#      - "8000:8000"
     volumes:
-      - ../../:/app
+      - ./fastapi/docker-entrypoint.d:/app/docker-entrypoint.d
     depends_on:
       - postgres
     networks:
@@ -19,10 +18,8 @@ services:
       context: ../../
       dockerfile: contrib/docker/postgres/Dockerfile
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - ../../.env
     command:
       - "postgres"
       - "-c"
@@ -43,6 +40,8 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_ADDRESS}
       KAFKA_LISTENERS: PLAINTEXT://${KAFKA_ADDRESS}
+      KAFKA_SESSION_TIMEOUT_MS: 360000
+      KAFKA_MAX_POLL_INTERVAL_MS: 3600000
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -55,18 +54,6 @@ services:
     image: wurstmeister/zookeeper:latest
     ports:
       - 2181:2181
-    networks:
-      - a
-
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    ports:
-      - 9000:9000
-    environment:
-      KAFKA_BROKERCONNECT: ${KAFKA_ADDRESS}
-      JVM_OPTS: '-Xmx256M'
-    depends_on:
-      - kafka
     networks:
       - a
 
@@ -111,14 +98,17 @@ services:
       - a
 
   nginx:
-    image: nginx:latest
+    build:
+      context: ../..
+      dockerfile: contrib/docker/nginx/Dockerfile
     ports:
       - "8000:8000"
+#      - "8080:9000"
     depends_on:
       - api
-      - vue-dev
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
     networks:
       - a
 

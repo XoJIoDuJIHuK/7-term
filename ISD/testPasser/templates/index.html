@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+</head>
+<body>
+    <h1>Questions</h1>
+    <ul>
+        {% for id, question in questions.items() %}
+            <li>
+                <h2>{{ question.text }}</h2>
+                <p><strong>Correct Answers:</strong> {{ question.correct_answers }}</p>
+                <p><strong>Incorrect Answers:</strong> {{ question.incorrect_answers }}</p>
+                <p><strong>Variants:</strong> {{ question.variants }}</p>
+                <p><strong>Probable Correct Answers:</strong> {{ question.probable_correct_answers }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,9 +1,6 @@
 build_base_local:
 	docker build -t diploma-base -f ./contrib/docker/base/Dockerfile .
 
-build_consumer_local:
-	docker build -t diploma-consumer -f ./contrib/docker/consumer/Dockerfile .
-
 build_local: build_base_local
 	docker compose --env-file=.env -f contrib/docker/docker-compose.yaml build
 

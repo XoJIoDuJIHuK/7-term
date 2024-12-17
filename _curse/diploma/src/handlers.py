@@ -1,5 +1,4 @@
 import http
-import logging
 import traceback
 from typing import Callable, Type
 
@@ -8,17 +7,18 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from src.settings import LOGGER_PREFIX
 from src.http_responses import Response500, http_responses
+from src.logger import get_logger
 from src.responses import (
     BaseResponse,
     DebugErrorResponse,
     ValidationErrorResponse,
 )
+from src.settings import LOGGER_PREFIX
 
 
 type ExceptionHandler = Callable[[Request, Exception], Response]
-logger = logging.getLogger(LOGGER_PREFIX + '.exc')
+logger = get_logger(LOGGER_PREFIX + '.exc')
 
 
 def log_exception(

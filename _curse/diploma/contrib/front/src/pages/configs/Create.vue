@@ -8,10 +8,11 @@
   
 <script setup>
 import { ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
 import { Config, store } from '../../settings';
 import ConfigEditor from '../../components/configs/Editor.vue';
+import {UnnecessaryEventEmitter} from "../../eventBus.ts";
 
 const router = useRouter();
 
@@ -30,11 +31,11 @@ async function createConfig() {
     );
     if (response) {
         UnnecessaryEventEmitter.emit('AlertMessage', {
-            title: 'Конфиг создан',
-            text: undefined,
+            title: undefined,
+            text: 'Конфиг создан',
             severity: 'info'
         })
-        router.push('/configs')
+        await router.push('/configs')
     }
 }
 </script>

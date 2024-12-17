@@ -1,12 +1,12 @@
 <template>
     <v-container style="width: 100%;">
         <v-row>
-            <h1>Articles</h1>
+            <h1>Исходные статьи</h1>
         </v-row>
         <v-row>
             <router-link to="/articles/create">
                 <v-btn variant="outlined" color="primary">
-                    Create
+                    Создать
                 </v-btn>
             </router-link>
         </v-row>

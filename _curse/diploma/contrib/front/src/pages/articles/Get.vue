@@ -1,7 +1,7 @@
 <template>
     <v-container v-if="article.original_article_id === null && translationConfigState.isVisible">
         <v-row>
-            <h4>Config</h4>
+            <h4>Конфиги</h4>
             <v-select
                 clearable
                 :items="configs.map(config => ({ value: config, title: config.name }))"
@@ -13,7 +13,7 @@
             ></v-select>
         </v-row>
         <v-row>
-            <h4>Model</h4>
+            <h4>Модель</h4>
             <v-select
                 v-model="translationConfigState.model_id"
                 clearable
@@ -21,7 +21,7 @@
             ></v-select>
         </v-row>
         <v-row>
-            <h4>Prompt</h4>
+            <h4>Промпт</h4>
             <v-select
                 v-model="translationConfigState.prompt_id"
                 clearable
@@ -29,7 +29,7 @@
             ></v-select>
         </v-row>
         <v-row>
-            <h4>Languages</h4>
+            <h4>Языки</h4>
             <v-select
                 v-model="translationConfigState.language_ids"
                 clearable
@@ -39,17 +39,17 @@
         </v-row>
         <v-row>
             <v-btn variant="elevated" color="error" @click="translationConfigState.isVisible = false">
-                Cancel
+                Отмена
             </v-btn>
             <v-btn variant="elevated" color="primary" @click="startTranslation">
-                Translate
+                Начать перевод
             </v-btn>
         </v-row>
     </v-container>
     <v-sheet
-        class="d-flex align-center justify-center flex-wrap text-center mx-auto px-4"
+        class="d-flex align-center justify-center flex-wrap text-wrap mx-auto px-4"
         elevation="4"
-        max-width="800"
+        max-width="80vw"
         width="100%"
         rounded
     >
@@ -72,7 +72,7 @@
                         </v-btn>
                     </div>
                 </div>
-                <div>{{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id)!.iso_code : 'Language not specified' }}</div>
+                <div>{{ store.languages.getValue(article.language_id) ? store.languages.getValue(article.language_id)!.iso_code : 'Язык не указан' }}</div>
                 <router-link :to="`/articles/${article.id}/update`" v-if="article.original_article_id === null">
                     <v-btn variant="tonal" color="green">
                         <v-icon icon="mdi-pencil" aria-hidden="false"/>
@@ -84,33 +84,40 @@
                     variant="tonal"
                     color="blue"
                 ><v-icon icon="mdi-earth"/></v-btn>
-                <router-link :to="`/articles/${article.id}/report/${article.report_exists ? '' : 'create'}`">
+                <router-link v-if="article.original_article_id" :to="`/articles/${article.id}/report/${article.report_exists ? '' : 'create'}`">
                     <v-btn variant="tonal" color="error">
                         <v-icon icon="mdi-bug" aria-hidden="false"/>
                     </v-btn>
                 </router-link>
             </v-row>
             <v-row>
-                {{ article.text }}
+                <div v-html="renderedMarkdown" class="markdown-renderer"></div>
             </v-row>
         </v-container>
     </v-sheet>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import {onMounted, reactive, Ref, ref} from 'vue';
 import { get_article } from './helpers';
 import { useRoute, useRouter } from 'vue-router';
 import { Config, store } from '../../settings';
 import { fetch_data } from '../../helpers';
 import { UnnecessaryEventEmitter } from '../../eventBus';
+import { marked } from 'marked';
+
+interface Config {
+    name: string;
+    text: string;
+}
 
 const route = useRoute();
 const router = useRouter();
+const renderedMarkdown = ref('');
 
 const article = reactive({
-    title: 'Not loaded',
-    text: 'Not loaded',
+    title: 'Не загружен',
+    text: 'Не загружен',
     language_id: null,
     created_at: '',
     original_article_id: null,
@@ -124,15 +131,16 @@ const translationConfigState = reactive({
     prompt_id: undefined,
     language_ids: [],
 })
-const configs = ref([])
+const configs: Ref<Array<Config>> = ref([])
 
 onMounted(async () => {
     const article_id = String(route.params.article_id)
     let response = await get_article(article_id)
     if (!response) {
-        router.push('/error')
+        await router.push('/error')
     }
     Object.assign(article, response)
+    renderedMarkdown.value = await marked(article.text);
     
 
     response = await fetch_data(`${Config.backend_address}/configs/`)
@@ -174,3 +182,15 @@ async function startTranslation() {
     }
 }
 </script>
+
+<style scoped>
+.markdown-renderer {
+    font-family: Arial, sans-serif;
+    text-align: left;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+</style>

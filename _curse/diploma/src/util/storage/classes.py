@@ -2,9 +2,10 @@ import asyncio
 import redis.asyncio as aioredis
 
 from src.settings import RedisConfig
+from src.util.storage.abstract import AbstractStorage
 
 
-class RedisHandler:
+class RedisHandler(AbstractStorage):
     def __init__(self):
         self.client = aioredis.Redis(
             host=RedisConfig.host,
@@ -12,11 +13,11 @@ class RedisHandler:
             db=RedisConfig.db,
         )
 
-    def get(self, key: str):
-        return self.client.get(key)
+    async def get(self, key: str):
+        return await self.client.get(key)
 
-    def set(self, key: str, value, ex: int | None = None):
-        self.client.set(key, str(value), ex=ex)
+    async def set(self, key: str, value, ex: int | None = None):
+        await self.client.set(key, str(value), ex=ex)
 
     def set_batch(self, key: str, values: list, ex: int | None = None):
         for value in values:

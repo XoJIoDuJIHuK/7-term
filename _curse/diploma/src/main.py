@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
 from src.handlers import (
     init_exc_handlers,
@@ -15,6 +16,7 @@ from src.routers.config.views import router as config_router
 from src.routers.languages.views import router as languages_router
 from src.routers.models.views import router as models_router
 from src.routers.notifications.views import router as notifications_router
+from src.routers.oauth.views import router as oauth_router
 from src.routers.prompts.views import router as prompts_router
 from src.routers.sessions.views import router as sessions_router
 from src.routers.translation.views import router as translation_router
@@ -32,6 +34,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key=AppConfig.secret_key)
 
 init_exc_handlers(app, AppConfig.debug)
 init_responses(app)
@@ -43,6 +46,7 @@ app.include_router(config_router)
 app.include_router(languages_router)
 app.include_router(models_router)
 app.include_router(notifications_router)
+app.include_router(oauth_router)
 app.include_router(prompts_router)
 app.include_router(reports_router)
 app.include_router(sessions_router)

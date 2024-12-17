@@ -9,6 +9,5 @@ class ResetPasswordScheme(Scheme):
     code: str
 
 
-
 class RegistrationScheme(LoginScheme):
     name: str = Field(min_length=1, max_length=20)

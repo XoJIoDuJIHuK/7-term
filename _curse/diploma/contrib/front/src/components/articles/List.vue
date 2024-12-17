@@ -5,10 +5,10 @@
                 <ArticleListCard v-for="article in articles" :key="article.id" :article="article" :isOriginal="!Boolean(original_article_id)"/>
             </div>
             <template #fallback>
-                <div>Loading articles...</div>
+                <div>Идёт загрузка...</div>
             </template>
         </Suspense>
-        <div v-if="(!articles || articles.length === 0) && !isLoading">There are no articles</div>
+        <div v-if="(!articles || articles.length === 0) && !isLoading">Статей нет</div>
         <v-pagination
           :length="pagination.total_pages"
           v-model="pagination.page"
@@ -18,16 +18,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive,  } from 'vue';
+import {ref, onMounted, reactive, watch, watchEffect, Ref} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
 import { Config } from '../../settings';
 import ArticleListCard from './ListCard.vue';
 
+type Article = {
+    id: string;
+}
+
 const route = useRoute();
 const router = useRouter();
 
-const articles = ref([]);
+const articles: Ref<Array<Article>> = ref([]);
 const isLoading = ref(true);
 const pagination = reactive({
   page: route.query.page ? parseInt(route.query.page as string) : 1,
@@ -51,7 +55,8 @@ async function fetchArticles() {
   }
   try {
     const response = await fetch_data(url.toString());
-    if (!response) router.push('/')
+
+    if (!response) await router.push('/')
     articles.value = response.data.list;
     Object.assign(pagination, response.pagination);
   } finally {
@@ -59,8 +64,8 @@ async function fetchArticles() {
   }
 }
 
-watch(pagination, (newPagination) => {
-    router.push({ query: { ...route.query, page: newPagination.page } });
+watch(pagination, async (newPagination) => {
+    await router.push({ query: { ...route.query, page: newPagination.page } });
   },
 );
 watchEffect(() => {

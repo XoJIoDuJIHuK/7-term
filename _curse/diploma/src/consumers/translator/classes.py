@@ -1,25 +1,25 @@
-import logging
+import asyncio
+import json
 
 from src.consumers.translator.schemes import TranslationMessage
 from src.database import get_session
 from src.database.models import TranslationTaskStatus, NotificationType
-from src.routers.articles.schemes import CreateArticleScheme
 from src.database.repos.article import ArticleRepo
 from src.database.repos.language import LanguageRepo
 from src.database.repos.model import ModelRepo
 from src.database.repos.prompt import PromptRepo
 from src.database.repos.translation_task import TaskRepo
-from src.database.repos.user import UserRepo
+from src.logger import get_logger
+from src.routers.articles.schemes import CreateArticleScheme
 from src.routers.notifications.schemes import NotificationCreateScheme
 from src.settings import (
-    AppEvent,
     KafkaConfig,
     LOGGER_PREFIX,
-    TranslationTaskConfig, UnisenderConfig, NotificationConfig,
+    NotificationConfig,
+    TranslationTaskConfig,
 )
 from src.util.brokers.consumer.kafka import AbstractKafkaConsumer
 from src.util.brokers.producer.kafka import KafkaProducer
-from src.util.mail.schemes import SendEmailScheme
 from src.util.notifications.helpers import send_notification
 from src.util.translator.classes import Gpt4freeTranslator
 from src.util.translator.exceptions import TranslatorAPITimeoutError
@@ -32,21 +32,30 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
         logger (logging.Logger): Logger instance for this class.
     """
 
-    logger = logging.getLogger(LOGGER_PREFIX + __name__)
+    logger = get_logger(LOGGER_PREFIX + __name__)
     translator = Gpt4freeTranslator()
 
     async def on_message(self, msg):
-        message = TranslationMessage(**msg.value)
+        await asyncio.create_task(self.process_message(msg))
 
-        async with get_session() as db_session:
+
+    def __error_includes(self, substrings: list[str], error_data: dict):
+        return any([
+            substr in error_data['error']['message'] for substr in substrings
+        ])
+
+    async def process_message(self, msg):
+        message = TranslationMessage(**msg.value)
+        error_message = None
+
+        async with (get_session() as db_session):
             task = await TaskRepo.get_by_id(
                 task_id=message.task_id,
                 db_session=db_session
             )
             if not task:
-                raise Exception(
-                    f'Задача с идентификатором {message.task_id} не найдена'
-                )
+                raise Exception(f'Задача с идентификатором'
+                                f' {message.task_id} не найдена')
 
             try:
                 article = await ArticleRepo.get_by_id(
@@ -54,10 +63,8 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     db_session=db_session
                 )
                 if not article:
-                    raise Exception(
-                        f'Исходная статья не найдена по идентификатору:'
-                        f' {task.article_id}'
-                    )
+                    raise Exception(f'Исходная статья не найдена по'
+                                    f' идентификатору: {task.article_id}')
                 source_lang = await LanguageRepo.get_by_id(
                     language_id=article.language_id,
                     db_session=db_session
@@ -68,26 +75,23 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                 )
                 if not target_lang:
                     raise Exception(
-                        f'Исходная статья не найдена по идентификатору:'
-                        f' {task.model_id}'
+                        f'Конечный язык не найден по идентификатору:'
+                        f' {task.target_language_id}'
                     )
                 model = await ModelRepo.get_by_id(
                     model_id=task.model_id,
                     db_session=db_session
                 )
                 if not model:
-                    raise Exception(
-                        f'Модель не найдена по идентификатору:'
-                        f' {task.model_id}'
-                    )
+                    raise Exception(f'Модель не найдена по идентификатору:'
+                                    f' {task.model_id}')
                 prompt_object = await PromptRepo.get_by_id(
                     prompt_id=task.prompt_id,
                     db_session=db_session
                 )
                 if not prompt_object:
-                    raise Exception(
-                        f'Промпт не найден по идентификатору: {task.prompt_id}'
-                    )
+                    raise Exception(f'Промпт не найден по идентификатору: '
+                                    f'{task.prompt_id}')
 
                 task.status = TranslationTaskStatus.started
                 db_session.add(task)
@@ -100,6 +104,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     model=model,
                     prompt_object=prompt_object
                 )
+                # self.logger.info(f'Translated title: {translated_title}')
 
                 translated_text = await self.translator.translate(
                     text=article.text,
@@ -108,6 +113,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     model=model,
                     prompt_object=prompt_object
                 )
+                # self.logger.info(f'Translated text: {translated_text}')
 
                 translated_article = await ArticleRepo.create(
                     article_data=CreateArticleScheme(
@@ -126,37 +132,14 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
 
                 task.status = TranslationTaskStatus.completed
                 task.translated_article_id = translated_article.id
-
-                producer = KafkaProducer(
-                    bootstrap_servers=KafkaConfig.address,
-                    topic=KafkaConfig.mail_topic
-                )
-                user = await UserRepo.get_by_id(
-                    user_id=article.user_id,
-                    db_session=db_session
-                )
-                email_task_message = SendEmailScheme(
-                    to_address=user.email,
-                    from_address=UnisenderConfig.from_address,
-                    from_name=UnisenderConfig.from_name,
-                    subject=UnisenderConfig.email_confirmation_subject,
-                    template_id=UnisenderConfig.email_confirmation_template_id,
-                    params={
-                        'article_title': article.title,
-                        'translated_article_title': translated_article.title
-                    }
-                )
-                await producer.send_message(
-                    email_task_message.model_dump(mode='json')
-                )
             except TranslatorAPITimeoutError:
+                self.logger.error(f'Timeout error')
                 if message.retry_count >= TranslationTaskConfig.MAX_RETRIES:
                     if not task.data:
                         task.data = {}
                     task.status = TranslationTaskStatus.failed
-                    task.data['error'] = (
-                        'Превышено максимальное количество попыток'
-                    )
+                    task.data['error'] = ('Превышено максимальное количество'
+                                          ' попыток')
                 else:
                     producer = KafkaProducer(
                         bootstrap_servers=KafkaConfig.address,
@@ -169,14 +152,44 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     )
                     task.status = TranslationTaskStatus.started
             except Exception as e:
+                print('ERROR LMAO', type(e), str(e))
                 if not task.data:
                     task.data = {}
                 task.status = TranslationTaskStatus.failed
-                task.data['error'] = str(e)
+                error_data = json.loads(str(e))
+                error_message = str(e)
+                if 'error' in error_data:
+                    if 'message' in error_data['error']:
+                        self.logger.warning(f'ERROR MESSAGE: {error_data['error']['message']}')
+                        if self.__error_includes(
+                            substrings=['ProviderNotFound'],
+                            error_data=error_data
+                        ):
+                            error_message = (f'Модель {model.show_name}'
+                                             f' недоступна. Попробуйте другую')
+                        elif self.__error_includes(
+                            substrings=['ERR_BN_LIMIT'],
+                            error_data=error_data
+                        ):
+                            error_message = (
+                                f'Модель {model.show_name} временно '
+                                f'недоступна. Попробуйте позже'
+                            )
+                        else:
+                            error_message = error_data['error']['message']
+                    else:
+                        self.logger.warning(f'Unable to retrieve message'
+                                            f' from error: {error_data}')
+                else:
+                    self.logger.warning(f'Unable to retrieve error data from'
+                                        f' exception: {error_data}')
+            task.data = error_message
 
             db_session.add(task)
             await db_session.commit()
             await db_session.refresh(task)
+            await db_session.refresh(target_lang)
+            await db_session.refresh(article)
 
             translation_error = bool(task.data)
             await send_notification(
@@ -191,7 +204,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                             article_name=article.title,
                             target_lang=target_lang.name,
                         ) if not translation_error else
-                        task.data.get('error')
+                        task.data
                     ),
                     type=(
                         NotificationType.info if not translation_error else
@@ -201,3 +214,4 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                 ),
                 db_session=db_session
             )
+            self.logger.info('Gracefully returning')

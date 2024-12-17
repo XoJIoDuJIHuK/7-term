@@ -19,7 +19,6 @@ from sqlalchemy import (
     String,
     Text,
     UUID,
-    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import (
@@ -44,10 +43,11 @@ class TranslationTaskStatus(enum.StrEnum):
     completed = 'Завершена'
 
 
-class NotificationType(enum.Enum):
-    info = 1
-    warning = 2
-    error = 3
+class NotificationType(enum.StrEnum):
+    info = 'info'
+    success = 'success'
+    warning = 'warning'
+    error = 'error'
 
 
 class ConfirmationType(enum.StrEnum):
@@ -63,11 +63,10 @@ class User(Base):
         default=uuid.uuid4
     )
     name: Mapped[str] = mapped_column(
-        String(20),
-        unique=True
+        String(20)
     )
     email: Mapped[str] = mapped_column(
-        String(50),
+        String,
         unique=True
     )
     email_verified: Mapped[bool] = mapped_column(
@@ -188,12 +187,8 @@ class Article(Base):
         primary_key=True,
         default=uuid.uuid4
     )
-    title: Mapped[str] = mapped_column(
-        String(50)
-    )
-    text: Mapped[str] = mapped_column(
-        String(10240)
-    )
+    title: Mapped[str] = mapped_column(String(50))
+    text: Mapped[str] = mapped_column(Text)
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
     )
@@ -337,7 +332,7 @@ class StylePrompt(Base):
         unique=True
     )
     text: Mapped[str] = mapped_column(
-        String(200),
+        String,
         unique=True
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -356,15 +351,13 @@ class AIModel(Base):
         Integer,
         primary_key=True
     )
-    name: Mapped[str] = mapped_column(
-        String(20),
-    )
-    provider: Mapped[str] = mapped_column(
-        String(20),
-    )
+    show_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    provider: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
-        default=get_utc_now
+        default=get_utc_now,
+        nullable=False
     )
     deleted_at: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,

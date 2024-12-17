@@ -4,7 +4,7 @@
             <v-toolbar
                 flat
             >
-                <v-toolbar-title>Юзвери</v-toolbar-title>
+                <v-toolbar-title>Пользователи</v-toolbar-title>
                 <v-divider
                 class="mx-4"
                 inset
@@ -39,6 +39,7 @@
                                     <v-text-field
                                         v-model="editedItem.name"
                                         label="Имя"
+                                        :rules="[rules.required, rules.tooLong(20)]"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col
@@ -48,6 +49,7 @@
                                 >
                                     <v-text-field
                                         v-model="editedItem.email"
+                                        :rules="[rules.required, rules.email, rules.tooLong(255)]"
                                         label="Почта"
                                     ></v-text-field>
                                 </v-col>
@@ -120,8 +122,8 @@
 
 <script setup lang="ts">
 import { fetch_data } from '../helpers';
-import { onMounted, reactive, ref, Ref } from 'vue';
-import { Config } from '../settings';
+import {computed, onMounted, reactive, ref, Ref} from 'vue';
+import {Config, DataTableHeader, validationRules as rules} from '../settings';
 import { Method } from '../helpers';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
@@ -155,24 +157,37 @@ const rolesForSelect: any[] = [];
 for (let role in Config.userRoles) {
     if (role === 'guest') continue;
     rolesForSelect.push({
+        //@ts-ignore
         title: Config.userRoles[role],
+        //@ts-ignore
         value: Config.userRoles[role]
     })
 }
+const headers = computed<DataTableHeader[]>(() => {
+    const rawHeaders = [
+        { key: 'id', title: 'ID', sortable: false, },
+        { key: 'name', title: 'Имя', },
+        { key: 'email', title: 'Почта', sortable: false, },
+        { key: 'email_verified', title: 'Почта верифицирована', sortable: false, },
+        { key: 'role', title: 'Роль', },
+        { key: 'actions', title: 'Действия', align: 'end', sortable: false, },
+    ];
+    // @ts-ignore
+    const headers: DataTableHeader[] = rawHeaders.map(e => {
+        const baseHeader = {
+            key: '',
+            title: '',
+            align: 'start',
+            sortable: true,
+            width: undefined,
+        };
+        Object.assign(baseHeader, e);
+        return baseHeader;
+    });
 
-const headers = [
-    {
-        title: 'ID',
-        align: 'start',
-        sortable: false,
-        key: 'id',
-    },
-    { title: 'Имя', key: 'name', sortable: true },
-    { title: 'Почта', key: 'email' },
-    { title: 'Почта верифицирована', key: 'email_verified' },
-    { title: 'Роль', key: 'role', sortable: true },
-    { title: 'Действия', key: 'actions', sortable: false },
-]
+    return headers;
+});
+
 
 
 onMounted(async () => {
@@ -222,6 +237,7 @@ async function save() {
         method as Method,
         JSON.stringify(editedItem)
     )
+    editButtonLoading.value = false;
     if (response) {
         UnnecessaryEventEmitter.emit('AlertMessage', {
             title: 'Пользователь сохранён',
