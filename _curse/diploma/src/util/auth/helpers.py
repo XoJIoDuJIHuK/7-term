@@ -42,18 +42,22 @@ def get_payload(
 def verify_jwt(
         token: str,
         is_access: bool = True
-) -> UserInfo | RefreshPayload:
+) -> UserInfo | RefreshPayload | None:
     try:
         payload = jwt.decode(
             token, JWTConfig.secret_key, algorithms=[JWTConfig.algorithm]
         )
+        logger.info(f'JWT payload: {payload}')
         return get_payload(payload, is_access)
-    except jwt.exceptions.DecodeError as e:
+    except (
+        jwt.exceptions.DecodeError,
+        jwt.exceptions.ExpiredSignatureError
+    ) as e:
+        logger.error('Got jwt decode error: %s', e)
+        return None
+    except Exception as e:
         logger.exception(e)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Неправильный токен'
-        )
+        raise
 
 
 def put_tokens_in_black_list(

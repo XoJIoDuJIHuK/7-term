@@ -11,7 +11,6 @@ from fastapi import (
 )
 
 from pydantic import EmailStr
-from starlette.responses import JSONResponse
 
 from src.database.models import ConfirmationType
 from src.depends import get_session
@@ -22,12 +21,17 @@ from src.routers.users.schemes import CreateUserScheme
 from src.database.repos.confirmation_code import ConfirmationCodeRepo
 from src.database.repos.session import SessionRepo
 from src.database.repos.user import UserRepo
-from src.settings import Role, KafkaConfig, UnisenderConfig, JWTConfig, \
-    FrontConfig
-from src.util.auth.classes import AuthHandler
-from src.util.auth.helpers import get_password_hash, get_user_agent, \
-    get_authenticated_response, send_email_confirmation_message
-from src.util.auth.schemes import LoginScheme
+from src.settings import (
+    Role, KafkaConfig, UnisenderConfig, JWTConfig, FrontConfig,
+)
+from src.util.auth.classes import AuthHandler, JWTCookie
+from src.util.auth.helpers import (
+    get_password_hash,
+    get_user_agent,
+    get_authenticated_response,
+    send_email_confirmation_message,
+)
+from src.util.auth.schemes import LoginScheme, UserInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,7 +46,6 @@ router = APIRouter(
 
 @router.post(
     '/login/',
-    # response_model=BaseResponse,
     responses=get_responses(404)
 )
 async def login(
@@ -55,8 +58,8 @@ async def login(
         db_session=db_session
     )
     if (
-            not user or
-            user.password_hash != get_password_hash(login_data.password)
+        not user or
+        user.password_hash != get_password_hash(login_data.password)
     ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -69,7 +72,7 @@ async def login(
         )
     await SessionRepo.close_all(
         user_id=user.id,
-        ip=request.client.host,
+        ip=request.headers.get('X-Forwarded-For'),
         user_agent=get_user_agent(request),
         db_session=db_session
     )
@@ -259,13 +262,13 @@ async def restore_password(
     responses=get_responses(400, 401)
 )
 async def refresh_tokens(
-        refresh_token: str,
+        # refresh_token: str,
         request: Request,
         response: Response,
         db_session: AsyncSession = Depends(get_session)
 ):
     tokens = await AuthHandler.refresh_tokens(
-        refresh_token=refresh_token,
+        refresh_token=request.cookies.get(JWTConfig.refresh_cookie_name),
         request=request,
         db_session=db_session
     )
@@ -287,8 +290,18 @@ async def refresh_tokens(
     response_model=BaseResponse
 )
 async def logout(
-        response: Response
+        request: Request,
+        response: Response,
+        user_info: UserInfo | None = Depends(JWTCookie(auto_error=False)),
+        db_session: AsyncSession = Depends(get_session),
 ):
+    if user_info:
+        await SessionRepo.close_all(
+            user_id=user_info.id,
+            ip=request.headers.get('X-Forwarded-For'),
+            user_agent=get_user_agent(request),
+            db_session=db_session,
+        )
     response.set_cookie(JWTConfig.auth_cookie_name, '')
     response.set_cookie(JWTConfig.refresh_cookie_name, '')
     return BaseResponse(message='Вышел')

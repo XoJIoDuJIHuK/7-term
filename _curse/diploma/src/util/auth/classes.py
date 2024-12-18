@@ -44,7 +44,7 @@ class JWTBearer(HTTPBearer):
                 super(JWTBearer, self).__call__(request)
             )
         except HTTPException as e:
-            self.logger.exception(e)
+            self.logger.info('User provided invalid credentials: %s', e)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Неправильные данные входа'
@@ -63,7 +63,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == 'Bearer':
                 raise error_invalid_token
             if not (
-                    payload := verify_jwt(credentials.credentials)
+                payload := verify_jwt(credentials.credentials)
             ):
                 raise error_invalid_token
             provided_role = payload.role
@@ -111,21 +111,23 @@ class JWTCookie(APIKeyCookie):
                 super(JWTCookie, self).__call__(request)
             )
         except HTTPException as e:
-            self.logger.exception(e)
+            self.logger.info('User provided invalid credentials: %s', e)
             raise error_invalid_token
 
         if not token:
             return None
-        if not (
-            payload := verify_jwt(token)
-        ):
-            raise error_invalid_token
+        payload = verify_jwt(token)
+        if not payload:
+            if self.auto_error:
+                raise error_invalid_token
+            else:
+                return None
         if not self.role_allowed(self.roles, payload.role):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Недостаточно прав'
             )
-        if payload.user_agent != request.headers.get('user-agent'):
+        if payload.user_agent != get_user_agent(request):
             raise error_invalid_token
 
         return payload
@@ -151,7 +153,7 @@ class AuthHandler:
         session = Session(
             user_id=user.id,
             refresh_token_id=refresh_token_id,
-            ip=request.client.host,
+            ip=request.headers.get('X-Forwarded-For'),
             user_agent=get_user_agent(request)
         )
         db_session.add(session)
@@ -160,7 +162,7 @@ class AuthHandler:
         await db_session.refresh(user)
         return cls.get_tokens_scheme(
             user_id=user.id,
-            user_agent=request.headers.get('user-agent'),
+            user_agent=get_user_agent(request),
             session_id=session.id,
             role=user.role,
             refresh_token_id=refresh_token_id
@@ -177,7 +179,7 @@ class AuthHandler:
             token=refresh_token,
             is_access=False
         )
-        if await RedisHandler().get(str(payload.token_id)):
+        if not payload or await RedisHandler().get(str(payload.token_id)):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Сессия истекла'
@@ -191,17 +193,22 @@ class AuthHandler:
             refresh_token_id=payload.token_id,
             db_session=db_session
         )
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Сессия пользователя не обнаружена'
+            )
         session_id = session.id
         session_ip = session.ip
         user_agent = session.user_agent
 
         if (
             get_user_agent(request) != user_agent or
-            request.client.host != session_ip
+            request.headers.get('X-Forwarded-For') != session_ip
         ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Войдите заново'
+                detail='Обнаружена смена устройства. Войдите заново'
             )
 
         new_refresh_token_id = uuid.uuid4()
@@ -211,7 +218,7 @@ class AuthHandler:
         await db_session.refresh(session)
         return cls.get_tokens_scheme(
             user_id=payload.id,
-            user_agent=request.headers.get('user-agent'),
+            user_agent=get_user_agent(request),
             session_id=session_id,
             refresh_token_id=new_refresh_token_id,
             role=payload.role
@@ -230,7 +237,7 @@ class AuthHandler:
                 'user_agent': user_agent,
                 'role': role.value,
             },
-            'exp': time.time() + JWTConfig.auth_jwt_exp_sec
+            'exp': int(time.time()) + JWTConfig.auth_jwt_exp_sec
         }
         return jwt.encode(
             access_payload,
@@ -255,7 +262,7 @@ class AuthHandler:
                 'session_id': str(session_id),
                 'token_id': str(refresh_token_id),
             },
-            'exp': time.time() + JWTConfig.refresh_jwt_exp_sec
+            'exp': int(time.time()) + JWTConfig.refresh_jwt_exp_sec
         }
         return jwt.encode(
             refresh_payload,
@@ -272,10 +279,12 @@ class AuthHandler:
             role: Role,
             refresh_token_id: uuid.UUID
     ) -> TokensScheme:
+        access_token = cls.get_access_token(user_id, user_agent, role)
+        refresh_token = cls.get_refresh_token(
+            user_id, user_agent, session_id, refresh_token_id, role
+        )
         return TokensScheme(
-            access_token=cls.get_access_token(user_id, user_agent, role),
-            refresh_token=cls.get_refresh_token(
-                user_id, user_agent, session_id, refresh_token_id, role
-            )
+            access_token=access_token,
+            refresh_token=refresh_token
         )
 

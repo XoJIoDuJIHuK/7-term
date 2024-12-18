@@ -23,6 +23,7 @@ class SessionRepo:
             Session.refresh_token_id
         ).where(
             Session.user_id == user_id,
+            Session.closed_at.is_(None),
             ip is None or Session.ip == ip,
             user_agent is None or Session.user_agent == user_agent,
         ))
@@ -36,7 +37,7 @@ class SessionRepo:
     ) -> Tuple[List[SessionOutScheme], int]:
         query = select(Session).where(
             Session.user_id == user_id,
-            Session.is_closed.is_(False)
+            Session.closed_at.is_(None)
         ).order_by(Session.created_at)
         sessions, count = await paginate(
             session=db_session,
@@ -55,10 +56,9 @@ class SessionRepo:
     ) -> Session | None:
         result = await db_session.execute(select(Session).where(
             Session.refresh_token_id == refresh_token_id,
-            Session.is_closed.is_(False)
+            Session.closed_at.is_(None)
         ))
         return result.scalar_one_or_none()
-
 
     @staticmethod
     async def close_all(

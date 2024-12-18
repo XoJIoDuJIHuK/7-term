@@ -40,7 +40,7 @@ async def redirect_to_provider(
     )
     new_session_data = {
         OAuthConfig.session_data_property: {
-            'ip': request.client.host,
+            'ip': request.headers.get('X-Forwarded-For'),
         }
     }
     request.session.update(new_session_data)

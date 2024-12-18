@@ -105,10 +105,10 @@ def print_directory_tree(
         ]
 
     def _tree(directory, prefix='', depth=0) -> int:
-        LOC = 0
+        loc = 0
 
         if depth > max_depth:
-            return LOC
+            return loc
 
         # Convert to absolute path and get contents
         directory = pathlib.Path(directory).resolve()
@@ -121,7 +121,7 @@ def print_directory_tree(
             )
         except PermissionError:
             print(f"{prefix}🚫 Access denied")
-            return LOC
+            return loc
 
         # Filter out hidden files if show_hidden is False
         if not show_hidden:
@@ -152,7 +152,7 @@ def print_directory_tree(
                     continue
                 print(f"\033[1;34m{display_prefix}{path.name}/\033[0m")
                 # Recursive call for subdirectories
-                LOC += _tree(
+                loc += _tree(
                     path, prefix + ('    ' if is_last else '│   '), depth + 1
                 )
             else:
@@ -163,9 +163,9 @@ def print_directory_tree(
                 # Different color for files
                 with open(path, 'r') as f:
                     file_LOC = len(f.readlines())
-                    LOC += file_LOC
+                    loc += file_LOC
                     print(f"\033[0;32m{display_prefix}{path.name}\033[0m - {file_LOC}")
-        return LOC
+        return loc
 
     # Validate input directory
     if not os.path.exists(directory_path):
@@ -179,6 +179,74 @@ def print_directory_tree(
     print(f'Total LOC: {_tree(directory_path)}')
 
 
-print_directory_tree(
-    '/home/aleh/7-term/_curse/diploma',
-)
+def get_matching_files(
+        directory_path,
+        file_exclude_regex,
+        show_hidden=False
+) -> list[str]:
+    """
+    Prints all filenames (relative paths) that match a given regex.
+
+    Args:
+        - directory_path (str): Path to the directory to search files in.
+        - file_match_regex (str): Regex to match filenames.
+        - show_hidden (bool): Whether to include hidden files/folders (default: False).
+    """
+    compiled_exclude_regex = re.compile(file_exclude_regex)
+
+    def _search_files(directory, relative_prefix="") -> list[str]:
+        directory = pathlib.Path(directory).resolve()
+        file_paths = []
+        try:
+            contents = sorted(directory.iterdir(),
+                              key=lambda p: p.name.lower())
+        except PermissionError:
+            print(f"Access denied: {directory}")
+            return []
+
+        for path in contents:
+            if not show_hidden and path.name.startswith('.'):
+                continue
+
+            relative_path = os.path.join(relative_prefix, path.name)
+
+            if compiled_exclude_regex.search(path.name):
+                continue
+
+            if path.is_dir():
+                file_paths += _search_files(path, relative_path)
+            else:
+                file_paths.append(str(path.absolute()))
+        return file_paths
+
+    if not os.path.exists(directory_path):
+        print(f"Error: {directory_path} does not exist.")
+        return []
+
+    print(
+        f"Searching for files except for regex '{file_exclude_regex}' in "
+        f"'{directory_path}':\n")
+    return _search_files(directory_path)
+
+
+def print_files_for_applications():
+    file_paths = get_matching_files(
+        directory_path=os.path.curdir,
+        file_exclude_regex=r'\.venv|__pycache__|front|.idea|.dockerignore|'
+                           r'\.env|\.local\.env|translator\.yml|юзкейс\.txt|'
+                           r'test\.py|insert_mock_reports\.py|vue-dev|'
+                           r'selfsigned|\.log'
+                           r'|contrib',
+        show_hidden=True
+    )
+    for file_path in file_paths:
+        with open(file_path, 'r') as f:
+            # remove absolute prefix
+            print(f'====={file_path[33:]}=====')
+            print(f.read())
+
+
+# print_directory_tree(
+#     '/home/aleh/7-term/_curse/diploma',
+# )
+print_files_for_applications()

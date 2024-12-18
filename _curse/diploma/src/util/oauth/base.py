@@ -5,9 +5,6 @@ from fastapi import Request
 
 from src.settings import (
     GoogleOauth2Config,
-    MailOauth2Config,
-    VKOauth2Config,
-    YandexOauth2Config
 )
 from src.util.oauth.schemes import OAuthCredentialsScheme, OAuthUserInfoScheme
 from src.util.storage.abstract import AbstractStorage
@@ -21,9 +18,6 @@ class BaseOauth2Authorize(abc.ABC):
             self,
             config: Union[
                 GoogleOauth2Config,
-                VKOauth2Config,
-                YandexOauth2Config,
-                MailOauth2Config,
             ],
             credentials: OAuthCredentialsScheme,
             storage: AbstractStorage,

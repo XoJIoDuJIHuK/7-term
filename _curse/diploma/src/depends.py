@@ -35,7 +35,7 @@ async def validate_token_for_ws(
     )
 
     if not (
-            payload := verify_jwt(access_token)
+        payload := verify_jwt(access_token)
     ):
         raise error_invalid_token
     provided_role = payload.role

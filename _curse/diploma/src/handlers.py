@@ -80,11 +80,11 @@ async def validation_exception_handler(
         JSONResponse with 422 response and validation errors data.
     """
     response = ValidationErrorResponse(errors=exc.errors())
+    logger.error(response.model_dump_json())
     response = JSONResponse(
         status_code=http.HTTPStatus.UNPROCESSABLE_ENTITY,
         content=response.model_dump(mode='json'),
     )
-    log_exception(request, exc, response)
     return response
 
 
@@ -97,11 +97,11 @@ async def http_exception_handler(
     response = http_responses.get(exc.status_code, Response500)()
     if exc.detail:
         response.message = str(exc.detail)
+    logger.warning(response.model_dump_json())
     response = JSONResponse(
         status_code=exc.status_code,
         content=response.model_dump(mode='json'),
     )
-    log_exception(request, exc, response)
     return response
 
 

@@ -11,15 +11,27 @@ export async function fetch_data(
     alertError: boolean = true,
     throwError: boolean = false,
 ) {
-    const response = await fetch(
-        address, {
-            method: method,
-            body: data,
-            headers: {
-                'Content-Type': 'application/json'
+    const getResult = () => {
+        return fetch(
+            address, {
+                method: method,
+                body: data,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }
+        );
+    }
+    let response = await getResult();
+    if (response.status === 401) {
+        await fetch(`${Config.backend_address}/auth/refresh/`, {method: 'POST'});
+        response = await getResult();
+        if (response.status === 401) {
+            await logout();
+            location.href = '/';
+            return;
         }
-    )
+    }
     if (!response.ok) {
         const e = await response.json()
         if (alertError) {

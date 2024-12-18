@@ -50,7 +50,7 @@ class JWTConfig:
     )
     algorithm = 'HS256'
     auth_jwt_exp_sec = EnvParameter(
-        'JWT_AUTH_EXP', type_=int, default=60 * 60 * 1000
+        'JWT_AUTH_EXP', type_=int, default=10
     )
     auth_cookie_name = 'access_token'
     refresh_jwt_exp_sec = EnvParameter(
@@ -96,7 +96,6 @@ class G4FConfig:
 
 class GeminiConfig:
     api_key = EnvParameter('GEMINI_API_KEY')
-    gemini_project_id = EnvParameter('GEMINI_PROJECT_ID')
 
 
 class KafkaConfig:
@@ -169,33 +168,6 @@ class NotificationConfig:
 
 
 @dataclasses.dataclass
-class MailOauth2Config:
-    response_type = 'code'
-    CLIENT_ID = EnvParameter('MAIL_CLIENT_ID')
-    CLIENT_SECRET = EnvParameter('MAIL_CLIENT_SECRET')
-    AUTHORIZATION_URL = EnvParameter(
-        "MAIL_AUTHORIZATION_URL",
-        default='https://oauth.mail.ru/login'
-    )
-    TOKEN_URL = EnvParameter(
-        "MAIL_TOKEN_URL",
-        default='https://oauth.mail.ru/token'
-    )
-    VALIDATE_URL = EnvParameter(
-        "MAIL_VALIDATE_URL",
-        default='https://oauth.mail.ru/userinfo'
-    )
-    REDIRECT_URI = EnvParameter(
-        "MAIL_REDIRECT_URI",
-        default='http://localhost:8001/oauth/Mail/callback/'
-    )
-    SCOPE = EnvParameter(
-        "MAIL_SCOPE",
-        default='userinfo'
-    )
-
-
-@dataclasses.dataclass
 class GoogleOauth2Config:
     response_type = 'code'
     CLIENT_ID = EnvParameter('GOOGLE_CLIENT_ID')
@@ -222,76 +194,12 @@ class GoogleOauth2Config:
     )
 
 
-@dataclasses.dataclass
-class YandexOauth2Config:
-    response_type = 'code'
-    CLIENT_ID = EnvParameter('YANDEX_CLIENT_ID')
-    CLIENT_SECRET = EnvParameter('YANDEX_CLIENT_SECRET')
-    AUTHORIZATION_URL = EnvParameter(
-        "YANDEX_AUTHORIZATION_URL",
-        default='https://oauth.yandex.ru/authorize'
-    )
-    TOKEN_URL = EnvParameter(
-        "YANDEX_TOKEN_URL",
-        default='https://oauth.yandex.com/token'
-    )
-    VALIDATE_URL = EnvParameter(
-        "YANDEX_VALIDATE_URL",
-        default='https://login.yandex.ru/info'
-    )
-    REDIRECT_URI = EnvParameter(
-        "YANDEX_REDIRECT_URI",
-        default='http://localhost:8001/oauth/Yandex/callback/'
-    )
-    SCOPE = EnvParameter(
-        "YANDEX_SCOPE",
-        default='login:info login:email'
-    )
-
-
-@dataclasses.dataclass
-class VKOauth2Config:
-    response_type = 'code'
-    CLIENT_ID = EnvParameter('VK_CLIENT_ID')
-    CLIENT_SECRET = EnvParameter('VK_CLIENT_SECRET')
-    AUTHORIZATION_URL = EnvParameter(
-        'VK_AUTHORIZATION_URL',
-        default='https://id.vk.com/authorize'
-    )
-    TOKEN_URL = EnvParameter(
-        'VK_TOKEN_URL',
-        default='https://id.vk.com/oauth2/auth'
-    )
-    VALIDATE_URL = EnvParameter(
-        'VK_VALIDATE_URL',
-        default='https://api.vk.com/method/users.get'
-    )
-    REDIRECT_URI = EnvParameter(
-        'VK_REDIRECT_URI',
-        default='http://localhost/oauth/VK/callback'
-    )
-    SCOPE = EnvParameter(
-        'VK_SCOPE',
-        default='userinfo email'
-    )
-    API_VERSION = EnvParameter(
-        'VK_API_VERSION',
-        default='5.199'
-    )
-
-
 class OAuthProvider(enum.StrEnum):
     google = 'google'
-    yandex = 'yandex'
-    mail_ru = "mail_ru"
-    vk = 'vk'
 
 
 providers = {
     OAuthProvider.google.value: GoogleOauth2Config,
-    OAuthProvider.mail_ru.value: MailOauth2Config,
-    OAuthProvider.yandex.value: YandexOauth2Config,
-    OAuthProvider.vk.value: VKOauth2Config,
 }
 
 

@@ -62,7 +62,7 @@
                         block
                     >Отмена</v-btn>
 
-                    <br>
+                    <br v-if="loginData.isLogin">
 
                     <v-btn
                         v-if="loginData.isLogin"
@@ -73,7 +73,7 @@
                         block
                     >Забыли пароль?</v-btn>
 
-                    <br>
+                    <br v-if="loginData.isLogin">
 
                     <v-btn
                         v-if="loginData.isLogin"
@@ -107,57 +107,69 @@
             <v-toolbar-title>{{ appName }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <div v-if="userRole === Config.userRoles.guest" class="mr-4">
-                <v-btn color="secondary" @click="() => {
+                <v-btn color="blue" @click="() => {
                     loginData.isVisible = true;
                     loginData.isLogin = true;
-                }" variant="outlined">Войти</v-btn>
-                <v-btn color="secondary" @click="() => {
+                }" variant="elevated">Вход</v-btn>
+                <v-btn color="blue" @click="() => {
                     loginData.isVisible = true;
                     loginData.isLogin = false;
-                }" variant="outlined" class="ml-4">Зарегистрироваться</v-btn>
+                }" variant="elevated" class="ml-4">Регистрация</v-btn>
             </div>
             <div v-else-if="userRole === Config.userRoles.user" class="mr-4">
-                <router-link to="/articles">
-                    <v-btn>Статьи</v-btn>
+                <router-link to="/translations">
+                    <v-btn variant="elevated" color="blue">Переводы</v-btn>
                 </router-link>
             </div>
             <div v-else-if="userRole === Config.userRoles.mod" class="mr-4">
                 <router-link to="/reports">
-                    <v-btn>Жалобы</v-btn>
+                    <v-btn variant="elevated" color="blue">Жалобы</v-btn>
                 </router-link>
             </div>
             <div v-else class="mr-4">
                 <router-link to="/users">
-                    <v-btn>Пользователи</v-btn>
+                    <v-btn variant="elevated" color="blue">Админ</v-btn>
                 </router-link>
             </div>
             <div v-if="userRole !== Config.userRoles.guest" class="mr-4">
-                <v-btn @click="logout">Выйти</v-btn>
+                <v-btn @click="logout">Выход</v-btn>
             </div>
         </v-app-bar>
 
-        <v-main>
+        <v-main class="gradient-background">
             <v-container class="fill-height d-flex flex-column justify-center align-center">
                 <v-row class="text-center">
                     <v-col cols="12">
-                        <h1 class="text-h3 font-weight-bold mb-4">Welcome to {{ appName }}</h1>
+                        <h1 class="text-h3 font-weight-bold mb-4">Добро пожаловать в {{ appName }}</h1>
                         <p class="text-body-1 mb-8">
-                            This is a beautifully crafted landing page built with Vue.js 3 and Vuetify. 
-                            Discover the amazing features and join our community today!
+                            Превосходный инструмент для перевода текстов любой сложности.<br>
+                            Начните пользоваться уже сегодня!
                         </p>
                     </v-col>
                 </v-row>
 
                 <v-row class="text-center">
                     <v-col cols="12" sm="4" v-for="(feature, index) in features" :key="index">
-                        <v-card class="pa-4 mx-auto" elevation="2" max-width="350"> 
-                            <v-icon :icon="feature.icon" size="large" color="primary"></v-icon>
+                        <v-card class="pa-4 mx-auto" elevation="2" max-width="350">
+                            <v-container class="flex flex-row justify-center h-auto">
+                                <v-icon :icon="feature.icon" size="x-large" color="primary"></v-icon>
+                            </v-container>
                             <v-card-title class="text-h5 mt-2">{{ feature.title }}</v-card-title>
                             <v-card-text class="text-body-2">{{ feature.description }}</v-card-text>
                         </v-card>
                     </v-col>
                 </v-row>
-                <v-row class="mt-10"></v-row>
+
+                <v-row class="mt-10">
+                    <v-col cols="12">
+                        <h2 class="text-h5 font-weight-bold mb-4">Наша статистика</h2>
+                        <v-card>
+                            <v-card-text>
+                                <canvas id="translationChart"></canvas>
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+                </v-row>
             </v-container>
 
             <v-footer color="primary" padless>
@@ -182,10 +194,11 @@
 
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import {fetch_data, fetchPersonalInfo, logout} from '../helpers';
 import { Config, validationRules as rules } from '../settings';
 import { UnnecessaryEventEmitter } from '../eventBus';
+import { Chart, registerables } from 'chart.js';
 
 const loginData = reactive({
     form: false,
@@ -194,8 +207,8 @@ const loginData = reactive({
     isLogin: true,
     isLoading: false,
     showPassword: false,
-    email: '',
-    password: '',
+    email: 'admin@d.com',
+    password: 'string',
     name: '',
 })
 const userRole = ref(
@@ -208,21 +221,6 @@ const oauthProviders = [
         name: 'Google',
         icon: 'google'
     },
-    {
-        code: 'mail_ru',
-        name: 'Mail.ru',
-        icon: 'at'
-    },
-    {
-        code: 'yandex',
-        name: 'Яндекс',
-        icon: 'alpha-y-circle'
-    },
-    {
-        code: 'vk',
-        name: 'ВКонтакте',
-        icon: 'alpha-v-box'
-    }
 ]
 
 const icons = ref([
@@ -233,22 +231,48 @@ const icons = ref([
 ])
 const appName = ref('GPTranslate')
 const features = ref([
-    { 
-        icon: 'mdi-rocket-launch',
-        title: 'Fast and Powerful',
-        description: 'Experience lightning-fast performance and seamless navigation with our optimized platform.'
-    },
-    { 
-        icon: 'mdi-shield-check',
-        title: 'Secure and Reliable',
-        description: 'Your data is safe with us. We employ industry-standard security measures to protect your information.'
-    },
-    { 
-        icon: 'mdi-account-group', 
-        title: 'Join Our Community',
-        description: 'Connect with other users, share your experiences, and learn from each other in our vibrant community.'
-    }
-])
+    { icon: 'mdi-translate', title: 'Поражающая воображение скорость', description: 'Переводите множество документов большого объёма в сжатые сроки' },
+    { icon: 'mdi-chart-line', title: 'Большой выбор моделей для перевода', description: 'Мы предлагаем прозрачный выбор инструментов, которыми вы пользуетесь' },
+    { icon: 'mdi-account', title: 'Сохранение настроек', description: 'Нужно часто переводить похожие тексты на одни и те же языки? Сохраните настройку и пользуйтесь ей' },
+]);
+
+onMounted(async () => {
+    const ctx = document.getElementById('translationChart');
+    Chart.register(...registerables);
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['English', 'Spanish', 'French', 'German', 'Chinese'],
+            datasets: [{
+                label: 'Translations per Language',
+                data: [120, 90, 60, 30, 50], // Fake data for demonstration
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
 
 async function onSubmit() {
     loginData.isLoading = true;
@@ -356,5 +380,40 @@ async function onConfirmEmail() {
     max-width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    align-items: center;
+}
+
+.v-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.v-icon {
+    margin-bottom: 16px;
+}
+
+.v-card-title {
+    margin-bottom: auto;
+    text-align: center;
+    text-wrap: wrap;
+}
+
+.v-card-text {
+    margin-top: auto;
+    text-align: center;
+}
+
+.gradient-background {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
 }
 </style>
