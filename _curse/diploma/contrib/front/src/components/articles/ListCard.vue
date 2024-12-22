@@ -8,8 +8,8 @@
             </span>
         </v-card-title>
         <v-card-text>
-            <p>Created at: {{ (new Date(article.created_at)).toLocaleString() }}</p>
-            <p>Liked: {{ article.like === null ? 'No data' : article.like ? 'Yes' : 'No' }}</p>
+            <p>Дата создания: {{ (new Date(article.created_at)).toLocaleString() }}</p>
+            <p v-if="!props.isOriginal">Понравилось: {{ article.like === null ? 'Неизвестно' : article.like ? 'Да' : 'Нет' }}</p>
         </v-card-text>
         <v-card-actions>
           <router-link :to="`/articles/${article.id}/get`">
@@ -59,7 +59,7 @@ async function delete_article(article_id: string) {
       'DELETE',
     )
     if (result) {
-      UnnecessaryEventEmitter.emit('AlertMessage', {
+      UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
         title: undefined,
         text: 'Статья успешно удалена',
         severity: 'success'

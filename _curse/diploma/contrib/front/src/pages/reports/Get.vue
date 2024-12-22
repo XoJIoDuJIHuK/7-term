@@ -9,10 +9,10 @@
             {{ report.text }}
         </v-row>
         <v-row v-if="userRole == Config.userRoles.mod">
-            <v-col cols="6">
+            <v-col>
                 <div v-html="renderedSourceMarkdown" class="markdown-renderer"></div>
             </v-col>
-            <v-col cols="6">
+            <v-col>
                 <div v-html="renderedTranslatedMarkdown" class="markdown-renderer"></div>
             </v-col>
         </v-row>
@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, Ref, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
-import { fetch_data } from '../../helpers';
+import {fetch_data, getWebsocket} from '../../helpers';
 import { Config } from '../../settings';
 import { UnnecessaryEventEmitter } from '../../eventBus';
 import {marked} from "marked";
@@ -102,7 +102,9 @@ onMounted(async () => {
     response = await fetch_data(`${Config.backend_address}/articles/${route.params.article_id}/report/comments/`)
     comments.value = response ? response.data.list : [];
 
-    socket.value = new WebSocket(`${Config.websocket_address}/articles/${route.params.article_id}/report/comments/ws/`)
+    const connectedSocket = await getWebsocket(`${Config.websocket_address}/articles/${route.params.article_id}/report/comments/ws/`);
+    if (!connectedSocket) return;
+    socket.value = connectedSocket;
     socket.value.addEventListener('message', event => {
         comments.value.push(JSON.parse(event.data))
     })
@@ -118,7 +120,7 @@ async function sendComment() {
     )
     if (response) {
         commentText.value = '';
-        comments.value.push(response.data.comment)
+        // comments.value.push(response.data.comment)
     }
 }
 
@@ -128,7 +130,7 @@ async function updateStatus(newStatus: string) {
         'PATCH',
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Жалоба создана',
             text: undefined,
             severity: 'info'

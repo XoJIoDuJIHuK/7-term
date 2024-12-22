@@ -44,7 +44,7 @@ async function closeSessions() {
         'POST',
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: response.message,
             text: undefined,
             severity: 'info'

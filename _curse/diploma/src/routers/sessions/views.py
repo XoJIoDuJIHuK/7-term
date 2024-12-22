@@ -58,7 +58,7 @@ async def close_sessions(
         user_id=user_info.id,
         db_session=db_session
     )
-    put_tokens_in_black_list(refresh_token_ids)
+    await put_tokens_in_black_list(refresh_token_ids)
     await SessionRepo.close_all(
         user_id=user_info.id,
         db_session=db_session

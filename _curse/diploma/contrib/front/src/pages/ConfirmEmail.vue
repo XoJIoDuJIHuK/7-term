@@ -26,7 +26,7 @@ onMounted(async () => {
     );
     if (!response) await router.push('/error');
     isLoading.value = false;
-    UnnecessaryEventEmitter.emit('AlertMessage', {
+    UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
         title: 'Почта подтверждена',
         text: undefined,
         severity: 'success'

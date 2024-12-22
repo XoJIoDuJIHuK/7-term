@@ -104,6 +104,7 @@ async def get_article_report(
 ):
     if not report:
         raise report_not_found_error
+    await db_session.refresh(report)
     if user_info.role == Role.user:
         return DataResponse(
             data={
@@ -299,7 +300,7 @@ async def watch_for_comments(
                         comment_scheme = CommentOutScheme.model_validate_json(
                             comment_data
                         )
-                        await websocket.send(
+                        await websocket.send_text(
                             comment_scheme.model_dump_json(exclude_unset=True)
                         )
                     except Exception as e:

@@ -36,7 +36,7 @@ function showAlarm(params: AlertMessageParams) {
     }, 2000)
 }
 
-UnnecessaryEventEmitter.on('AlertMessage', showAlarm)
+UnnecessaryEventEmitter.on(Config.alertMessageKey, showAlarm)
 
 
 async function updateStore() {

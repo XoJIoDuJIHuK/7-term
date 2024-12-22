@@ -4,6 +4,29 @@ import { Config } from "./settings";
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
+async function refreshTokens() {
+    await fetch(`${Config.backend_address}/auth/refresh/`, {method: 'POST'});
+}
+
+export async function getWebsocket(url: string) {
+    let result;
+    try {
+        result = new WebSocket(url);
+    } catch {
+        await refreshTokens();
+        try {
+            result = new WebSocket(url);
+        } catch {
+            UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
+                title: 'WebSocket сервер недоступен',
+                text: undefined,
+                severity: 'warning'
+            })
+        }
+    }
+    return result;
+}
+
 export async function fetch_data(
     address: string,
     method: Method = 'GET',
@@ -24,7 +47,7 @@ export async function fetch_data(
     }
     let response = await getResult();
     if (response.status === 401) {
-        await fetch(`${Config.backend_address}/auth/refresh/`, {method: 'POST'});
+        await refreshTokens();
         response = await getResult();
         if (response.status === 401) {
             await logout();
@@ -41,7 +64,7 @@ export async function fetch_data(
             } else if (response.status === 413) {
                 errorText = `Превышен максимально допустимый размер`
             }
-            UnnecessaryEventEmitter.emit('AlertMessage', {
+            UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
                 title: `${response.status} ${response.statusText}`,
                 text: errorText,
                 severity: 'error'
@@ -61,11 +84,17 @@ export async function logout() {
     location.href = '/';
 }
 
-export async function fetchPersonalInfo() {
-    const userInfoResponse = await fetch_data(`${Config.backend_address}/users/me/`)
+export async function fetchPersonalInfo(auto_error: boolean = true) {
+    const userInfoResponse = await fetch_data(
+        `${Config.backend_address}/users/me/`,
+        'GET',
+        undefined,
+        false
+    )
     if (!userInfoResponse) {
-        await logout()
-        return
+        if (auto_error) await logout();
+        return false;
     }
     localStorage.setItem(Config.userInfoProperty, JSON.stringify(userInfoResponse.data.user));
+    return true;
 }

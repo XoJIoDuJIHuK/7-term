@@ -39,7 +39,7 @@
                                     <v-text-field
                                         v-model="editedItem.name"
                                         label="Имя"
-                                        :rules="[rules.required, rules.tooLong(20)]"
+                                        :rules="[rules.required, rules.maxLength(20)]"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col
@@ -49,7 +49,7 @@
                                 >
                                     <v-text-field
                                         v-model="editedItem.email"
-                                        :rules="[rules.required, rules.email, rules.tooLong(255)]"
+                                        :rules="[rules.required, rules.email, rules.maxLength(255)]"
                                         label="Почта"
                                     ></v-text-field>
                                 </v-col>
@@ -208,7 +208,7 @@ async function deleteItem(item: User) {
         'DELETE'
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Пользователь удалён',
             text: undefined,
             severity: 'success'
@@ -239,7 +239,7 @@ async function save() {
     )
     editButtonLoading.value = false;
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Пользователь сохранён',
             text: undefined,
             severity: 'success'

@@ -52,7 +52,7 @@ const rules = {
 
 onMounted(async () => {
     if (!code) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Не предоставлен код сброса пароля',
             text: undefined,
             severity: 'error'
@@ -63,7 +63,7 @@ onMounted(async () => {
 
 async function submit() {
     if (newPassword.value !== confirmPassword.value) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: undefined,
             text: 'Пароли не совпадают',
             severity: 'warning'
@@ -81,7 +81,7 @@ async function submit() {
     );
     isLoading.value = false;
     if (!response) return;
-    UnnecessaryEventEmitter.emit('AlertMessage', {
+    UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
         title: 'Пароль успешно изменён',
         text: undefined,
         severity: 'success'

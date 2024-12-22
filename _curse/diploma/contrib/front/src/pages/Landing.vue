@@ -12,7 +12,7 @@
                         v-if="!loginData.isLogin"
                         v-model="loginData.name"
                         :readonly="loginData.isLoading"
-                        :rules="[rules.required, rules.tooLong(20)]"
+                        :rules="[rules.required, rules.maxLength(20)]"
                         class="mb-2"
                         label="Имя"
                         clearable
@@ -21,7 +21,7 @@
                     <v-text-field
                         v-model="loginData.email"
                         :readonly="loginData.isLoading"
-                        :rules="[rules.required, rules.email, rules.tooLong(255)]"
+                        :rules="[rules.required, rules.email, rules.maxLength(255)]"
                         class="mb-2"
                         label="Почта"
                         clearable
@@ -117,8 +117,8 @@
                 }" variant="elevated" class="ml-4">Регистрация</v-btn>
             </div>
             <div v-else-if="userRole === Config.userRoles.user" class="mr-4">
-                <router-link to="/translations">
-                    <v-btn variant="elevated" color="blue">Переводы</v-btn>
+                <router-link to="/articles">
+                    <v-btn variant="elevated" color="blue">Статьи</v-btn>
                 </router-link>
             </div>
             <div v-else-if="userRole === Config.userRoles.mod" class="mr-4">
@@ -128,7 +128,7 @@
             </div>
             <div v-else class="mr-4">
                 <router-link to="/users">
-                    <v-btn variant="elevated" color="blue">Админ</v-btn>
+                    <v-btn variant="elevated" color="blue">Пользователи</v-btn>
                 </router-link>
             </div>
             <div v-if="userRole !== Config.userRoles.guest" class="mr-4">
@@ -174,14 +174,15 @@
 
             <v-footer color="primary" padless>
                 <v-row justify="center" no-gutters>
-                    <v-btn
-                        v-for="icon in icons"
-                        :key="icon"
-                        class="mx-4 white--text"
-                        icon
-                    >
-                        <v-icon size="24px">{{ icon }}</v-icon>
-                    </v-btn>
+                    <a :href="icon.href" v-for="icon in icons">
+                        <v-btn
+                            :key="icon.value"
+                            class="mx-4 white--text"
+                            icon
+                        >
+                            <v-icon size="30px" style="margin-top: 8px">{{ icon.value }}</v-icon>
+                        </v-btn>
+                    </a>
                 </v-row>
                 <v-col class="text-center white--text">
                     {{ new Date().getFullYear() }} — <strong>{{ appName }}</strong>
@@ -211,9 +212,7 @@ const loginData = reactive({
     password: 'string',
     name: '',
 })
-const userRole = ref(
-    localStorage.getItem(Config.userInfoProperty) ? JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role : Config.userRoles.guest
-);
+const userRole = ref(Config.userRoles.guest);
 
 const oauthProviders = [
     {
@@ -224,10 +223,10 @@ const oauthProviders = [
 ]
 
 const icons = ref([
-    'mdi-facebook',
-    'mdi-twitter',
-    'mdi-linkedin',
-    'mdi-instagram',
+    { href: 'https://www.linkedin.com/in/aleh-t-30580927b/', value: 'mdi-linkedin' },
+    { href: 'https://t.me/XoJIoDuJIHuK', value: 'mdi-telegram' },
+    { href: 'https://vk.com/jertva_rastishki', value: 'mdi-vk' },
+    { href: 'http://github.com/XoJIoDuJIHuK', value: 'mdi-github' },
 ])
 const appName = ref('GPTranslate')
 const features = ref([
@@ -239,13 +238,14 @@ const features = ref([
 onMounted(async () => {
     const ctx = document.getElementById('translationChart');
     Chart.register(...registerables);
+    //@ts-ignore
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['English', 'Spanish', 'French', 'German', 'Chinese'],
+            labels: ['Английский', 'Французский', 'Русский', 'Немецкий', 'Китайский'],
             datasets: [{
-                label: 'Translations per Language',
-                data: [120, 90, 60, 30, 50], // Fake data for demonstration
+                label: 'Количество переводов',
+                data: [120, 90, 60, 30, 50],
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.6)',
                     'rgba(153, 102, 255, 0.6)',
@@ -272,6 +272,10 @@ onMounted(async () => {
             }
         }
     });
+
+    if (await fetchPersonalInfo(false)) {
+        userRole.value = localStorage.getItem(Config.userInfoProperty) ? JSON.parse(localStorage.getItem(Config.userInfoProperty) as string).role : Config.userRoles.guest;
+    }
 });
 
 async function onSubmit() {
@@ -300,13 +304,14 @@ async function onSubmit() {
             if (!loginData.isLogin) return;
 
             await fetchPersonalInfo()
-            location.reload()
 
-            UnnecessaryEventEmitter.emit('AlertMessage', {
+            UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
                 title: result.detail,
                 text: undefined,
                 severity: 'info'
             })
+
+            location.reload()
         }
     } catch(e) {
         loginData.displayError = e as string;
@@ -327,7 +332,7 @@ async function onForgotPassword() {
         'POST',
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: response.message,
             text: undefined,
             severity: 'info'
@@ -346,7 +351,7 @@ async function onConfirmEmail() {
         'POST',
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: response.message,
             text: undefined,
             severity: 'info'

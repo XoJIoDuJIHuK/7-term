@@ -11,6 +11,7 @@ from fastapi import (
 )
 
 from pydantic import EmailStr
+from starlette.responses import JSONResponse
 
 from src.database.models import ConfirmationType
 from src.depends import get_session
@@ -22,7 +23,7 @@ from src.database.repos.confirmation_code import ConfirmationCodeRepo
 from src.database.repos.session import SessionRepo
 from src.database.repos.user import UserRepo
 from src.settings import (
-    Role, KafkaConfig, UnisenderConfig, JWTConfig, FrontConfig,
+    AppConfig, Role, KafkaConfig, UnisenderConfig, JWTConfig, FrontConfig,
 )
 from src.util.auth.classes import AuthHandler, JWTCookie
 from src.util.auth.helpers import (
@@ -70,19 +71,21 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Подтвердите адрес электронной почты'
         )
-    await SessionRepo.close_all(
-        user_id=user.id,
-        ip=request.headers.get('X-Forwarded-For'),
-        user_agent=get_user_agent(request),
-        db_session=db_session
-    )
+    if AppConfig.close_sessions_on_same_device_login:
+        await SessionRepo.close_all(
+            user_id=user.id,
+            ip=request.headers.get('X-Forwarded-For'),
+            user_agent=get_user_agent(request),
+            db_session=db_session
+        )
     await db_session.refresh(user)
     tokens = await AuthHandler.login(
         user=user,
         request=request,
         db_session=db_session
     )
-    return get_authenticated_response(tokens)
+    response = JSONResponse({'detail': 'Аутентифицирован'})
+    return get_authenticated_response(response, tokens)
 
 
 @router.post(

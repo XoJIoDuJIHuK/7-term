@@ -33,7 +33,7 @@ onMounted(async () => {
         `${Config.backend_address}/oauth/${provider}/callback/?state=${route.query.state}&code=${route.query.code}`
     );
     if (callbackResponse) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: undefined,
             text: callbackResponse.detail,
             severity: 'success'

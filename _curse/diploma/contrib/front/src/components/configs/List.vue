@@ -16,7 +16,7 @@
                 <div>Идёт загрузка...</div>
             </template>
         </Suspense>
-        <div v-if="(!configs || configs.length === 0) && !isLoading">Конфигов нет</div>
+        <div v-if="(!configs || configs.length === 0) && !isLoading">Конфигураций нет</div>
     </div>
 </template>
 
@@ -49,7 +49,7 @@ async function saveConfig() {
         JSON.stringify(currentEditConfig.value)
     );
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: undefined,
             text: 'Конфиг обновлён',
             severity: 'success'

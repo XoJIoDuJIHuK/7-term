@@ -1,16 +1,17 @@
 import uuid
 from typing import List, Tuple
 
-from fastapi_pagination import Page, Params
 from sqlalchemy.orm import joinedload
 
 from src.database.helpers import update_model_by_scheme
-# from fastapi_pagination.ext.sqlalchemy import paginate
 
 from src.database.models import Article
 from src.pagination import PaginationParams, paginate
-from src.routers.articles.schemes import ArticleOutScheme, CreateArticleScheme, \
-    ArticleListItemScheme, EditArticleScheme
+from src.routers.articles.schemes import (
+    CreateArticleScheme,
+    ArticleListItemScheme,
+    EditArticleScheme,
+)
 
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -127,7 +128,7 @@ class ArticleRepo:
             db_session: AsyncSession
     ) -> Article:
         article.deleted_at = get_utc_now()
-        db_session.add(article)
+        # db_session.add(article)
         await db_session.commit()
         await db_session.refresh(article)
         return article

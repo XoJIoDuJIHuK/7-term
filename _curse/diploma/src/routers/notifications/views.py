@@ -33,7 +33,7 @@ logger = get_logger(__name__)
     response_model=SimpleListResponse[NotificationOutScheme]
 )
 async def get_notifications_list(
-        user_info: UserInfo = Depends(validate_token_for_ws),
+        user_info: UserInfo = Depends(JWTCookie()),
         db_session: AsyncSession = Depends(get_session)
 ):
     notifications = await NotificationRepo.get_list(

@@ -218,17 +218,17 @@ class Article(Base):
         back_populates='article',
         cascade='all, delete-orphan',
         uselist=False,
-        lazy='selectin'
+        lazy='joined'
     )
     language: Mapped[Language] = relationship(
         'Language',
         uselist=False,
-        lazy='selectin'
+        lazy='joined'
     )
     original_article: Mapped['Article'] = relationship(
         'Article',
         uselist=False,
-        lazy='selectin'
+        lazy='joined'
     )
 
 
@@ -285,17 +285,17 @@ class Report(Base):
         'Article',
         back_populates='report',
         uselist=False,
-        lazy='selectin',
+        lazy='joined',
     )
     closed_by_user: Mapped[User] = relationship(
         'User',
         uselist=False,
-        lazy='selectin',
+        lazy='joined',
     )
     reason: Mapped[ReportReason] = relationship(
         'ReportReason',
         uselist=False,
-        lazy='selectin',
+        lazy='joined',
     )
 
 
@@ -374,7 +374,7 @@ class TranslationConfig(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
     )
-    prompt_id: Mapped[int] = mapped_column(
+    prompt_id: Mapped[int | None] = mapped_column(
         ForeignKey(
             f'{StylePrompt.__tablename__}.id',
             ondelete='CASCADE'
@@ -383,10 +383,9 @@ class TranslationConfig(Base):
     )
     name: Mapped[str] = mapped_column(
         String(20),
-        # TODO: add "unique for user" constraint
     )
     language_ids: Mapped[list[int]] = mapped_column(ARRAY(Integer))
-    model_id: Mapped[int] = mapped_column(
+    model_id: Mapped[int | None] = mapped_column(
         ForeignKey(f'{AIModel.__tablename__}.id', ondelete='CASCADE'),
         nullable=True
     )

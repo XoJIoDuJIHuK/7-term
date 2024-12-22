@@ -19,9 +19,9 @@ class RedisHandler(AbstractStorage):
     async def set(self, key: str, value, ex: int | None = None):
         await self.client.set(key, str(value), ex=ex)
 
-    def set_batch(self, key: str, values: list, ex: int | None = None):
+    async def set_batch(self, key: str, values: list, ex: int | None = None):
         for value in values:
-            self.client.set(f'{key}:{value}', value, ex=ex)
+            await self.client.set(f'{key}:{value}', value, ex=ex)
 
     def get_pubsub(self):
         return self.client.pubsub()

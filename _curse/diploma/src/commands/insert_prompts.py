@@ -38,7 +38,7 @@ def insert_prompts() -> None:
                 ) for arr in prompts
                 if arr[0] not in map(lambda x: x.title, db_models)
             ]
-            if db_models:
+            if prompt_objects:
                 logger.info(f'Inserting prompts {[
                     prompt.title for prompt in prompt_objects
                 ]}')

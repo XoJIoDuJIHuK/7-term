@@ -138,8 +138,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     if not task.data:
                         task.data = {}
                     task.status = TranslationTaskStatus.failed
-                    task.data['error'] = ('Превышено максимальное количество'
-                                          ' попыток')
+                    task.data = 'Превышено максимальное количество попыток'
                 else:
                     producer = KafkaProducer(
                         bootstrap_servers=KafkaConfig.address,
@@ -152,7 +151,6 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                     )
                     task.status = TranslationTaskStatus.started
             except Exception as e:
-                print('ERROR LMAO', type(e), str(e))
                 if not task.data:
                     task.data = {}
                 task.status = TranslationTaskStatus.failed
@@ -160,13 +158,17 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                 error_message = str(e)
                 if 'error' in error_data:
                     if 'message' in error_data['error']:
-                        self.logger.warning(f'ERROR MESSAGE: {error_data['error']['message']}')
+                        self.logger.warning(
+                            f'ERROR MESSAGE: {error_data['error']['message']}'
+                        )
                         if self.__error_includes(
                             substrings=['ProviderNotFound'],
                             error_data=error_data
                         ):
-                            error_message = (f'Модель {model.show_name}'
-                                             f' недоступна. Попробуйте другую')
+                            error_message = (
+                                f'Модель {model.show_name} недоступна.'
+                                f' Попробуйте другую'
+                            )
                         elif self.__error_includes(
                             substrings=['ERR_BN_LIMIT'],
                             error_data=error_data

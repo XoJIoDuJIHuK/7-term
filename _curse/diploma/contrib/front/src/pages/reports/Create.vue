@@ -10,9 +10,11 @@
             ></v-select>
         </v-row>
         <v-row>
-            <v-textarea v-model="reportData.text" label="Текст">
-
-            </v-textarea>
+            <v-textarea
+                v-model="reportData.text"
+                label="Текст"
+                :rules="[rules.required, rules.maxLength(1024)]"
+            ></v-textarea>
         </v-row>
         <v-row>
             <v-btn @click="createReport">Сохранить</v-btn>
@@ -24,7 +26,7 @@
 import { reactive } from 'vue';
 import { store } from '../../settings';
 import { fetch_data } from '../../helpers';
-import { Config } from '../../settings';
+import { Config, validationRules as rules } from '../../settings';
 import { useRoute, useRouter } from 'vue-router';
 import { UnnecessaryEventEmitter } from '../../eventBus';
 
@@ -42,7 +44,7 @@ async function createReport() {
         JSON.stringify(reportData),
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: undefined,
             text: 'Жалоба создана',
             severity: 'success'

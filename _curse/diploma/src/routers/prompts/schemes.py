@@ -7,12 +7,12 @@ from src.responses import Scheme
 
 class CreatePromptScheme(Scheme):
     title: str = Field(min_length=1, max_length=20)
-    text: str = Field(min_length=1, max_length=200)
+    text: str = Field(min_length=1)
 
 
 class EditPromptScheme(CreatePromptScheme):
     title: str | None = Field(None, min_length=1, max_length=20)
-    text: str | None = Field(None, min_length=1, max_length=200)
+    text: str | None = Field(None, min_length=1)
 
 
 class PromptOutScheme(Scheme):

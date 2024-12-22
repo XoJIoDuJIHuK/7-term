@@ -32,10 +32,10 @@
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" md="4" sm="6">
-                                        <!-- Single-line text field for the title -->
                                         <v-text-field
                                             v-model="editedItem.title"
                                             label="Название"
+                                            :rules="[rules.required, rules.maxLength(20)]"
                                             outlined
                                         ></v-text-field>
                                     </v-col>
@@ -44,6 +44,7 @@
                                             v-model="editedItem.text"
                                             label="Текст"
                                             outlined
+                                            :rules="[rules.required]"
                                             rows="4"
                                             auto-grow
                                         ></v-textarea>
@@ -86,8 +87,8 @@
 
 <script setup lang="ts">
 import { fetch_data } from '../helpers';
-import {computed, onMounted, reactive, ref, Ref} from 'vue';
-import {Config, DataTableHeader} from '../settings';
+import { computed, onMounted, reactive, ref, Ref } from 'vue';
+import { Config, DataTableHeader, validationRules as rules } from '../settings';
 import { Method } from '../helpers';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
@@ -161,7 +162,7 @@ async function deleteItem(item: Prompt) {
         'DELETE'
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Промпт удалён',
             text: undefined,
             severity: 'success'
@@ -192,7 +193,7 @@ async function save() {
     )
     editButtonLoading.value = false;
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Промпт сохранён',
             text: undefined,
             severity: 'success'

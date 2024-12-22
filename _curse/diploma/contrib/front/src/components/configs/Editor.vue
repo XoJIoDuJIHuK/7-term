@@ -7,6 +7,7 @@
             <h4>Название</h4>
             <v-text-field
                 v-model="currentEditConfig.name"
+                :rules="[rules.required, rules.maxLength(20)]"
             ></v-text-field>
         </v-row>
         <v-row>
@@ -46,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { store } from '../../settings';
+import { store, validationRules as rules } from '../../settings';
 
 //@ts-ignore
 const props = defineProps({

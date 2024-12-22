@@ -4,7 +4,7 @@
         <v-text-field
           v-model="article.title"
           label="Название"
-          :rules="[rules.required]"
+          :rules="[rules.required, rules.maxLength(50)]"
           required
         ></v-text-field>
   
@@ -14,11 +14,23 @@
           class="mt-4"
         ></v-switch>
   
-        <div v-if="useWysiwyg">
-          <div id="text-editor">
-            <textarea v-model="article.text"></textarea>
-          </div>
-        </div>
+        <v-container v-if="useWysiwyg">
+            <v-row>
+                <v-textarea
+                    v-model="article.text"
+                    @input="updateMarkdown"
+                    class="markdown-textarea"
+                    placeholder="Текст статьи"
+                    auto-grow
+                ></v-textarea>
+            </v-row>
+            <v-row>
+                <div
+                    v-html="renderedMarkdown || '<p>Предпросмотр текста</p>'"
+                    class="markdown-renderer"
+                ></div>
+            </v-row>
+        </v-container>
         <div v-else>
           <v-file-input
             v-model="article.file"
@@ -47,13 +59,13 @@
 </template>
   
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { Config, store } from '../../settings';
+import { ref, reactive, onMounted, watch } from 'vue';
+import { Config, store, validationRules as rules } from '../../settings';
 import { useRoute, useRouter } from 'vue-router';
 import { fetch_data } from '../../helpers';
 import { get_article } from './helpers';
 import { UnnecessaryEventEmitter } from '../../eventBus';
-
+import { marked } from 'marked';
 
 const form = ref(null);
 const valid = ref(false);
@@ -65,14 +77,24 @@ const article = reactive({
     language_id: null,
 });
 
-const rules = {
-    required: (value: string | null | undefined) => !!value || 'Обязательное поле',
-};
-
 const route = useRoute();
 const router = useRouter();
 
 const isEditing = ref(false);
+
+
+const localText = ref('');
+const emit = defineEmits(['update:text']);
+const renderedMarkdown = ref('');
+const updateMarkdown = async () => {
+    emit('update:text', localText.value);
+    renderedMarkdown.value = await marked.parse(localText.value || '')
+}
+watch(() => article.text, (newValue) => {
+    localText.value = newValue
+    updateMarkdown()
+}, { immediate: true })
+
 
 onMounted(async () => {
     const article_id = route.params.article_id
@@ -120,7 +142,7 @@ const saveArticle = async () => {
                 })
             )
             if (response) {
-                UnnecessaryEventEmitter.emit('AlertMessage', {
+                UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
                     title: 'Статья сохранена',
                     text: undefined,
                     severity: 'info'
@@ -135,10 +157,12 @@ const saveArticle = async () => {
 </script>
 
 <style lang="css" scoped>
-#text-editor textarea {
-  width: 100%;
-  border: 1px solid black;
-  border-radius: 8px;
-  padding: 8px;
+.markdown-renderer {
+    min-height: 32px;
+    width: 100%;
+    padding: 16px;
+    border: 1px black;
+    border-radius: 8px;
+    background-color: #e9e9e9;
 }
 </style>

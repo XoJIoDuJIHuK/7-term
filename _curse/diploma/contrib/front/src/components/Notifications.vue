@@ -57,7 +57,7 @@
 import { onMounted, Ref, ref } from 'vue';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { fetch_data } from '../helpers';
+import {fetch_data, getWebsocket} from '../helpers';
 import { Config } from '../settings';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
@@ -90,12 +90,14 @@ onMounted(async () => {
     if (userRole === Config.userRoles.admin) return;
 
     try {
-        socket.value = new WebSocket(`${Config.websocket_address}/notifications/`);
+        const connectedSocket = await getWebsocket(`${Config.websocket_address}/notifications/`);
+        if (!connectedSocket) return;
+        socket.value = connectedSocket;
         socket.value.addEventListener('message', event => {
             const notification = JSON.parse(event.data);
             notification.timestamp = new Date().toISOString(); // Add timestamp to new notifications
 
-            UnnecessaryEventEmitter.emit('AlertMessage', {
+            UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
                 title: notification.title,
                 text: notification.text,
                 severity: notification.type
@@ -114,7 +116,7 @@ async function clearNotifications() {
     );
     if (response) {
         notifications.value = [];
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: response.message,
             text: undefined,
             severity: 'info'

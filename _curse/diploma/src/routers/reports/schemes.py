@@ -1,11 +1,9 @@
 import uuid
-from datetime import  datetime
-
-from fastapi import HTTPException, status
+from datetime import datetime
 
 from pydantic import Field
 
-from src.database.models import ReportStatus, Report, Article
+from src.database.models import ReportStatus, Report
 from src.responses import Scheme
 
 

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from src.util.common.classes import EnvParameter
 
-load_dotenv()
+# load_dotenv()
 
 LOGGER_PREFIX = 'diploma_'
 BASE_DIR = Path(__file__).resolve().parent.resolve().parent
@@ -19,6 +19,9 @@ class AppConfig:
     conf_code_exp_seconds = 60 * 15
     debug = EnvParameter('APP_DEBUG', default=True)
     websocket_timeout_sec = 5
+    close_sessions_on_same_device_login = EnvParameter(
+        'CLOSE_SESSIONS_ON_SAME_DEVICE', type_=bool, default=True
+    )
 
 
 class Database:
@@ -29,9 +32,6 @@ class Database:
     )
     pool_size = EnvParameter(
         'DB_POOL_SIZE', type_=int, default=5
-    )
-    max_overflow = EnvParameter(
-        'DB_MAX_OVERFLOW', type_=int, default=50
     )
     pool_recycle = EnvParameter(
         'DB_POOL_RECYCLE', type_=int, default=600
@@ -186,7 +186,7 @@ class GoogleOauth2Config:
     )
     REDIRECT_URI = EnvParameter(
         'GOOGLE_REDIRECT_URI',
-        default='http://localhost:8000/oauth/google/oauth-callback'
+        default='http://localhost:8000/oauth/google/callback'
     )
     SCOPE = EnvParameter(
         'GOOGLE_SCOPE',

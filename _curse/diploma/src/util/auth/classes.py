@@ -111,7 +111,7 @@ class JWTCookie(APIKeyCookie):
                 super(JWTCookie, self).__call__(request)
             )
         except HTTPException as e:
-            self.logger.info('User provided invalid credentials: %s', e)
+            self.logger.warning('User provided invalid credentials: %s', e)
             raise error_invalid_token
 
         if not token:
@@ -119,6 +119,7 @@ class JWTCookie(APIKeyCookie):
         payload = verify_jwt(token)
         if not payload:
             if self.auto_error:
+                self.logger.warning('Token payload invalid: %s', token)
                 raise error_invalid_token
             else:
                 return None
@@ -128,6 +129,10 @@ class JWTCookie(APIKeyCookie):
                 detail='Недостаточно прав'
             )
         if payload.user_agent != get_user_agent(request):
+            self.logger.warning(
+                'User agent mismatch: %s | %s',
+                payload.user_agent, get_user_agent(request)
+            )
             raise error_invalid_token
 
         return payload
@@ -162,7 +167,7 @@ class AuthHandler:
         await db_session.refresh(user)
         return cls.get_tokens_scheme(
             user_id=user.id,
-            user_agent=get_user_agent(request),
+            user_agent=session.user_agent,
             session_id=session.id,
             role=user.role,
             refresh_token_id=refresh_token_id
@@ -184,7 +189,7 @@ class AuthHandler:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Сессия истекла'
             )
-        put_tokens_in_black_list([payload.token_id])
+        await put_tokens_in_black_list([payload.token_id])
 
         # This operation is much heavier than getting info from Redis
         # but will happen only if session was not expired so refresh tokens of

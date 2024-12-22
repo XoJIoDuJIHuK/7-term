@@ -1,10 +1,14 @@
+import logging
 import uuid
 
 from fastapi import HTTPException, status
-from sqlalchemy import exists, select
+
+from sqlalchemy import delete, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import TranslationConfig
+from src.database.repos.prompt import PromptRepo
+from src.database.repos.model import ModelRepo
 from src.routers.config.schemes import (
     ConfigOutScheme,
     CreateConfigScheme,
@@ -14,10 +18,14 @@ from src.util.db.helpers import update_object
 from src.util.time.helpers import get_utc_now
 
 
-name_conflicts_error = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail='Конфиг с таким названием уже существует'
-)
+logger = logging.getLogger(__name__)
+
+
+def name_conflicts_error(name):
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f'Конфиг с названием {name} уже существует'
+    )
 
 
 class ConfigRepo:
@@ -71,7 +79,40 @@ class ConfigRepo:
             old_config_id=None,
             db_session=db_session
         ):
-            raise name_conflicts_error
+            logger.warning(f'Config name conflict: {config_data.name}')
+            result = await db_session.execute(
+                delete(TranslationConfig)
+                .where(
+                    TranslationConfig.user_id == user_id,
+                    TranslationConfig.name == config_data.name,
+                    TranslationConfig.deleted_at.isnot(None)
+                )
+            )
+            if result.rowcount == 0:
+                raise name_conflicts_error(config_data.name)
+            logger.info('Config name conflict resolved')
+        if (
+            config_data.model_id is not None
+            and not await ModelRepo.exists_by_id(
+                model_id=config_data.model_id,
+                db_session=db_session
+            )
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Модель не найдена'
+            )
+        if (
+            config_data.prompt_id is not None
+            and not await PromptRepo.exists_by_id(
+                prompt_id=config_data.prompt_id,
+                db_session=db_session
+            )
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Промпт не найден'
+            )
         config = TranslationConfig(
             user_id=user_id,
             name=config_data.name,
@@ -96,7 +137,7 @@ class ConfigRepo:
             old_config_id=config.id,
             db_session=db_session
         ):
-            raise name_conflicts_error
+            raise name_conflicts_error(new_data.name)
         config = update_object(
             db_object=config,
             update_scheme=new_data
@@ -112,7 +153,6 @@ class ConfigRepo:
             db_session: AsyncSession
     ) -> TranslationConfig:
         config.deleted_at = get_utc_now()
-        db_session.add(config)
         await db_session.commit()
         await db_session.refresh(config)
         return config

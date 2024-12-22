@@ -63,7 +63,7 @@ class AbstractTranslator(ABC):
             self.logger.exception(f'Ошибка API: {e}')
             raise
         except Exception as e:
-            self.logger.error(f'Some error occurred: {e}.')
+            self.logger.exception(f'Some error occurred: {e}.')
             raise TranslatorError(e)
 
     async def _process_translation(

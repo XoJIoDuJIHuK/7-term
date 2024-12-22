@@ -43,7 +43,7 @@ async function delete_config(article_id: string) {
     'DELETE'
   )
   if (result) {
-    UnnecessaryEventEmitter.emit('AlertMessage', {
+    UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
       title: undefined,
       text: 'Конфиг успешно удалён',
       severity: 'success'

@@ -1,17 +1,25 @@
+import logging
+
 from fastapi import (
     APIRouter,
     Depends,
+    Request,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import TranslationConfig
 from src.depends import get_session
 from src.http_responses import get_responses
-from src.responses import DataResponse, BaseResponse, \
-    SimpleListResponse
+from src.responses import (
+    DataResponse,
+    BaseResponse,
+    SimpleListResponse,
+)
 from src.routers.config.helpers import get_config
-from src.routers.config.schemes import ConfigOutScheme, CreateConfigScheme, \
-    EditConfigScheme
+from src.routers.config.schemes import (
+    ConfigOutScheme,
+    CreateConfigScheme, EditConfigScheme,
+)
 from src.database.repos.config import ConfigRepo
 from src.settings import Role
 from src.util.auth.classes import JWTCookie
@@ -21,6 +29,7 @@ router = APIRouter(
     prefix='/configs',
     tags=['Configs']
 )
+logger = logging.getLogger(__name__)
 
 
 @router.get(
@@ -48,6 +57,7 @@ async def get_configs(
     responses=get_responses(400, 401, 409)
 )
 async def create_config(
+        request: Request,
         config_data: CreateConfigScheme,
         db_session: AsyncSession = Depends(get_session),
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
@@ -96,12 +106,15 @@ async def update_config(
     responses=get_responses(400, 401, 404, 409)
 )
 async def delete_config(
+        request: Request,
         config: TranslationConfig = Depends(get_config),
         db_session: AsyncSession = Depends(get_session),
         user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
 ):
-    config = await ConfigRepo.delete(
+    logger.info(f'Worker {request.headers.get('X-Worker-ID', 'unknown')} is trying to delete config {config.name[-1]}')
+    config_name = config.name
+    await ConfigRepo.delete(
         config=config,
         db_session=db_session
     )
-    return BaseResponse(message=f'Конфиг {config.name} удалён')
+    return BaseResponse(message=f'Конфиг {config_name} удалён')

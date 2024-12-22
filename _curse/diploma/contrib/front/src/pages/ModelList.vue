@@ -38,6 +38,7 @@
                                   >
                                     <v-text-field
                                         v-model="editedItem.show_name"
+                                        :rules="[rules.required, rules.maxLength(50)]"
                                         label="Отображаемое название"
                                     ></v-text-field>
                                   </v-col>
@@ -99,8 +100,8 @@
 
 <script setup lang="ts">
 import { fetch_data } from '../helpers';
-import {computed, onMounted, reactive, ref, Ref} from 'vue';
-import {Config, DataTableHeader} from '../settings';
+import { computed, onMounted, reactive, ref, Ref } from 'vue';
+import { Config, DataTableHeader, validationRules as rules } from '../settings';
 import { Method } from '../helpers';
 import { UnnecessaryEventEmitter } from '../eventBus';
 
@@ -170,7 +171,7 @@ async function deleteItem(item: Model) {
         'DELETE'
     )
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Промпт удалён',
             text: undefined,
             severity: 'success'
@@ -201,7 +202,7 @@ async function save() {
     )
     editButtonLoading.value = false;
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: 'Модель сохранена',
             text: undefined,
             severity: 'success'

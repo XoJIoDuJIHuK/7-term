@@ -49,37 +49,37 @@ services:
     networks:
       - a
 
-  translation_consumer:
-    image: diploma-base
-    command:
-      - "python"
-      - "-m"
-      - "src.manage"
-      - "start_translator_consumer"
-    env_file:
-      - ../../.env
-    volumes:
-      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
-    depends_on:
-      - kafka
-    networks:
-      - a
-
-  mail_consumer:
-    image: diploma-base
-    command:
-      - "python"
-      - "-m"
-      - "src.manage"
-      - "start_mail_consumer"
-    env_file:
-      - ../../.env
-    volumes:
-      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
-    depends_on:
-      - kafka
-    networks:
-      - a
+#  translation_consumer:
+#    image: diploma-base
+#    command:
+#      - "python"
+#      - "-m"
+#      - "src.manage"
+#      - "start_translator_consumer"
+#    env_file:
+#      - ../../.env
+#    volumes:
+#      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
+#    depends_on:
+#      - kafka
+#    networks:
+#      - a
+#
+#  mail_consumer:
+#    image: diploma-base
+#    command:
+#      - "python"
+#      - "-m"
+#      - "src.manage"
+#      - "start_mail_consumer"
+#    env_file:
+#      - ../../.env
+#    volumes:
+#      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
+#    depends_on:
+#      - kafka
+#    networks:
+#      - a
 
   redis:
     image: redis:7.4.1
@@ -92,13 +92,15 @@ services:
       context: ../..
       dockerfile: contrib/docker/nginx/Dockerfile
     ports:
-      - "8000:8000"
-#      - "8080:9000"
+      - "80:8000"
+      - "443:9000"
     depends_on:
       - api
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/ssl:/etc/nginx/ssl
+#      - ./nginx/ssl:/etc/nginx/ssl
+      - /etc/ssl/local/ugabuntu.crt:/etc/nginx/ssl/fullchain.pem
+      - /etc/ssl/local/ugabuntu.key:/etc/nginx/ssl/privkey.pem
     networks:
       - a
 

@@ -119,4 +119,5 @@ async def callback(
         request=request,
         db_session=db_session
     )
-    return get_authenticated_response(tokens)
+    response = RedirectResponse(f'/')
+    return get_authenticated_response(response, tokens)

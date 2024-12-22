@@ -1,4 +1,9 @@
 [
+  ["Blackbox 4o", "gpt-4o", "Blackbox"],
+  ["Blackbox Gemini Pro", "gemini-pro", "Blackbox"],
+  ["Blackbox Llama 405B", "llama-3.1-405b", "Blackbox"],
+  ["Blackbox Sonnet", "claude-sonnet-3.5", "Blackbox"],
+  ["Blackbox Pro", "blackboxai-pro", "Blackbox"],
   ["OpenAI ChatGPT 4o", "gpt-4o", "OpenAI"],
   ["OpenAI ChatGPT 4o-mini", "gpt-4o-mini", "OpenAI"],
   ["OpenAI ChatGPT 4", "gpt-4", "OpenAI"],

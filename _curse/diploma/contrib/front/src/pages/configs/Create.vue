@@ -2,7 +2,7 @@
     <ConfigEditor
         :currentEditConfig="createdConfig"
         :onSave="() => { createConfig() }"
-        :onCancel="() => { createdConfig = {} }"
+        :onCancel="() => { router.push('/configs') }"
     ></ConfigEditor>
 </template>
   
@@ -30,7 +30,7 @@ async function createConfig() {
         JSON.stringify(createdConfig.value),
     );
     if (response) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: undefined,
             text: 'Конфиг создан',
             severity: 'info'

@@ -1,7 +1,7 @@
 import time
 import uuid
 
-from fastapi import HTTPException, Request, status
+from fastapi import Response, Request
 
 import jwt
 
@@ -47,7 +47,6 @@ def verify_jwt(
         payload = jwt.decode(
             token, JWTConfig.secret_key, algorithms=[JWTConfig.algorithm]
         )
-        logger.info(f'JWT payload: {payload}')
         return get_payload(payload, is_access)
     except (
         jwt.exceptions.DecodeError,
@@ -60,10 +59,10 @@ def verify_jwt(
         raise
 
 
-def put_tokens_in_black_list(
+async def put_tokens_in_black_list(
         token_ids: list[uuid.UUID]
 ) -> None:
-    RedisHandler().set_batch(
+    await RedisHandler().set_batch(
         key='token',
         values=[str(t) for t in token_ids],
         ex=JWTConfig.refresh_jwt_exp_sec
@@ -76,9 +75,10 @@ def get_user_agent(request: Request) -> str:
 
 
 def get_authenticated_response(
+        response: Response,
         tokens: TokensScheme
 ):
-    response = JSONResponse({'detail': 'Аутентифицирован'})
+    # response = JSONResponse({'detail': 'Аутентифицирован'})
     response.set_cookie(
         JWTConfig.auth_cookie_name,
         tokens.access_token,

@@ -20,23 +20,15 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 async def validate_token_for_ws(
         access_token: str | None = Cookie()
 ) -> UserInfo:
-    if access_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Неправильные данные входа'
-        )
     error_invalid_token = HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail='Неправильный токен'
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Неправильные данные входа'
     )
     error_no_rights = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail='Недостаточно прав'
     )
-
-    if not (
-        payload := verify_jwt(access_token)
-    ):
+    if access_token is None or not (payload := verify_jwt(access_token)):
         raise error_invalid_token
     provided_role = payload.role
     if not JWTCookie.role_allowed([Role.user, Role.moderator], provided_role):

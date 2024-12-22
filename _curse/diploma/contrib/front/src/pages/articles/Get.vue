@@ -1,53 +1,57 @@
 <template>
-    <v-container v-if="article.original_article_id === null && translationConfigState.isVisible">
-        <v-row>
-            <h4>Конфиги</h4>
-            <v-select
-                clearable
-                :items="configs.map(config => ({ value: config, title: config.name }))"
-                @update:model-value="(newValue) => {
-                    translationConfigState.model_id = newValue.model_id;
-                    translationConfigState.prompt_id = newValue.prompt_id;
-                    translationConfigState.language_ids = newValue.language_ids;
-                }"
-            ></v-select>
-        </v-row>
-        <v-row>
-            <h4>Модель</h4>
-            <v-select
-                v-model="translationConfigState.model_id"
-                clearable
-                :items="store.models.getSelectItems()"
-            ></v-select>
-        </v-row>
-        <v-row>
-            <h4>Промпт</h4>
-            <v-select
-                v-model="translationConfigState.prompt_id"
-                clearable
-                :items="store.prompts.getSelectItems()"
-            ></v-select>
-        </v-row>
-        <v-row>
-            <h4>Языки</h4>
-            <v-select
-                v-model="translationConfigState.language_ids"
-                clearable
-                multiple
-                :items="store.languages.getSelectItems()"
-            ></v-select>
-        </v-row>
-        <v-row>
-            <v-btn variant="elevated" color="error" @click="translationConfigState.isVisible = false">
-                Отмена
-            </v-btn>
-            <v-btn variant="elevated" color="primary" @click="startTranslation">
-                Начать перевод
-            </v-btn>
-        </v-row>
+    <v-container class="translation-form-wrapper" v-if="article.original_article_id === null && translationConfigState.isVisible">
+        <v-card class="mx-auto px-6 py-8 translation-form">
+            <v-container>
+                <v-row>
+                    <h4>Конфиги</h4>
+                    <v-select
+                        clearable
+                        :items="configs.map(config => ({ value: config, title: config.name }))"
+                        @update:model-value="(newValue) => {
+                        translationConfigState.model_id = newValue.model_id;
+                        translationConfigState.prompt_id = newValue.prompt_id;
+                        translationConfigState.language_ids = newValue.language_ids;
+                    }"
+                    ></v-select>
+                </v-row>
+                <v-row>
+                    <h4>Модель</h4>
+                    <v-select
+                        v-model="translationConfigState.model_id"
+                        clearable
+                        :items="store.models.getSelectItems()"
+                    ></v-select>
+                </v-row>
+                <v-row>
+                    <h4>Промпт</h4>
+                    <v-select
+                        v-model="translationConfigState.prompt_id"
+                        clearable
+                        :items="store.prompts.getSelectItems()"
+                    ></v-select>
+                </v-row>
+                <v-row>
+                    <h4>Языки</h4>
+                    <v-select
+                        v-model="translationConfigState.language_ids"
+                        clearable
+                        multiple
+                        :items="store.languages.getSelectItems()"
+                    ></v-select>
+                </v-row>
+                <v-row>
+                    <v-btn variant="elevated" color="error" @click="translationConfigState.isVisible = false">
+                        Отмена
+                    </v-btn>
+                    <v-btn variant="elevated" color="primary" @click="startTranslation">
+                        Начать перевод
+                    </v-btn>
+                </v-row>
+            </v-container>
+        </v-card>
     </v-container>
     <v-sheet
-        class="d-flex align-center justify-center flex-wrap text-wrap mx-auto px-4"
+        class="text-sheet"
         elevation="4"
         max-width="80vw"
         width="100%"
@@ -173,7 +177,7 @@ async function startTranslation() {
         }),
     )
     if (result) {
-        UnnecessaryEventEmitter.emit('AlertMessage', {
+        UnnecessaryEventEmitter.emit(Config.alertMessageKey, {
             title: result.message,
             text: undefined,
             severity: 'info'
@@ -184,6 +188,15 @@ async function startTranslation() {
 </script>
 
 <style scoped>
+.text-sheet {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-wrap: wrap;
+    padding: 4px;
+    margin: 16px auto 16px auto;
+}
 .markdown-renderer {
     font-family: Arial, sans-serif;
     text-align: left;
@@ -192,5 +205,27 @@ async function startTranslation() {
     overflow-wrap: break-word;
     white-space: normal;
     max-width: 100%;
+}
+
+.translation-form {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 50%;
+    max-width: 90%;
+    border-radius: 8px;
+}
+
+.translation-form-wrapper {
+    z-index: 999;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
 }
 </style>

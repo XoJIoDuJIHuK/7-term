@@ -2,7 +2,7 @@ import json
 from urllib.parse import urljoin
 
 # import google.generativeai as genai
-import requests
+import httpx
 
 from src.database.models import (
     AIModel,
@@ -43,6 +43,13 @@ class Gpt4freeTranslator(AbstractTranslator):
         else:
             return None
 
+    async def get_response(self, request_payload: dict):
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            return await client.post(
+                urljoin(G4FConfig.address, '/v1/chat/completions'),
+                json=request_payload,
+            )
+
     async def _process_chunk(
             self,
             model: AIModel,
@@ -70,14 +77,10 @@ class Gpt4freeTranslator(AbstractTranslator):
             'web_search': True,
             'proxy': None
         }
-        self.logger.info(f'Request payload: {request_payload}')
-        response = requests.post(
-            urljoin(
-                G4FConfig.address, '/v1/chat/completions',
-            ),
-            json=request_payload
-        )
-        if not response.ok:
+        self.logger.info(f'Translating chunk: {chunk}')
+        response = await self.get_response(request_payload)
+        self.logger.info(f'Got response: {response}')
+        if not response.is_success:
             raise Exception(json.dumps(response.json()))
         answer = response.json()['choices'][0]['message']['content']
         self.logger.info(f'Returned answer: {answer}')

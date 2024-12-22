@@ -80,4 +80,7 @@ header {
 .v-col:nth-child(3) {
     max-width: fit-content;
 }
+.v-overlay-container {
+    z-index: 9999;
+}
 </style>

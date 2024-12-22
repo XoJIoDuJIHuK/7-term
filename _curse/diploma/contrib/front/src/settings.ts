@@ -1,8 +1,9 @@
 import { reactive } from 'vue'
 
 export const Config = {
-    backend_address: 'http://localhost:8000/api',
-    websocket_address: 'ws://localhost:8000/api',
+    backend_address: 'https://localhost/api',
+    // secure_backend_address: 'https://localhost:9000/api',
+    websocket_address: 'wss://ugabuntu/api',
     userRoles: {
         guest: 'Гость',
         user: 'Пользователь',
@@ -16,6 +17,7 @@ export const Config = {
         rejected: 'Отклонена',
     },
     userInfoProperty: 'userInfo',
+    alertMessageKey: 'AlertMessage',
 }
 
 export type Language = {
@@ -117,7 +119,7 @@ export const validationRules = {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         return pattern.test(value) || 'Неправильный адрес электронной почты.'
     },
-    tooLong: (maxLength: number) => (value: string) => value.length <= maxLength || 'Превышена длина'
+    maxLength: (maxLength: number) => (value: string) => value.length <= maxLength || `Превышена длина: ${maxLength}`
 }
 
 export interface DataTableHeader {
