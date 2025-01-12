@@ -15,6 +15,9 @@
               <node kind="schema" qname="@" />
             </node>
             <node kind="database" qname="diploma" />
+            <node kind="database" qname="gdb">
+              <node kind="schema" qname="public" />
+            </node>
           </node>
         </introspection-scope>
       </schema-mapping>

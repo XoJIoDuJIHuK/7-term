@@ -1,9 +1,10 @@
 import { reactive } from 'vue'
 
 export const Config = {
-    backend_address: 'https://localhost/api',
-    // secure_backend_address: 'https://localhost:9000/api',
-    websocket_address: 'wss://ugabuntu/api',
+    // backend_address: 'https://ugabuntu.com/api',
+    // websocket_address: 'wss://ugabuntu.com/api',
+    backend_address: 'http://localhost:8000/api',
+    websocket_address: 'ws://localhost:8000/api',
     userRoles: {
         guest: 'Гость',
         user: 'Пользователь',

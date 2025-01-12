@@ -59,39 +59,39 @@ services:
     networks:
       - a
 
-#  translation_consumer:
-#    image: diploma-base
-#    command:
-#      - "python"
-#      - "-m"
-#      - "src.manage"
-#      - "start_translator_consumer"
-#    env_file:
-#      - ../../.env
-#    volumes:
-#      - ../../src:/app/src
-#      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
-#    depends_on:
-#      - kafka
-#    networks:
-#      - a
-#
-#  mail_consumer:
-#    image: diploma-base
-#    command:
-#      - "python"
-#      - "-m"
-#      - "src.manage"
-#      - "start_mail_consumer"
-#    env_file:
-#      - ../../.env
-#    volumes:
-#      - ../../src:/app/src
-#      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
-#    depends_on:
-#      - kafka
-#    networks:
-#      - a
+  translation_consumer:
+    image: diploma-base
+    command:
+      - "python"
+      - "-m"
+      - "src.manage"
+      - "start_translator_consumer"
+    env_file:
+      - ../../.env
+    volumes:
+      - ../../src:/app/src
+      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
+    depends_on:
+      - kafka
+    networks:
+      - a
+
+  mail_consumer:
+    image: diploma-base
+    command:
+      - "python"
+      - "-m"
+      - "src.manage"
+      - "start_mail_consumer"
+    env_file:
+      - ../../.env
+    volumes:
+      - ../../src:/app/src
+      - ./consumer/docker-entrypoint.d:/app/docker-entrypoint.d
+    depends_on:
+      - kafka
+    networks:
+      - a
 
   redis:
     image: redis:7.4.1

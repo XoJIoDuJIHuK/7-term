@@ -69,15 +69,15 @@ class Gpt4freeTranslator(AbstractTranslator):
             ],
             'model': model.name,
             'provider': model.provider,
-            'stream': False,
-            'temperature': 1,
-            'max_tokens': 8192,
-            'stop': [],
-            'api_key': self.get_api_key(model),
-            'web_search': True,
-            'proxy': None
+            # 'stream': False,
+            # 'temperature': 1,
+            # 'max_tokens': 8192,
+            # 'stop': [],
+            # 'api_key': self.get_api_key(model),
+            # 'web_search': True,
+            # 'proxy': None
         }
-        self.logger.info(f'Translating chunk: {chunk}')
+        self.logger.info(f'Translating chunk: {json.dumps(chunk, ensure_ascii=False)}')
         response = await self.get_response(request_payload)
         self.logger.info(f'Got response: {response}')
         if not response.is_success:

@@ -1,0 +1,1504 @@
+//src.routers.analytics.views.py
+@router.get(
+    '/models-stats/'
+)
+async def get_models_stats(
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    return await AnalyticsRepo.get_models_stats(db_session)
+
+@router.get(
+    '/prompts-stats/'
+)
+async def get_prompts_stats(
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    return await AnalyticsRepo.get_prompts_stats(db_session)
+
+
+//src.routers.articles.views.py
+@router.post(
+    '/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 500)
+)
+async def upload_article(
+        article_data: UploadArticleScheme,
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    article = await ArticleRepo.create(
+        article_data=CreateArticleScheme(
+            title=article_data.title,
+            text=article_data.text,
+            language_id=article_data.language_id,
+            user_id=user_info.id
+        ),
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
+
+@router.put(
+    '/{article_id}/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404, 500)
+)
+async def update_article(
+        new_article_data: EditArticleScheme,
+        article_id: uuid.UUID = Path(),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    article = await ArticleRepo.get_by_id(article_id, db_session)
+    if (
+            not article
+            or article.user_id != user_info.id
+            or article.original_article_id is not None
+    ):
+        raise article_not_found_error
+    if new_article_data.title is not None:
+        article.title = new_article_data.title
+    if new_article_data.text is not None:
+        article.text = new_article_data.text
+    db_session.add(article)
+    await db_session.commit()
+    await db_session.refresh(article)
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
+
+@router.delete(
+    '/{article_id}/',
+    response_model=DataResponse.single_by_key(
+        'article',
+        ArticleOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404, 500)
+)
+async def delete_article(
+        article_id: uuid.UUID = Path(),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    article = await ArticleRepo.get_by_id(article_id, db_session)
+    if not article or article.user_id != user_info.id:
+        raise article_not_found_error
+    article = await ArticleRepo.delete(
+        article=article,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'article': ArticleOutScheme.model_validate(article)
+        }
+    )
+
+
+//src.routers.auth.views.py
+@router.post(
+    '/login/',
+    responses=get_responses(404)
+)
+async def login(
+        login_data: LoginScheme,
+        request: Request,
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepo.get_by_email(
+        email=login_data.email,
+        db_session=db_session
+    )
+    if (
+        not user or
+        user.password_hash != get_password_hash(login_data.password)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Неправильные данные для входа'
+        )
+    if not user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Подтвердите адрес электронной почты'
+        )
+    if AppConfig.close_sessions_on_same_device_login:
+        await SessionRepo.close_all(
+            user_id=user.id,
+            ip=request.headers.get('X-Forwarded-For'),
+            user_agent=get_user_agent(request),
+            db_session=db_session
+        )
+    await db_session.refresh(user)
+    tokens = await AuthHandler.login(
+        user=user,
+        request=request,
+        db_session=db_session
+    )
+    response = JSONResponse({'detail': 'Аутентифицирован'})
+    return get_authenticated_response(response, tokens)
+
+@router.post(
+    '/register/',
+    response_model=BaseResponse,
+    responses=get_responses(409)
+)
+async def register(
+        registration_data: RegistrationScheme,
+        db_session: AsyncSession = Depends(get_session)
+):
+    if await UserRepo.name_is_taken(
+        name=registration_data.name,
+        db_session=db_session
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Имя занято'
+        )
+    user = await UserRepo.create(
+        user_data=CreateUserScheme(
+            name=registration_data.name,
+            email=registration_data.email,
+            email_verified=False,
+            password=registration_data.password,
+            role=Role.user
+        ),
+        db_session=db_session
+    )
+    await send_email_confirmation_message(
+        user=user,
+        email=registration_data.email,
+        db_session=db_session
+    )
+    return BaseResponse(message='Регистрация успешна. Проверьте почту')
+
+@router.post(
+    '/restore-password/request/',
+    response_model=BaseResponse,
+    responses=get_responses(404)
+)
+async def request_password_restoration_code(
+        email: EmailStr,
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepo.get_by_email(
+        email=email,
+        db_session=db_session
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Неправильный адрес электронной почты'
+        )
+    confirmation_code = await ConfirmationCodeRepo.create(
+        user_id=user.id,
+        reason=ConfirmationType.password_reset,
+        db_session=db_session
+    )
+    producer = KafkaProducer(
+        bootstrap_servers=KafkaConfig.address,
+        topic=KafkaConfig.mail_topic
+    )
+    kafka_message = SendEmailScheme(
+        to_address=email,
+        from_address=UnisenderConfig.from_address,
+        from_name=UnisenderConfig.from_name,
+        subject=UnisenderConfig.password_recovery_subject,
+        template_id=UnisenderConfig.password_recovery_template_id,
+        params={
+            'link': f'{FrontConfig.address}'
+                    f'{FrontConfig.change_password_endpoint}'
+                    f'?code={confirmation_code.code}'
+        }
+    )
+    await producer.send_message(kafka_message.model_dump(mode='json'))
+    return BaseResponse(message='Сообщение отправляется на почту')
+
+@router.patch(
+    '/restore-password/confirm/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 404)
+)
+async def restore_password(
+        request_data: ResetPasswordScheme,
+        db_session: AsyncSession = Depends(get_session)
+):
+    confirmation_code = await ConfirmationCodeRepo.get(
+        value=request_data.code,
+        reason=ConfirmationType.password_reset,
+        db_session=db_session
+    )
+    if not confirmation_code:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Код восстановления пароля не найден'
+        )
+    new_password_hash = get_password_hash(request_data.new_password)
+    await UserRepo.update_password_hash(
+        user_id=confirmation_code.user_id,
+        new_password_hash=new_password_hash,
+        db_session=db_session
+    )
+    await ConfirmationCodeRepo.mark_as_used(
+        confirmation_code=confirmation_code,
+        db_session=db_session
+    )
+    return BaseResponse(message='Пароль успешно изменён')
+
+
+//src.routers.config.views.py
+@router.post(
+    '/',
+    response_model=DataResponse.single_by_key(
+        'config',
+        ConfigOutScheme
+    ),
+    responses=get_responses(400, 401, 409)
+)
+async def create_config(
+        request: Request,
+        config_data: CreateConfigScheme,
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
+):
+    config = await ConfigRepo.create(
+        config_data=config_data,
+        user_id=user_info.id,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'config': ConfigOutScheme.model_validate(config)
+        }
+    )
+
+@router.put(
+    '/{config_id}/',
+    response_model=DataResponse.single_by_key(
+        'config',
+        ConfigOutScheme
+    ),
+    responses=get_responses(400, 401, 404, 409)
+)
+async def update_config(
+        config_data: EditConfigScheme,
+        config: TranslationConfig = Depends(get_config),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
+):
+    config = await ConfigRepo.update(
+        config=config,
+        new_data=config_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'config': ConfigOutScheme.model_validate(config)
+        }
+    )
+
+@router.delete(
+    '/{config_id}/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 401, 404, 409)
+)
+async def delete_config(
+        request: Request,
+        config: TranslationConfig = Depends(get_config),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
+):
+    logger.info(f'Worker {request.headers.get('X-Worker-ID', 'unknown')} is trying to delete config {config.name[-1]}')
+    config_name = config.name
+    await ConfigRepo.delete(
+        config=config,
+        db_session=db_session
+    )
+    return BaseResponse(message=f'Конфиг {config_name} удалён')
+
+
+//src.routers.models.views.py
+@router.post(
+    '/',
+    response_model=DataResponse.single_by_key(
+        'model',
+        ModelOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 409)
+)
+async def create_model(
+        model_data: ModelCreateScheme,
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    await check_model_conflicts(
+        model_data=model_data,
+        existing_model_id=None,
+        db_session=db_session
+    )
+    model = await ModelRepo.create(
+        model_data=model_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'model': ModelOutScheme.model_validate(model)
+        }
+    )
+
+@router.put(
+    '/{model_id}/',
+    response_model=DataResponse.single_by_key(
+        'model',
+        ModelOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404, 409)
+)
+async def update_model(
+        model_data: ModelUpdateScheme,
+        model_id: int = Path(),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    model = await ModelRepo.get_by_id(
+        model_id=model_id,
+        db_session=db_session
+    )
+    if not model:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Модели не существует'
+        )
+    await check_model_conflicts(
+        model_data=model_data,
+        existing_model_id=model_id,
+        db_session=db_session
+    )
+    model = await ModelRepo.update(
+        model=model,
+        new_model_data=model_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'model': ModelOutScheme.model_validate(model)
+        }
+    )
+
+@router.delete(
+    '/{model_id}/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 401, 403, 404)
+)
+async def delete_model(
+        model_id: int = Path(),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    result = await ModelRepo.delete(
+        model_id=model_id,
+        db_session=db_session
+    )
+    return BaseResponse(message=result)
+
+
+//src.routers.oauth.views.py
+@router.get(
+    '/login/'
+)
+async def redirect_to_provider(
+        request: Request,
+        provider: OAuthProvider,
+):
+    provider_authorize = get_oauth_provider(
+        provider=provider,
+        storage=RedisHandler()
+    )
+    new_session_data = {
+        OAuthConfig.session_data_property: {
+            'ip': request.headers.get('X-Forwarded-For'),
+        }
+    }
+    request.session.update(new_session_data)
+    authorization_url = await provider_authorize.get_auth_url()
+    return RedirectResponse(authorization_url)
+
+@router.get(
+    '/{provider}/callback',
+    summary='Validates auth code from provider and returns user\'s tokens',
+    response_model=None
+)
+async def callback(
+    request: Request,
+    provider: OAuthProvider = Path(),
+    db_session: AsyncSession = Depends(get_session),
+):
+    oauth_login_data = request.session.get(
+        OAuthConfig.session_data_property
+    )
+    if not oauth_login_data:
+        error_message = (
+            f'Ошибка валидации сессии: {request.session}, отсутствует свойство'
+            f' \'{OAuthConfig.session_data_property}\''
+        )
+        logger.error(error_message)
+        raise Exception(error_message)
+
+    provider_authorize = get_oauth_provider(
+        provider=provider,
+        storage=RedisHandler()
+    )
+    auth_token = await provider_authorize.callback(
+        request=request
+    )
+
+    user_data = await provider_authorize.get_user_info(auth_token)
+    logger.error(user_data)
+    user_id = user_data.id
+    provider_user_id = (str(user_id) if user_id else None)
+
+    if email := user_data.email:
+        user = await UserRepo.get_by_email(
+            email=email,
+            db_session=db_session
+        )
+        if not user:
+            user = await UserRepo.register_for_oauth(
+                role=Role.user,
+                db_session=db_session,
+                email=email,
+                name=user_data.name,
+                oauth_provider=provider,
+                provider_id=provider_user_id,
+            )
+    else:
+        user = await UserRepo.get_by_oauth_data(
+            provider=provider,
+            provider_id=provider_user_id,
+            db_session=db_session
+        )
+        if not user:
+            user = await UserRepo.register_for_oauth(
+                email=None,
+                name=user_data.name,
+                role=Role.user,
+                db_session=db_session,
+                oauth_provider=provider,
+                provider_id=provider_user_id,
+            )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    tokens = await AuthHandler.login(
+        user=user,
+        request=request,
+        db_session=db_session
+    )
+    response = RedirectResponse(f'/')
+    return get_authenticated_response(response, tokens)
+
+
+//src.routers.prompts.views.py
+@router.post(
+    '/',
+    response_model=DataResponse.single_by_key(
+        'prompt',
+        PromptOutScheme
+    )
+)
+async def create_prompt(
+        prompt_data: CreatePromptScheme,
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    prompt = await PromptRepo.create(
+        prompt_data=prompt_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'prompt': PromptOutScheme.model_validate(prompt)
+        }
+    )
+
+@router.put(
+    '/{prompt_id}/',
+    response_model=DataResponse.single_by_key(
+        'prompt',
+        PromptOutScheme
+    )
+)
+async def update_prompt(
+        prompt_data: EditPromptScheme,
+        prompt: StylePrompt = Depends(get_prompt),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    prompt = await PromptRepo.update(
+        prompt=prompt,
+        prompt_data=prompt_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'prompt': PromptOutScheme.model_validate(prompt)
+        }
+    )
+
+@router.delete(
+    '/{prompt_id}/',
+    response_model=BaseResponse
+)
+async def delete_prompt(
+        prompt: StylePrompt = Depends(get_prompt),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin]))
+):
+    await PromptRepo.delete(
+        prompt=prompt,
+        db_session=db_session
+    )
+    return BaseResponse(message='Промпт удалён')
+
+
+//src.routers.sessions.views.py
+@router.get(
+    '/',
+    response_model=ListResponse[SessionOutScheme],
+    responses=get_responses(400, 401)
+)
+async def get_sessions(
+        user_info: UserInfo = Depends(JWTCookie()),
+        db_session: AsyncSession = Depends(get_session),
+        pagination: PaginationParams = Depends(get_pagination_params)
+):
+    sessions, count = await SessionRepo.get_list(
+        user_id=user_info.id,
+        pagination_params=pagination,
+        db_session=db_session
+    )
+    return ListResponse[SessionOutScheme].from_list(
+        items=sessions,
+        total_count=count,
+        params=pagination
+    )
+
+@router.post(
+    '/close/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 401)
+)
+async def close_sessions(
+        user_info: UserInfo = Depends(JWTCookie()),
+        db_session: AsyncSession = Depends(get_session),
+):
+    refresh_token_ids = await SessionRepo.get_refresh_token_ids(
+        user_id=user_info.id,
+        db_session=db_session
+    )
+    await put_tokens_in_black_list(refresh_token_ids)
+    await SessionRepo.close_all(
+        user_id=user_info.id,
+        db_session=db_session
+    )
+    return BaseResponse(message='Все сессии успешно закрыты')
+
+//src.routers.reports.views.py
+@router.post(
+    '/articles/{article_id}/report/',
+    response_model=DataResponse.single_by_key(
+        'report',
+        ReportOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 409)
+)
+async def create_report(
+        report_data: CreateReportScheme,
+        report: Report | None = Depends(get_report(owner_only=True)),
+        article_id: uuid.UUID = Path(),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
+):
+    article = await ArticleRepo.get_by_id(
+        article_id=article_id,
+        db_session=db_session
+    )
+    if article.original_article_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Жаловаться можно только на переводы'
+        )
+    report = await ReportRepo.create(
+        article_id=article_id,
+        report_data=report_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'report': ReportOutScheme.create(report)
+        }
+    )
+
+
+@router.put(
+    '/articles/{article_id}/report/',
+    response_model=DataResponse.single_by_key(
+        'report',
+        ReportOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404)
+)
+async def update_report(
+        report_data: EditReportScheme,
+        report: Report | None = Depends(get_report(owner_only=True)),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user])),
+):
+    if not report:
+        raise report_not_found_error
+    report = await ReportRepo.update(
+        report=report,
+        report_data=report_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'report': ReportOutScheme.create(report)
+        }
+    )
+
+
+@router.patch(
+    '/articles/{article_id}/report/status/',
+    response_model=DataResponse.single_by_key(
+        'report',
+        ReportOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404)
+)
+async def update_report_status(
+        new_status: ReportStatus,
+        article_id: uuid.UUID = Path(),
+        report: Report | None = Depends(get_report(owner_only=False)),
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[
+            Role.user, Role.moderator
+        ])),
+):
+    if not report:
+        raise report_not_found_error
+    if report.status != ReportStatus.open:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Жалоба уже закрыта'
+        )
+    if (
+        user_info.role == Role.user and new_status != ReportStatus.closed or
+        user_info.role == Role.moderator and new_status not
+        in [ReportStatus.rejected, ReportStatus.satisfied]
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Действие запрещено'
+        )
+    return DataResponse(
+        data={
+            'report': ReportOutScheme.create(
+                await ReportRepo.update_status(
+                    report=report,
+                    new_status=new_status,
+                    user_id=user_info.id,
+                    db_session=db_session
+                )
+            )
+        }
+    )
+
+@router.get(
+    '/articles/{article_id}/report/comments/',
+    response_model=SimpleListResponse[CommentOutScheme],
+    responses=get_responses(400, 401, 403, 409)
+)
+async def get_comments(
+        report: Report | None = Depends(get_report(owner_only=False)),
+        user_info: UserInfo = Depends(JWTCookie(roles=[
+            Role.user, Role.moderator
+        ])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    if not report:
+        raise report_not_found_error
+    return SimpleListResponse[CommentOutScheme].from_list(
+        await ReportRepo.get_comments(
+            article_id=report.article_id,
+            db_session=db_session
+        )
+    )
+
+@router.post(
+    '/articles/{article_id}/report/comments/',
+    response_model=DataResponse.single_by_key(
+        'comment',
+        CommentOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 404)
+)
+async def create_comment(
+        comment_data: CreateCommentScheme,
+        report: Report | None = Depends(get_report(owner_only=False)),
+        user_info: UserInfo = Depends(JWTCookie(roles=[
+            Role.user, Role.moderator
+        ])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    if not report or report.status != ReportStatus.open:
+        raise report_not_found_error
+    comment = await ReportRepo.create_comment(
+        report_id=report.id,
+        sender_id=user_info.id,
+        text=comment_data.text,
+        db_session=db_session
+    )
+    await db_session.refresh(report)
+    redis_client = RedisHandler().client
+    comment_scheme = CommentOutScheme(
+            text=comment.text,
+            sender_id=str(comment.sender_id),
+            sender_name=(await UserRepo.get_by_id(
+                user_id=user_info.id,
+                db_session=db_session
+            )).name,
+            created_at=comment.created_at
+        )
+    await redis_client.publish(
+        f'comments_{str(report.article_id)}',
+        comment_scheme.model_dump_json()
+    )
+    return DataResponse(
+        data={
+            'comment': comment_scheme
+        }
+    )
+
+//src.routers.translation.views.py
+@router.post(
+    '/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 401, 403, 404)
+)
+async def create_translation(
+        translation_data: CreateTranslationScheme,
+        db_session: AsyncSession = Depends(get_session),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.user]))
+):
+    article = await ArticleRepo.get_by_id(
+        article_id=translation_data.article_id,
+        db_session=db_session
+    )
+    if not article or article.user_id != user_info.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Статья не найдена'
+        )
+    if article.original_article_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Нельзя переводить перевод'
+        )
+    if not await ModelRepo.exists_by_id(
+        model_id=translation_data.model_id,
+        db_session=db_session
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Модель не существует'
+        )
+    if not await PromptRepo.exists_by_id(
+        prompt_id=translation_data.prompt_id,
+        db_session=db_session
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Промпт не существует'
+        )
+
+    producer = KafkaProducer(
+        bootstrap_servers=KafkaConfig.address,
+        topic=KafkaConfig.translation_topic
+    )
+
+    for target_language_id in translation_data.target_language_ids:
+        if not await LanguageRepo.exists(
+                language_id=target_language_id,
+                db_session=db_session
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Конечный язык не поддерживается'
+            )
+        task = await TaskRepo.create(
+            task_data=CreateTaskScheme(
+                article_id=translation_data.article_id,
+                model_id=translation_data.model_id,
+                prompt_id=translation_data.prompt_id,
+                target_language_id=target_language_id
+            ),
+            db_session=db_session
+        )
+        message = TranslationMessage(task_id=task.id)
+        await producer.send_message(
+            message.model_dump(mode='json')
+        )
+        return BaseResponse(message='Перевод запущен. Ожидайте')
+
+
+//src.routers.users.views.py
+@router.patch(
+    '/{user_id}/name/',
+    response_model=BaseResponse,
+    responses=get_responses(400, 401, 409)
+)
+async def change_name(
+        request_data: UserUpdateNameScheme,
+        user_id: uuid.UUID = Path(),
+        user_info: UserInfo = Depends(JWTCookie()),
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepo.get_by_id(
+        user_id=user_info.id,
+        db_session=db_session
+    )
+    if not user or user_id != user_info.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Пользователь не найден'
+        )
+    if user.name == request_data.name:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Новое имя не должно совпадать со старым'
+        )
+    user.name = request_data.name
+    db_session.add(user)
+    await db_session.commit()
+    return BaseResponse(message='Имя успешно изменено')
+
+@router.post(
+    '/',
+    response_model=DataResponse.single_by_key(
+        'user',
+        UserOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 409)
+)
+async def create_user(
+        new_user_data: CreateUserScheme,
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
+        db_session: AsyncSession = Depends(get_session)
+):
+    user = await UserRepo.create(
+        user_data=new_user_data,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'user': UserOutAdminScheme.model_validate(user)
+        }
+    )
+
+@router.put(
+    '/{user_id}/',
+    response_model=DataResponse.single_by_key(
+        'user',
+        UserOutScheme
+    ),
+    responses=get_responses(400, 401, 403, 409)
+)
+async def update_user(
+        new_user_info: EditUserScheme,
+        user: User = Depends(get_user),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    user = await UserRepo.update(
+        user=user,
+        new_data=new_user_info,
+        db_session=db_session
+    )
+    return DataResponse(
+        data={
+            'user': UserOutAdminScheme.model_validate(user)
+        }
+    )
+
+@router.delete(
+    '/{user_id}/',
+    responses=get_responses(400, 401, 403, 409)
+)
+async def delete_user(
+        user: User = Depends(get_user),
+        user_info: UserInfo = Depends(JWTCookie(roles=[Role.admin])),
+        db_session: AsyncSession = Depends(get_session),
+):
+    await UserRepo.soft_delete(
+        user=user,
+        db_session=db_session
+    )
+    return BaseResponse(message='Пользователь удалён')
+
+
+//src.database.models.py
+class User(Base):
+    __tablename__ = f'{Database.prefix}users'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column(
+        String(20)
+    )
+    email: Mapped[str] = mapped_column(
+        String,
+        unique=True
+    )
+    email_verified: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+    password_hash: Mapped[str] = mapped_column(
+        String(60)
+    )
+    role: Mapped[Role] = mapped_column(
+        Enum(Role, name='user_role'),
+        default=Role.user
+    )
+    logged_with_provider: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        comment='External OAuth provider name user has registered with'
+    )
+    provider_id: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        comment='User\'s ID from OAuth provider user has registered with'
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class Session(Base):
+    __tablename__ = f'{Database.prefix}sessions'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{Database.prefix}users.id', ondelete='CASCADE')
+    )
+    ip: Mapped[str] = mapped_column(
+        String(15)
+    )
+    user_agent: Mapped[str] = mapped_column(
+        String(100)
+    )
+    is_closed: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+    refresh_token_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    closed_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class ConfirmationCode(Base):
+    __tablename__ = f'{Database.prefix}confirmation_codes'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    code: Mapped[str] = mapped_column(
+        String,
+        unique=True,
+        comment='The value of the code'
+    )
+    reason: Mapped[ConfirmationType] = mapped_column(
+        Enum(ConfirmationType),
+        default=ConfirmationType.registration
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    )
+    expired_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime
+    )
+    is_used: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+
+
+class Language(Base):
+    __tablename__ = f'{Database.prefix}languages'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    name: Mapped[str] = mapped_column(
+        String,
+        unique=True
+    )
+    iso_code: Mapped[str] = mapped_column(
+        String,
+        unique=True
+    )
+
+
+class Article(Base):
+    __tablename__ = f'{Database.prefix}articles'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    title: Mapped[str] = mapped_column(String(50))
+    text: Mapped[str] = mapped_column(Text)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    )
+    language_id: Mapped[int | None] = mapped_column(
+        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    original_article_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f'{Database.prefix}articles.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    like: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+    report: Mapped['Report'] = relationship(
+        'Report',
+        back_populates='article',
+        cascade='all, delete-orphan',
+        uselist=False,
+        lazy='joined'
+    )
+    language: Mapped[Language] = relationship(
+        'Language',
+        uselist=False,
+        lazy='joined'
+    )
+    original_article: Mapped['Article'] = relationship(
+        'Article',
+        uselist=False,
+        lazy='joined'
+    )
+
+
+class ReportReason(Base):
+    __tablename__ = f'{Database.prefix}report_reasons'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    text: Mapped[str] = mapped_column(
+        String,
+        unique=True
+    )
+    order_position: Mapped[int] = mapped_column(
+        Integer,
+        unique=True
+    )
+
+
+class Report(Base):
+    __tablename__ = f'{Database.prefix}reports'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    text: Mapped[str] = mapped_column(
+        String(1024)
+    )
+    article_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE')
+    )
+    status: Mapped[ReportStatus] = mapped_column(
+        Enum(ReportStatus),
+        default=ReportStatus.open
+    )
+    closed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    reason_id: Mapped[int] = mapped_column(
+        ForeignKey(f'{ReportReason.__tablename__}.id', ondelete='CASCADE')
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    closed_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+    article: Mapped[Article] = relationship(
+        'Article',
+        back_populates='report',
+        uselist=False,
+        lazy='joined',
+    )
+    closed_by_user: Mapped[User] = relationship(
+        'User',
+        uselist=False,
+        lazy='joined',
+    )
+    reason: Mapped[ReportReason] = relationship(
+        'ReportReason',
+        uselist=False,
+        lazy='joined',
+    )
+
+
+class Comment(Base):
+    __tablename__ = f'{Database.prefix}report_comments'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    text: Mapped[str] = mapped_column(
+        String(100)
+    )
+    sender_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    )
+    report_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{Report.__tablename__}.id', ondelete='CASCADE')
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+
+
+class StylePrompt(Base):
+    __tablename__ = f'{Database.prefix}style_prompts'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    title: Mapped[str] = mapped_column(
+        String(20),
+        unique=True
+    )
+    text: Mapped[str] = mapped_column(
+        String,
+        unique=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class AIModel(Base):
+    __tablename__ = f'{Database.prefix}ai_models'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    show_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    provider: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now,
+        nullable=False
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class TranslationConfig(Base):
+    __tablename__ = f'{Database.prefix}configs'
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    )
+    prompt_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            f'{StylePrompt.__tablename__}.id',
+            ondelete='CASCADE'
+        ),
+        nullable=True
+    )
+    name: Mapped[str] = mapped_column(
+        String(20),
+    )
+    language_ids: Mapped[list[int]] = mapped_column(ARRAY(Integer))
+    model_id: Mapped[int | None] = mapped_column(
+        ForeignKey(f'{AIModel.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class TranslationTask(Base):
+    __tablename__ = f'{Database.prefix}translation_tasks'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    article_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE')
+    )
+    target_language_id: Mapped[int] = mapped_column(
+        ForeignKey(f'{Language.__tablename__}.id', ondelete='CASCADE')
+    )
+    prompt_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            f'{StylePrompt.__tablename__}.id', ondelete='CASCADE'
+        )
+    )
+    model_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            f'{AIModel.__tablename__}.id', ondelete='CASCADE'
+        )
+    )
+    status: Mapped[TranslationTaskStatus] = mapped_column(
+        Enum(TranslationTaskStatus),
+        default=TranslationTaskStatus.created
+    )
+    data: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=True,
+        comment='Additional data related to the translation task '
+                '(e.g., errors or metadata)'
+    )
+    translated_article_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f'{Article.__tablename__}.id', ondelete='CASCADE'),
+        nullable=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+    deleted_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+
+
+class Notification(Base):
+    __tablename__ = f'{Database.prefix}notifications'
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+    title: Mapped[str] = mapped_column(
+        String
+    )
+    text: Mapped[str] = mapped_column(
+        String
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(f'{User.__tablename__}.id', ondelete='CASCADE')
+    )
+    type: Mapped[NotificationType] = mapped_column(
+        Enum(NotificationType)
+    )
+    read_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime,
+        nullable=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        default=get_utc_now
+    )
+
+
+//tests.hot_load.py
+import asyncio
+import datetime
+import logging
+import multiprocessing
+import random
+import statistics
+import time
+from collections import defaultdict
+from functools import wraps
+
+import httpx
+
+
+logger = logging.getLogger(__name__)
+
+
+class HotLoad:
+    def __init__(
+            self,
+            duration: datetime.timedelta,
+            processes_number: int = 1,
+            workers_number: int = 1,
+    ):
+        self.duration = duration
+        self.deadline = datetime.datetime.now() + duration
+        self.processes_number = processes_number
+        self.workers_number = workers_number
+
+        self.headers = {}
+        self.tasks = []
+        self.errors = 0  # find usage
+        self.on_startup_callable = None
+        self.on_teardown_callable = None
+
+    def task(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await func(*args, **kwargs)
+
+        self.tasks.append(wrapper)
+        return wrapper
+
+    def on_startup(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await func(*args, **kwargs)
+        self.on_startup_callable = wrapper
+        return wrapper
+
+    def on_teardown(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await func(*args, **kwargs)
+        self.on_teardown_callable = wrapper
+        return wrapper
+
+    @staticmethod
+    def get_median(results) -> float:
+        return statistics.median(results) if results else 0
+
+    @staticmethod
+    def get_timestamp_now():
+        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    async def run_worker(
+            self,
+            worker_id: int
+    ) -> int:
+        logger.info('Running worker %s', worker_id)
+
+        stats = defaultdict(list)
+        total_requests = 0
+
+        async with httpx.AsyncClient(headers=self.headers) as client:
+            while self.deadline > datetime.datetime.now():
+                try:
+                    start = time.time()
+                    await self.tasks[
+                        random.randint(0, len(self.tasks) - 1)
+                    ](
+                        client,
+                        worker_id
+                    )
+                    end = time.time()
+                    delta = end - start
+                    current_timestamp = self.get_timestamp_now()
+                    stats[current_timestamp].append(delta)
+                except Exception as e:
+                    logger.exception(e)
+                    self.errors += 1
+                total_requests += 1
+
+        return total_requests
+
+    async def run_workers(self, worker_start_id: int) -> int:
+        results = await asyncio.gather(*[
+            self.run_worker(worker_id=i + worker_start_id)
+            for i in range(self.workers_number)
+        ])
+        return sum(results)
+
+    def run_process(self, process_number: int, *args) -> int:
+        worker_start_id = process_number * self.workers_number
+
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(self.run_workers(worker_start_id))
+        return result
+
+    async def run(self) -> float:
+        if self.on_startup_callable:
+            self.headers = await self.on_startup_callable()
+
+        with multiprocessing.Pool(processes=self.processes_number) as pool:
+            results = pool.map(self.run_process, range(self.processes_number))
+        mean_rps = sum(results) / self.duration.total_seconds()
+
+        if self.on_teardown_callable:
+            await self.on_teardown_callable()
+
+        return mean_rps

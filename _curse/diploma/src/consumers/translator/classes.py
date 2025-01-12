@@ -170,7 +170,7 @@ class TranslationTaskConsumer(AbstractKafkaConsumer):
                                 f' Попробуйте другую'
                             )
                         elif self.__error_includes(
-                            substrings=['ERR_BN_LIMIT'],
+                            substrings=['ERR_BN_LIMIT', 'RateLimit'],
                             error_data=error_data
                         ):
                             error_message = (
