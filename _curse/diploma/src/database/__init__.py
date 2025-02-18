@@ -15,13 +15,13 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-
+database_config = Database()
 async_engine = create_async_engine(
-    Database.url,
+    database_config.url,
 )
 AsyncDBSession = async_sessionmaker(async_engine)
 
-engine = create_engine(Database.url)
+engine = create_engine(database_config.url)
 SyncDBSession = sessionmaker(engine)
 
 logger = get_logger(LOGGER_PREFIX + __name__)

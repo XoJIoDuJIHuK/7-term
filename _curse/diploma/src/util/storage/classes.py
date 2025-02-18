@@ -5,12 +5,15 @@ from src.settings import RedisConfig
 from src.util.storage.abstract import AbstractStorage
 
 
+redis_config = RedisConfig()
+
+
 class RedisHandler(AbstractStorage):
     def __init__(self):
         self.client = aioredis.Redis(
-            host=RedisConfig.host,
-            port=RedisConfig.port,
-            db=RedisConfig.db,
+            host=redis_config.host,
+            port=redis_config.port,
+            db=redis_config.db,
         )
 
     async def get(self, key: str):

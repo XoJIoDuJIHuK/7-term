@@ -25,21 +25,19 @@ router = APIRouter(
     tags=['OAuth'],
 )
 logger = get_logger(__name__)
+oauth_config = OAuthConfig()
 
 
-@router.get(
-    '/login/'
-)
+@router.get('/login/')
 async def redirect_to_provider(
-        request: Request,
-        provider: OAuthProvider,
+    request: Request,
+    provider: OAuthProvider,
 ):
     provider_authorize = get_oauth_provider(
-        provider=provider,
-        storage=RedisHandler()
+        provider=provider, storage=RedisHandler()
     )
     new_session_data = {
-        OAuthConfig.session_data_property: {
+        oauth_config.session_data_property: {
             'ip': request.headers.get('X-Forwarded-For'),
         }
     }
@@ -50,43 +48,35 @@ async def redirect_to_provider(
 
 @router.get(
     '/{provider}/callback',
-    summary='Validates auth code from provider and returns user\'s tokens',
-    response_model=None
+    summary="Validates auth code from provider and returns user's tokens",
+    response_model=None,
 )
 async def callback(
     request: Request,
     provider: OAuthProvider = Path(),
     db_session: AsyncSession = Depends(get_session),
 ):
-    oauth_login_data = request.session.get(
-        OAuthConfig.session_data_property
-    )
+    oauth_login_data = request.session.get(oauth_config.session_data_property)
     if not oauth_login_data:
         error_message = (
             f'Ошибка валидации сессии: {request.session}, отсутствует свойство'
-            f' \'{OAuthConfig.session_data_property}\''
+            f" '{oauth_config.session_data_property}'"
         )
         logger.error(error_message)
         raise Exception(error_message)
 
     provider_authorize = get_oauth_provider(
-        provider=provider,
-        storage=RedisHandler()
+        provider=provider, storage=RedisHandler()
     )
-    auth_token = await provider_authorize.callback(
-        request=request
-    )
+    auth_token = await provider_authorize.callback(request=request)
 
     user_data = await provider_authorize.get_user_info(auth_token)
     logger.error(user_data)
     user_id = user_data.id
-    provider_user_id = (str(user_id) if user_id else None)
+    provider_user_id = str(user_id) if user_id else None
 
     if email := user_data.email:
-        user = await UserRepo.get_by_email(
-            email=email,
-            db_session=db_session
-        )
+        user = await UserRepo.get_by_email(email=email, db_session=db_session)
         if not user:
             user = await UserRepo.register_for_oauth(
                 role=Role.user,
@@ -100,7 +90,7 @@ async def callback(
         user = await UserRepo.get_by_oauth_data(
             provider=provider,
             provider_id=provider_user_id,
-            db_session=db_session
+            db_session=db_session,
         )
         if not user:
             user = await UserRepo.register_for_oauth(
@@ -115,9 +105,7 @@ async def callback(
     await db_session.commit()
     await db_session.refresh(user)
     tokens = await AuthHandler.login(
-        user=user,
-        request=request,
-        db_session=db_session
+        user=user, request=request, db_session=db_session
     )
     response = RedirectResponse(f'/')
     return get_authenticated_response(response, tokens)

@@ -1,14 +1,3 @@
-import asyncio
-import uuid
-
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.database import get_session
-from src.database.models import Article, AIModel, StylePrompt, Language
-from src.util.storage.classes import RedisHandler
-from src.util.translator.classes import Gpt4freeTranslator
-
 prompt = (
     'Translate following text from english to belarusian: Rommel was a highly'
     ' decorated officer in World War I and was awarded the Pour le Mérite for'
@@ -32,40 +21,6 @@ prompt = (
     ' of Normandy in June 1944.'
 )
 
-# import google.generativeai as genai
-#
-# genai.configure(api_key='AIzaSyBmKikk9iZfTFCzUL7wPLFY1lcJNNah4VM')
-# model = genai.GenerativeModel("gemini-1.5-flash")
-# response = model.generate_content(prompt)
-#
-# print(response.text)
-
-# async def main():
-#     async with get_session() as db:
-#         article = (await db.execute(select(Article).filter_by(id=uuid.UUID('c10394b8-5cdd-4d88-9d25-0e654678ab64')))).scalars().first()
-#         model = (await db.execute(select(AIModel).filter_by(id=1))).scalars().first()
-#         prompt = (await db.execute(select(StylePrompt).filter_by(id=1))).scalars().first()
-#         language = (await db.execute(select(Language).filter_by(id=5))).scalars().first()
-#
-#         await Gpt4freeTranslator().translate(
-#             text='hello, it\'s me, Mario',
-#             source_language=None,
-#             target_language=language,
-#             model=model,
-#             prompt_object=prompt
-#         )
-# if __name__ == '__main__':
-#     asyncio.run(main())
-
-# from src.logger import get_logger
-# logger = get_logger(__name__)
-#
-# logger.info('INFO')
-# logger.warning('WARNING')
-# logger.debug('DEBUG')
-# logger.error('ERROR')
-# logger.exception('EXCEPTION')
-
 
 import pathlib  # noqa
 import os  # noqa
@@ -73,10 +28,10 @@ import re  # noqa
 
 
 def print_directory_tree(
-        directory_path,
-        max_depth=float('inf'),
-        show_hidden=False,
-        ignored_files_regex=None,
+    directory_path,
+    max_depth=float('inf'),
+    show_hidden=False,
+    ignored_files_regex=None,
 ):
     """
     Prints a beautiful tree structure of files and folders.
@@ -117,10 +72,10 @@ def print_directory_tree(
         try:
             contents = sorted(
                 directory.iterdir(),
-                key=lambda p: (not p.is_dir(), p.name.lower())
+                key=lambda p: (not p.is_dir(), p.name.lower()),
             )
         except PermissionError:
-            print(f"{prefix}🚫 Access denied")
+            print(f'{prefix}🚫 Access denied')
             return loc
 
         # Filter out hidden files if show_hidden is False
@@ -150,7 +105,7 @@ def print_directory_tree(
                     pattern.search(path.name) for pattern in ignore_patterns
                 ):
                     continue
-                print(f"\033[1;34m{display_prefix}{path.name}/\033[0m")
+                print(f'\033[1;34m{display_prefix}{path.name}/\033[0m')
                 # Recursive call for subdirectories
                 loc += _tree(
                     path, prefix + ('    ' if is_last else '│   '), depth + 1
@@ -164,25 +119,25 @@ def print_directory_tree(
                 with open(path, 'r') as f:
                     file_LOC = len(f.readlines())
                     loc += file_LOC
-                    print(f"\033[0;32m{display_prefix}{path.name}\033[0m - {file_LOC}")
+                    print(
+                        f'\033[0;32m{display_prefix}{path.name}\033[0m - {file_LOC}'
+                    )
         return loc
 
     # Validate input directory
     if not os.path.exists(directory_path):
-        print(f"Error: {directory_path} does not exist.")
+        print(f'Error: {directory_path} does not exist.')
         return 0
 
     # Print root directory
-    print(f"\033[1;36m{directory_path}/\033[0m")
+    print(f'\033[1;36m{directory_path}/\033[0m')
 
     # Start tree rendering
     print(f'Total LOC: {_tree(directory_path)}')
 
 
 def get_matching_files(
-        directory_path,
-        file_exclude_regex,
-        show_hidden=False
+    directory_path, file_exclude_regex, show_hidden=False
 ) -> list[str]:
     """
     Prints all filenames (relative paths) that match a given regex.
@@ -194,14 +149,15 @@ def get_matching_files(
     """
     compiled_exclude_regex = re.compile(file_exclude_regex)
 
-    def _search_files(directory, relative_prefix="") -> list[str]:
+    def _search_files(directory, relative_prefix='') -> list[str]:
         directory = pathlib.Path(directory).resolve()
         file_paths = []
         try:
-            contents = sorted(directory.iterdir(),
-                              key=lambda p: p.name.lower())
+            contents = sorted(
+                directory.iterdir(), key=lambda p: p.name.lower()
+            )
         except PermissionError:
-            print(f"Access denied: {directory}")
+            print(f'Access denied: {directory}')
             return []
 
         for path in contents:
@@ -220,12 +176,13 @@ def get_matching_files(
         return file_paths
 
     if not os.path.exists(directory_path):
-        print(f"Error: {directory_path} does not exist.")
+        print(f'Error: {directory_path} does not exist.')
         return []
 
     print(
         f"Searching for files except for regex '{file_exclude_regex}' in "
-        f"'{directory_path}':\n")
+        f"'{directory_path}':\n"
+    )
     return _search_files(directory_path)
 
 
@@ -233,11 +190,11 @@ def print_files_for_applications():
     file_paths = get_matching_files(
         directory_path=os.path.curdir,
         file_exclude_regex=r'\.venv|__pycache__|front|.idea|.dockerignore|'
-                           r'\.env|\.local\.env|translator\.yml|юзкейс\.txt|'
-                           r'test\.py|insert_mock_reports\.py|vue-dev|'
-                           r'selfsigned|\.log'
-                           r'|contrib',
-        show_hidden=True
+        r'\.env|\.local\.env|translator\.yml|юзкейс\.txt|'
+        r'test\.py|insert_mock_reports\.py|vue-dev|'
+        r'selfsigned|\.log'
+        r'|contrib',
+        show_hidden=True,
     )
     for file_path in file_paths:
         with open(file_path, 'r') as f:
@@ -249,4 +206,10 @@ def print_files_for_applications():
 # print_directory_tree(
 #     '/home/aleh/7-term/_curse/diploma',
 # )
-print_files_for_applications()
+# print_files_for_applications()
+
+import asyncio
+from src.util.translator.classes import Gpt4freeTranslator
+
+translator = Gpt4freeTranslator()
+asyncio.run(translator.get_response({}))

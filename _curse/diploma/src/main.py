@@ -26,17 +26,18 @@ from starlette.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(root_path='/api')
+app_config = AppConfig()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=['*'],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
-app.add_middleware(SessionMiddleware, secret_key=AppConfig.secret_key)
+app.add_middleware(SessionMiddleware, secret_key=app_config.secret_key)
 
-init_exc_handlers(app, AppConfig.debug)
+init_exc_handlers(app, app_config.debug)
 init_responses(app)
 
 app.include_router(articles_router)
@@ -52,3 +53,11 @@ app.include_router(reports_router)
 app.include_router(sessions_router)
 app.include_router(users_router)
 app.include_router(translation_router)
+
+
+from src.util.brokers.producer.rabbitmq import publish_hello_world
+
+
+@app.get('/rabbit/test/')
+async def test_rabbit():
+    publish_hello_world()

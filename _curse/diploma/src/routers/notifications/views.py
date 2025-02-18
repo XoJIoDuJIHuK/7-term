@@ -21,44 +21,36 @@ from src.util.auth.schemes import UserInfo
 from src.util.storage.classes import RedisHandler
 from src.util.time.helpers import get_utc_now
 
-router = APIRouter(
-    prefix='/notifications',
-    tags=['Notifications']
-)
+router = APIRouter(prefix='/notifications', tags=['Notifications'])
 logger = get_logger(__name__)
+notification_config = NotificationConfig()
 
 
-@router.get(
-    '/',
-    response_model=SimpleListResponse[NotificationOutScheme]
-)
+@router.get('/', response_model=SimpleListResponse[NotificationOutScheme])
 async def get_notifications_list(
-        user_info: UserInfo = Depends(JWTCookie()),
-        db_session: AsyncSession = Depends(get_session)
+    user_info: UserInfo = Depends(JWTCookie()),
+    db_session: AsyncSession = Depends(get_session),
 ):
     notifications = await NotificationRepo.get_list(
-        user_id=user_info.id,
-        db_session=db_session
+        user_id=user_info.id, db_session=db_session
     )
     return SimpleListResponse[NotificationOutScheme].from_list(
         items=notifications
     )
 
 
-@router.websocket(
-    '/'
-)
+@router.websocket('/')
 async def get_notifications(
-        websocket: WebSocket,
-        user_info: UserInfo = Depends(validate_token_for_ws),
-        db_session: AsyncSession = Depends(get_session)
+    websocket: WebSocket,
+    user_info: UserInfo = Depends(validate_token_for_ws),
+    # db_session: AsyncSession = Depends(get_session),
 ):
     try:
         await websocket.accept()
 
         pubsub = RedisHandler().get_pubsub()
         await pubsub.subscribe(
-            NotificationConfig.topic_name.format(user_info.id)
+            notification_config.topic_name.format(user_info.id)
         )
         while True:
             try:
@@ -91,18 +83,12 @@ async def get_notifications(
         await websocket.close()
 
 
-@router.put(
-    '/',
-    response_model=BaseResponse
-)
+@router.put('/', response_model=BaseResponse)
 async def mark_notifications_read(
-        user_info: UserInfo = Depends(JWTCookie()),
-        db_session: AsyncSession = Depends(get_session)
+    user_info: UserInfo = Depends(JWTCookie()),
+    db_session: AsyncSession = Depends(get_session),
 ):
     closed_notifications = await NotificationRepo.read_all(
-        user_id=user_info.id,
-        max_datetime=get_utc_now(),
-        db_session=db_session
+        user_id=user_info.id, max_datetime=get_utc_now(), db_session=db_session
     )
-    return BaseResponse(message=f'Очищено {closed_notifications}'
-                                f' уведомлений')
+    return BaseResponse(message=f'Очищено {closed_notifications} уведомлений')

@@ -9,7 +9,7 @@ from src.responses import BaseResponse
 type StatusCode = int
 
 
-def _create_response_model(status: HTTPStatus) -> BaseResponse:
+def _create_response_model(status: HTTPStatus) -> type[BaseResponse]:
     return create_model(
         f'Response{status._value_}',
         __base__=BaseResponse,
@@ -63,8 +63,7 @@ def _gather_http_responses() -> dict[StatusCode, BaseResponse]:
     response_prefix = 'Response'
     for var_name, var_value in globals().items():
         if var_name.startswith(response_prefix):
-
-            postfix = var_name[len(response_prefix):]
+            postfix = var_name[len(response_prefix) :]
             if not postfix.isdigit() or len(postfix) != 3:
                 continue
 
@@ -77,7 +76,7 @@ http_responses: Final = _gather_http_responses()
 
 
 def get_responses(
-        *codes: Unpack[tuple[StatusCode]]
+    *codes: Unpack[tuple[StatusCode]],
 ) -> dict[StatusCode, dict[str, BaseResponse]]:
     """Creates responses dictionary for endpoint Swagger"""
     responses = {}

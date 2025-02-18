@@ -25,6 +25,7 @@ load = HotLoad(
 api_url = 'http://localhost:8000/api/'
 test_user_email = 'test@d.com'
 user_agent = 'six hot loads'
+jwt_config = JWTConfig()
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger('tests.hot_load').setLevel(logging.WARNING)
 
@@ -43,7 +44,7 @@ async def create_article(client: httpx.AsyncClient, worker_id: int):
             title=f'test article {worker_id}',
             text='text',
             language_id=None,
-        ).model_dump()
+        ).model_dump(),
     )
     response.raise_for_status()
     article_id = response.json()['data']['article']['id']
@@ -66,7 +67,7 @@ async def create_config(client: httpx.AsyncClient, worker_id: int):
             model_id=None,
             prompt_id=None,
             language_ids=[],
-        ).model_dump()
+        ).model_dump(),
     )
     response.raise_for_status()
     config_id = response.json()['data']['config']['id']
@@ -78,34 +79,34 @@ async def create_config(client: httpx.AsyncClient, worker_id: int):
 async def on_startup():
     headers = {}
     async with get_session() as session:
-        user = (await session.execute(select(User).filter_by(
-            email=test_user_email
-        ))).scalars().first()
-        if user:
-            await session.execute(delete(User).filter_by(
-                email=test_user_email
-            ))
-        await session.flush()
-        user = User(
-            name='Test',
-            email=test_user_email,
-            password_hash=''
+        user = (
+            (
+                await session.execute(
+                    select(User).filter_by(email=test_user_email)
+                )
+            )
+            .scalars()
+            .first()
         )
+        if user:
+            await session.execute(
+                delete(User).filter_by(email=test_user_email)
+            )
+        await session.flush()
+        user = User(name='Test', email=test_user_email, password_hash='')
         session.add(user)
         await session.commit()
         await session.refresh(user)
         access_payload = {
-            JWTConfig.user_info_property: {
+            jwt_config.user_info_property: {
                 'id': str(user.id),
                 'user_agent': user_agent,
                 'role': user.role.value,
             },
-            'exp': 2 ** 32 - 1
+            'exp': 2**32 - 1,
         }
         access_token = jwt.encode(
-            access_payload,
-            JWTConfig.secret_key,
-            JWTConfig.algorithm
+            access_payload, jwt_config.secret_key, jwt_config.algorithm
         )
         headers['Cookie'] = f'access_token={access_token}'
         headers['User-Agent'] = user_agent
@@ -115,13 +116,19 @@ async def on_startup():
 @load.on_teardown
 async def on_teardown():
     async with get_session() as session:
-        user = (await session.execute(select(User).filter_by(
-            email=test_user_email
-        ))).scalars().first()
+        user = (
+            (
+                await session.execute(
+                    select(User).filter_by(email=test_user_email)
+                )
+            )
+            .scalars()
+            .first()
+        )
         await session.execute(delete(Article).filter_by(user_id=user.id))
-        await session.execute(delete(TranslationConfig).filter_by(
-            user_id=user.id
-        ))
+        await session.execute(
+            delete(TranslationConfig).filter_by(user_id=user.id)
+        )
         await session.execute(delete(User).filter_by(email=test_user_email))
         await session.commit()
 

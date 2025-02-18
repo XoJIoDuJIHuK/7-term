@@ -6,22 +6,19 @@ from src.database.models import Article
 from src.responses import Scheme
 from src.settings import TextTranslationConfig
 
+text_config = TextTranslationConfig()
+
 
 class UploadArticleScheme(Scheme):
     title: str = Field(min_length=1, max_length=50)
-    text: str = Field(
-        min_length=1,
-        max_length=TextTranslationConfig.max_text_length
-    )
+    text: str = Field(min_length=1, max_length=text_config.max_text_length)
     language_id: int | None
 
 
 class EditArticleScheme(Scheme):
     title: str | None = Field(None, min_length=1, max_length=50)
     text: str | None = Field(
-        None,
-        min_length=1,
-        max_length=TextTranslationConfig.max_text_length
+        None, min_length=1, max_length=text_config.max_text_length
     )
     language_id: int | None = None
 

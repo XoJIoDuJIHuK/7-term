@@ -8,14 +8,11 @@ from src.logger import get_logger
 
 
 class KafkaProducer:
-    """ A class for working with Kafka, implementing methods for connecting,
-        sending messages, and managing the lifecycle of a Kafka producer.
+    """A class for working with Kafka, implementing methods for connecting,
+    sending messages, and managing the lifecycle of a Kafka producer.
     """
-    def __init__(
-            self,
-            bootstrap_servers: Any,
-            topic: Any
-    ):
+
+    def __init__(self, bootstrap_servers: Any, topic: Any):
         """
         Initializes the KafkaProducer with the specified Kafka bootstrap
         servers, topic, and transactional ID.
@@ -36,10 +33,10 @@ class KafkaProducer:
         try:
             self.producer = AIOKafkaProducer(
                 bootstrap_servers=self.bootstrap_servers,
-                value_serializer=lambda v: json.dumps(v).encode('utf-8')
+                value_serializer=lambda v: json.dumps(v).encode("utf-8"),
             )
         except Exception as e:
-            self.logger.error(f'Error connecting to Kafka: {e}')
+            self.logger.error(f"Error connecting to Kafka: {e}")
 
     async def start(self):
         """
@@ -48,7 +45,7 @@ class KafkaProducer:
         try:
             await self.producer.start()
         except Exception as e:
-            self.logger.error(f'Error starting Kafka producer: {e}')
+            self.logger.error(f"Error starting Kafka producer: {e}")
 
     async def reconnect(self):
         """
@@ -60,7 +57,7 @@ class KafkaProducer:
                 self.producer = None
             await self.connect()
         except Exception as e:
-            self.logger.error(f'Error reconnecting to Kafka: {e}')
+            self.logger.error(f"Error reconnecting to Kafka: {e}")
 
     async def stop(self):
         """
@@ -69,7 +66,7 @@ class KafkaProducer:
         try:
             await self.producer.stop()
         except Exception as e:
-            self.logger.error(f'Error stopping Kafka producer: {e}')
+            self.logger.error(f"Error stopping Kafka producer: {e}")
 
     async def begin_transaction(self):
         """
@@ -78,7 +75,7 @@ class KafkaProducer:
         try:
             await self.producer.begin_transaction()
         except KafkaError as e:
-            self.logger.error(f'Error beginning Kafka transaction: {e}')
+            self.logger.error(f"Error beginning Kafka transaction: {e}")
             raise
 
     async def commit_transaction(self):
@@ -88,7 +85,7 @@ class KafkaProducer:
         try:
             await self.producer.commit_transaction()
         except KafkaError as e:
-            self.logger.error(f'Error committing Kafka transaction: {e}')
+            self.logger.error(f"Error committing Kafka transaction: {e}")
             raise
 
     async def abort_transaction(self):
@@ -98,7 +95,7 @@ class KafkaProducer:
         try:
             await self.producer.abort_transaction()
         except KafkaError as e:
-            self.logger.error(f'Error aborting Kafka transaction: {e}')
+            self.logger.error(f"Error aborting Kafka transaction: {e}")
             raise
 
     async def send_message(self, message: dict):
@@ -107,7 +104,7 @@ class KafkaProducer:
             await self.start()
             await self.producer.send_and_wait(self.topic, value=message)
         except Exception as e:
-            self.logger.error(f'Error sending message to Kafka: {e}')
+            self.logger.error(f"Error sending message to Kafka: {e}")
         finally:
             await self.stop()
 
@@ -119,9 +116,7 @@ class KafkaProducer:
             for message in messages:
                 await self.producer.send_and_wait(self.topic, value=message)
         except Exception as e:
-            self.logger.error(
-                f'Error sending messages to Kafka: {e}'
-            )
+            self.logger.error(f"Error sending messages to Kafka: {e}")
             raise
         finally:
             await self.stop()

@@ -5,20 +5,27 @@ from logging import Logger
 
 from src.database.models import Language, AIModel, StylePrompt
 from src.settings import TextTranslationConfig
-from src.util.translator.exceptions import TranslatorError, \
-    TranslatorAPITimeoutError, TranslatorAPIError, TranslatorTextTooLongError
+from src.util.translator.exceptions import (
+    TranslatorError,
+    TranslatorAPITimeoutError,
+    TranslatorAPIError,
+    TranslatorTextTooLongError,
+)
+
+
+text_config = TextTranslationConfig()
 
 
 class AbstractTranslator(ABC):
     logger: Logger
 
     async def translate(
-            self,
-            text: str,
-            source_language: Language | None,
-            target_language: Language,
-            model: AIModel,
-            prompt_object: StylePrompt
+        self,
+        text: str,
+        source_language: Language | None,
+        target_language: Language,
+        model: AIModel,
+        prompt_object: StylePrompt,
     ) -> str:
         """Asynchronously executes the translation process.
 
@@ -49,7 +56,7 @@ class AbstractTranslator(ABC):
                 source_language=source_language,
                 target_language=target_language,
                 model=model,
-                prompt_object=prompt_object
+                prompt_object=prompt_object,
             )
 
             self.logger.info(f'End of text translation: {result}')
@@ -58,7 +65,7 @@ class AbstractTranslator(ABC):
         except (
             TranslatorTextTooLongError,
             TranslatorAPIError,
-            TranslatorAPITimeoutError
+            TranslatorAPITimeoutError,
         ) as e:
             self.logger.exception(f'Ошибка API: {e}')
             raise
@@ -67,12 +74,12 @@ class AbstractTranslator(ABC):
             raise TranslatorError(e)
 
     async def _process_translation(
-            self,
-            text: str,
-            source_language: Language | None,
-            target_language: Language,
-            model: AIModel,
-            prompt_object: StylePrompt
+        self,
+        text: str,
+        source_language: Language | None,
+        target_language: Language,
+        model: AIModel,
+        prompt_object: StylePrompt,
     ) -> str:
         """Processes the translation request
 
@@ -84,10 +91,7 @@ class AbstractTranslator(ABC):
             str: The translated text.
         """
         try:
-            if (
-                    self.count_words(text) >
-                    TextTranslationConfig.max_words_in_text
-            ):
+            if self.count_words(text) > text_config.max_words_in_text:
                 raise TranslatorTextTooLongError(
                     'Превышено максимальное число слов в тексте'
                 )
@@ -95,25 +99,26 @@ class AbstractTranslator(ABC):
             prompt = prompt_object.text.format(
                 source_lang=(
                     f'language with ISO code {source_language.iso_code}'
-                    if source_language else 'given language'
+                    if source_language
+                    else 'given language'
                 ),
                 target_lang=f'language with ISO code '
-                            f'{target_language.iso_code}'
+                f'{target_language.iso_code}',
             )
 
             chunks = [text]
-            if (
-                    self.count_words(text) >
-                    TextTranslationConfig.max_words_in_chunk
-            ):
+            if self.count_words(text) > text_config.max_words_in_chunk:
                 chunks = self.split_text_into_chunks(
-                    text,
-                    TextTranslationConfig.max_words_in_chunk
+                    text, text_config.max_words_in_chunk
                 )
 
             translations = await asyncio.gather(
-                *(self._process_chunk(model=model, prompt=prompt, chunk=chunk)
-                  for chunk in chunks)
+                *(
+                    self._process_chunk(
+                        model=model, prompt=prompt, chunk=chunk
+                    )
+                    for chunk in chunks
+                )
             )
 
             result = ' '.join(translations)
@@ -126,10 +131,7 @@ class AbstractTranslator(ABC):
 
     @abstractmethod
     async def _process_chunk(
-            self,
-            model: AIModel,
-            prompt: str,
-            chunk: str
+        self, model: AIModel, prompt: str, chunk: str
     ) -> str:
         """
         This method sends prompt to specified model and returns translated
@@ -154,11 +156,7 @@ class AbstractTranslator(ABC):
         words = re.findall(match_whole_words, text)
         return len(words)
 
-    def split_text_into_chunks(
-            self,
-            text: str,
-            max_words: int
-    ) -> list[str]:
+    def split_text_into_chunks(self, text: str, max_words: int) -> list[str]:
         """Splits text into chunks based on a maximum word limit.
 
         This method splits the input text into smaller chunks by sentences,
