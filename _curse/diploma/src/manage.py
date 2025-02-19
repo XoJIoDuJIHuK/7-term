@@ -7,7 +7,6 @@ from src.commands.insert_prompts import insert_prompts
 from src.commands.insert_report_reasons import insert_report_reasons
 from src.commands.start_translator_consumer import start_translator_consumer
 from src.commands.start_mail_consumer import start_mail_consumer
-from src.commands.start_test_consumer import start_test_consumer
 
 
 @click.group()
@@ -22,7 +21,6 @@ cli.add_command(insert_prompts)
 cli.add_command(insert_report_reasons)
 cli.add_command(start_translator_consumer)
 cli.add_command(start_mail_consumer)
-cli.add_command(start_test_consumer)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()

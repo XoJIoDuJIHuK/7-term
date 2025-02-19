@@ -55,9 +55,8 @@ app.include_router(users_router)
 app.include_router(translation_router)
 
 
-from src.util.brokers.producer.rabbitmq import publish_hello_world
+@app.post('/test/')
+async def post_test_message():
+    from src.util.brokers.producer.rabbitmq import publish_message
 
-
-@app.get('/rabbit/test/')
-async def test_rabbit():
-    publish_hello_world()
+    publish_message('lmao', '{"xd": "omegalul"}')

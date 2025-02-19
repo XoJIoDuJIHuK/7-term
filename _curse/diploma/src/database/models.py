@@ -318,7 +318,7 @@ class TranslationTask(Base):
     status: Mapped[TranslationTaskStatus] = mapped_column(
         Enum(TranslationTaskStatus), default=TranslationTaskStatus.created
     )
-    data: Mapped[dict] = mapped_column(
+    data: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         comment='Additional data related to the translation task '
