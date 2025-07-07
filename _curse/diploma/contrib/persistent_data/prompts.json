@@ -1,8 +1,0 @@
-[
-  ["Формальный", "Please translate the following text from {source_lang} to {target_lang} while maintaining a formal tone"],
-  ["Рассказчик", "Please translate the following narrative from {source_lang} to {target_lang}, ensuring the essence of the story is preserved"],
-  ["Диалог", "Translate the following dialogue from {source_lang} to {target_lang} in a casual, conversational manner"],
-  ["Поэтический", "Translate the following poem from {source_lang} to {target_lang}, paying special attention to the rhythm and imagery"],
-  ["Маркетинг", "Please translate the following marketing copy from {source_lang} to {target_lang}, making sure to capture the persuasive tone and appeal"],
-  ["Академический", "Translate the following academic text from {source_lang} to {target_lang}, ensuring that the scholarly tone and structure are maintained"]
-]
